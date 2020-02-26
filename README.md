@@ -3,7 +3,8 @@
 # Welcome to CLEOPE! 
 In the framework of ONDA-DIAS, **CLEOPE** (CLoud Earth Observation Processing Environment)  is a service of EO products discovery, manipulation and visualization via interactive Jupyter notebooks supported by Python 3 kernel language.
 
-[![N|Solid](https://www.python.org/static/community_logos/python-logo.png)](https://www.python.org/static/community_logos/python-logo.png) [![N|Solid](https://jupyter.org/assets/main-logo.svg)](https://jupyter.org/assets/main-logo.svg)
+[![N|Solid](https://www.python.org/static/community_logos/python-logo.png)](https://www.python.org/static/community_logos/python-logo.png) 
+[![N|Solid](https://jupyter.org/assets/main-logo.svg)](https://jupyter.org/assets/main-logo.svg)
 
 CLEOPE consists in a collection of pre-installed libraries and template notebooks to enhance users experience with ONDA data offer. All the examples are available in a shared environment with the aim to help users to easily explore ONDA services main functionalities, to learn how to access data and the way to approach EO cloud resources through Advanced API (ENS). 
 Example notebooks are read and executable only. They are split into two main categories:
