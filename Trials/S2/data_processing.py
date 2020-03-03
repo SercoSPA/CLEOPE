@@ -1,6 +1,7 @@
 import pandas as pd
 import os, glob, datetime, json
 import rasterio 
+import rasterio.features
 import numpy as np
 from tqdm import tqdm_notebook
 import cv2
@@ -9,6 +10,7 @@ from ipywidgets import widgets, Layout
 import datetime
 import seaborn as sns
 cmap = sns.color_palette("RdYlGn",256)
+cmap1 = sns.color_palette("GnBu_d",256)
 from holoviews import opts
 import holoviews as hv
 hv.extension('matplotlib')
@@ -75,6 +77,19 @@ def image(S2_files,show=False):
             img2 = img.read()
             S2_images.append(img2) 
             pbar.update(1)
+    # tile coordinates section 
+    with img as dataset: # ne basta una 
+        mask = dataset.dataset_mask()
+        # Extract feature shapes and values from the array.
+        for geom, val in rasterio.features.shapes(
+                mask, transform=dataset.transform):
+            # Transform shapes from the dataset's own coordinate
+            # reference system to CRS84 (EPSG:4326).
+            geom = rasterio.warp.transform_geom(dataset.crs, 'EPSG:4326', geom, precision=6)
+            dump_coordinates(geom) # save
+    # read coordinates to be assigned to the imshow extent
+    coords = list(bounds())
+    extent = tuple([coords[0],coords[2],coords[1],coords[3]])
     print("- Creating RGB stack")
     Stk_images = np.concatenate(S2_images, axis=0)
     rgb = np.dstack((Stk_images[2],Stk_images[1],Stk_images[0]))
@@ -90,7 +105,10 @@ def image(S2_files,show=False):
         plt.figure(); plt.hist(eq_RGB.ravel(),bins=256,color="Red");plt.grid(color="lavender",lw=0.5); plt.show()
     print("- Plotting...")
     plt.clf();
-    plt.figure(dpi=100); plt.title(title); plt.axis("off"); plt.imshow(eq_RGB); plt.show()
+#     plt.figure(dpi=100); plt.title(title); plt.axis("off"); plt.imshow(eq_RGB); plt.show() plt.ylim(tuple([coords[0],coords[2]])); plt.xlim(tuple([coords[1],coords[3]]));
+    plt.figure(dpi=100); plt.title(title);
+    plt.imshow(eq_RGB,extent=extent); 
+    plt.show()
     plt.close()
     return eq_RGB
 
@@ -132,6 +150,17 @@ def dates(products):
     dates = [datetime.datetime.strptime(p.split("/")[-1].split("_")[2],"%Y%m%dT%H%M%S") for p in products]
     return [datetime.datetime.strftime(d,"%b/%d/%Y") for d in dates]
 
+# def bounds():
+#     b = []
+#     for file in glob.glob("poly*.json",recursive=True):
+#         try:
+#             with open(file, 'r') as fp:
+#                 polysel = json.load(fp)
+#                 b.append(tuple([polysel["coordinates"][0][0][0],polysel["coordinates"][0][0][1],polysel["coordinates"][0][2][0],polysel["coordinates"][0][1][1]]))
+#         except:
+#             return None    
+#     return b 
+
 def bounds():
     try:
         with open('polygon.json', 'r') as fp:
@@ -153,7 +182,70 @@ def plot(nbr,label=[],bounds=None):
         i+=1
     return images
             
+# new! NDSI module 
+def ndsi(products):
+    files = list()
+    for p in products:
+        if (p.find('MSIL2A') != -1):
+#             a = glob.glob(os.path.join(p,"**/*B02_20m.jp2"),recursive=True)[0]
+#             b = glob.glob(os.path.join(p,"**/*B05_20m.jp2"),recursive=True)[0]
+            a = glob.glob(os.path.join(p,"**/*B03_20m.jp2"),recursive=True)[0]
+            b = glob.glob(os.path.join(p,"**/*B11_20m.jp2"),recursive=True)[0]
+        else:
+            print("Error. L1C not supported")
+            return None
+        files.append([a,b])
+    images = []
+    with tqdm_notebook(total=len(files)*len(files[0]),desc="Opening raster data") as pbar:
+        for f in files:
+            temp_img = []
+            for i in range(len(f)):
+                pbar.update(1)
+                temp = (rasterio.open(f[i])).read(1)
+                temp_img.append(temp)
+            images.append(temp_img)
+    ratio = []
+    with np.errstate(divide="ignore",invalid="ignore"):
+        for im in images:
+            div = (im[0].astype(float)-im[1].astype(float))/(im[0]+im[1])
+            ratio.append(div)
+    return ratio
+
+def open_rgb_snow(product):
+    S2_files = []
+    if (product.find('MSIL2A') != -1):
+        S2_files.append(glob.glob(product+"/**/*B12_20m.jp2",recursive=True)[0])
+        S2_files.append(glob.glob(product+"/**/*B11_20m.jp2",recursive=True)[0])
+        S2_files.append(glob.glob(product+"/**/*B05_20m.jp2",recursive=True)[0])
+    else:
+        print("Error. L1C not supported")
+        return 1
+    if len(S2_files)>3: # check
+        S2_files = S2_files[0:3]
+    print("Files opened:\n")
+    print("\n\n".join(S2_files)) 
+    return S2_files      
     
+        
+def plot_snow(nbr,label=[],bounds=None):
+    if not label:
+        label = ["Title" for i in range(len(nbr))]
+    images = []
+    i = 0
+    for nbr in nbr:
+        if bounds != None:
+            images.append(hv.Image(nbr,bounds=bounds).opts(cmap=cmap1,colorbar=True,title=label[i]))
+        else:
+            images.append(hv.Image(nbr).opts(cmap=cmap1,colorbar=True,xaxis=None,yaxis=None,title=label[i]))
+        i+=1
+    return images    
     
-    
-    
+def dump_coordinates(geo_json):
+    filename = "polygon.json"
+    file = os.path.join(os.getcwd(),filename)
+    with open(file, 'w') as fp:
+        json.dump(geo_json, fp)
+        print("\n\tDump coordinates as %s"%filename)  
+            
+            
+            
