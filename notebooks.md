@@ -34,12 +34,11 @@ This notebook load the list of products saved in `SEARCH.ipynb` (or a custom lis
     - compose the 3D matrix of colors;
     - equalize the image
     - show the image. 
-   This can be easily achieved by running the function `image` on the product previously chosen through the dropdown widget.
  - Compose and visualize the _Normalised_ _Burnt_ _Index_ (NBR) on a timeseries. This operation is interesting if applied on a dataframe containing the same S2 tile subject to hard changes in the vegetation richness (e.g fires) on different sensing dates, so that to detect changes in the vegetation water content. 
  - Compose and visualise a false color image (using SWIR and NIR bands) aimed at enhancing the snow coverage on the image representation. Computational steps are identical to the RGB stack.
  - Compose and visualise the _Normalised_ _Difference_ _Snow_ _Index_ (NDSI) on a timeseries. This computation is interesting if applied on the same area analysed during different seasons so that it is possible to see changes in the snow/ice content. 
 
-All generated plots are geo-referenced, through the extraction of coordinates from raster data.
+All generated plots are geo-referenced, through the extraction of coordinates from raster data. The dataframe of S2 tiles is customisable.
 
 ### S3
 [![N|Solid](https://sentinel.esa.int/documents/247904/251193/Sentinel-3-ocean-120.jpg)](https://sentinel.esa.int/documents/247904/251193/Sentinel-3-ocean-120.jpg)
