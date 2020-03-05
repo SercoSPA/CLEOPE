@@ -52,7 +52,7 @@ The following table shows the possible variables available in the notebook.
 | ------------- | ------ |-------------|-------------|
 | OTCI     | _OLCI_ _Terrestrial_ _Chlorophyll_ _Index_| TSM | _Total_ _Suspended_ _Matter_ |
 |OGVI      |_OLCI_ _Global_ _Vegetation_ _Index_ | CHL_OC4ME |Algal Pigment Concentration  |
-| | |IWV | _Integrated_ _Water_ _Vapour_|
+| IWV| _Integrated_ _Water_ _Vapour_ |IWV | _Integrated_ _Water_ _Vapour_|
 
 
 
