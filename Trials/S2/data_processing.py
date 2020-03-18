@@ -73,10 +73,21 @@ def image(S2_files,show=False):
     S2_images = []
     with tqdm_notebook(total=len(S2_files),desc="Opening raster data") as pbar:
         for i in S2_files:
+<<<<<<< HEAD
             img = rasterio.open(i)
             img2 = img.read()
             S2_images.append(img2) 
             pbar.update(1)
+=======
+            try:
+                img = rasterio.open(i)
+                img2 = img.read()
+                S2_images.append(img2) 
+                pbar.update(1)
+            except:
+                print("Error while reading file %s"%i)
+                return 1
+>>>>>>> a1e18c31fd1ea59a9437534e28516d21b536117f
     # tile coordinates section 
     with img as dataset: # ne basta una 
         mask = dataset.dataset_mask()
@@ -135,9 +146,13 @@ def nbr(products):
         for f in files:
             temp_img = []
             for i in range(len(f)):
-                pbar.update(1)
-                temp = (rasterio.open(f[i])).read(1)
-                temp_img.append(temp)
+                try:
+                    temp = (rasterio.open(f[i])).read(1)
+                    temp_img.append(temp)
+                    pbar.update(1)
+                except:
+                    print("Error while reading file %s"%f[i])
+                    return 1
             images.append(temp_img)
     nbr_series = []
     with np.errstate(divide="ignore",invalid="ignore"):
@@ -200,9 +215,19 @@ def ndsi(products):
         for f in files:
             temp_img = []
             for i in range(len(f)):
+<<<<<<< HEAD
                 pbar.update(1)
                 temp = (rasterio.open(f[i])).read(1)
                 temp_img.append(temp)
+=======
+                try:
+                    temp = (rasterio.open(f[i])).read(1)
+                    temp_img.append(temp)
+                    pbar.update(1)
+                except:
+                    print("Error while reading file %s"%f[i])
+                    return 1
+>>>>>>> a1e18c31fd1ea59a9437534e28516d21b536117f
             images.append(temp_img)
     ratio = []
     with np.errstate(divide="ignore",invalid="ignore"):

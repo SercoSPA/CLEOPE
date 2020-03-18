@@ -28,14 +28,17 @@ This version supports three dedicated templates for Sentinel-2, Sentinel-3 and S
 [![N|Solid](https://sentinel.esa.int/documents/247904/250463/Sentinel-2-bw-120.jpg)](https://sentinel.esa.int/documents/247904/250463/Sentinel-2-bw-120.jpg)
 
 Sentinel-2 trial notebook is a useful introduction to Sentinel-2 products processing. 
-This notebook load the list of products saved in `SEARCH.ipynb` (or a custom list, but saved as `list.txt`) and filters the S2 products. Module `data_processing` directly finds products pseudopath and unpack raster data with the purposes of:
+This notebook load the list of products saved in `SEARCH.ipynb` (or a custom list, but saved as `list.txt`) and filters the S2 products. Module `data_processing_S2` directly finds products pseudopath and unpack raster data with the purposes of:
  - Compose and visualize a true RGB stack in a few computational steps:
     - open S2 red, green and blue channels as raster data matrixes;
     - compose the 3D matrix of colors;
     - equalize the image
-    - show the image in a geo-referenced figure. 
-   This can be easily achieved by running the function `image ` on the product previously chosen through the dropdown widget.
- - Compose and visualize the _Normalized_ _Burnt_ _Index_ (NBR) on a timeseries. This operation is interesting if applied on a dataframe containing the same S2 tile subject to hard changes in the vegetation richness (e.g fires) on different sensing dates, so that to detect changes in the vegetation water content. 
+    - show the image. 
+ - Compose and visualize the _Normalised_ _Burnt_ _Index_ (NBR) on a timeseries. This operation is interesting if applied on a dataframe containing the same S2 tile subject to hard changes in the vegetation richness (e.g fires) on different sensing dates, so that to detect changes in the vegetation water content. 
+ - Compose and visualise a false color image (using SWIR and NIR bands) aimed at enhancing the snow coverage on the image representation. Computational steps are identical to the RGB stack.
+ - Compose and visualise the _Normalised_ _Difference_ _Snow_ _Index_ (NDSI) on a timeseries. This computation is interesting if applied on the same area analysed during different seasons so that it is possible to see changes in the snow/ice content. 
+
+All generated plots are geo-referenced, through the extraction of coordinates from raster data. The dataframe of S2 tiles is customisable.
 
 ### S3
 [![N|Solid](https://sentinel.esa.int/documents/247904/251193/Sentinel-3-ocean-120.jpg)](https://sentinel.esa.int/documents/247904/251193/Sentinel-3-ocean-120.jpg)
@@ -49,7 +52,7 @@ The following table shows the possible variables available in the notebook.
 | ------------- | ------ |-------------|-------------|
 | OTCI     | _OLCI_ _Terrestrial_ _Chlorophyll_ _Index_| TSM | _Total_ _Suspended_ _Matter_ |
 |OGVI      |_OLCI_ _Global_ _Vegetation_ _Index_ | CHL_OC4ME |Algal Pigment Concentration  |
-| | |IWV | _Integrated_ _Water_ _Vapour_|
+| IWV| _Integrated_ _Water_ _Vapour_ |IWV | _Integrated_ _Water_ _Vapour_|
 
 
 
@@ -57,8 +60,10 @@ The following table shows the possible variables available in the notebook.
 
 [![N|Solid](https://sentinel.esa.int/documents/247904/1624461/Sentinel-5P_tm.jpg/4dbebdc6-4fb2-47ec-bcb3-065581896ad2?t=1505136035800)](https://sentinel.esa.int/documents/247904/1624461/Sentinel-5P_tm.jpg/4dbebdc6-4fb2-47ec-bcb3-065581896ad2?t=1505136035800)
 
-Sentinel-5P trial notebook is a gentle introduction on the composition of stacked frames of TROPOMI L2 variables in a geo-referenced plot. Products and polygon vertexes selected in the `SEARCH.ipynb` are rispectively loaded from `list.txt` and `polygon.json` output files, which one is used to cut data. Please note that the cut induces a loss of resolution in the data visualization since no mosaicing technique is performed on data sets at this level.
-Provided the input list, all the TROPOMI L2 variables are allowed in the selection: CH4, NO2, O3, HCHO, SO2 and CO.
+Sentinel-5P trial notebook is a gentle introduction on the composition of stacked frames of TROPOMI L2 variables in a geo-referenced plot. Products are read from `list.txt` file and then cut taking the vertexes dumped in `polygon.json` as a reference, which descends from the `SEARCH.ipynb` notebook. The cut operation induces a loss of resolution in the data visualization since no mosaicing technique is performed on data sets at this level.
+Provided the input list, all the TROPOMI L2 variables are allowed in the selection: CH4, NO2, O3, HCHO, SO2 and CO. In this frame two case study are taken under analysis.
+1. The carbon monoxide (CO) variation over the western Australia, hit by several fire episodes during December 2019 and January 2020;
+2. The nitrogen dioxide (NO2) overall decline over Italy during the emergency of COVID-19 virus during February/March 2020 because of which people were not allowed to go out from home.
 
 ## Read more
 Trial notebooks make the use of packages and modules that don't come as part of the standard Python library, so CLEOPE is provided with additional modules specifically related to each one.

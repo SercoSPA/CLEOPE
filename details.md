@@ -1,5 +1,5 @@
 # Python 3 Packages
-Users can call 
+Users can call
 ```python
 !pip list
 ```
@@ -12,6 +12,7 @@ or specifying the version
 ```python
 !pip install <package_name>==<version>
 ```
+New packages are added to the local path, being visible only to users who called the installation.
 # Add modules to local path
 By default, Python looks for its modules and packages in its absolute `PATH`. Within a python script, you can add path(s) occasionally to the default path by adding the following lines in the head section of your python application or script:
 ```python

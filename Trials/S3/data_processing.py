@@ -51,12 +51,20 @@ def water(olcis,imgname,var="tsm_nn"):
     else:
         print("Product not found\n")
         return 1
-    geoc = Dataset(f_geo)
+    try:
+        geoc = Dataset(f_geo)
+    except:
+        print("Error while reading file %s"%f_geo)
+        return 1
     lat = geoc.variables["latitude"][::]
     long = geoc.variables["longitude"][::]
     tile = (long.min(),long.max(),lat.min(),lat.max())
     f_w = glob.glob(olcis+"/**/"+str(var)+".nc",recursive=True)[0]
-    nc = Dataset(f_w)
+    try:
+        nc = Dataset(f_w)
+    except:
+        print("Error while reading file %s"%f_w)
+        return 1
     _temp = olcis.split("/")[-1]
     _date = _temp.split("_")[-11]
     _obj = parser.parse(_date)
@@ -98,12 +106,20 @@ def land(olcis,imgname,var="otci"):
     else:
         print("Product not found\n")
         return 1
-    geoc = Dataset(f_geo)
+    try:
+        geoc = Dataset(f_geo)
+    except:
+        print("Error while reading file %s"%f_geo)
+        return 1
     lat = geoc.variables["latitude"][::]
     long = geoc.variables["longitude"][::]
     tile = (long.min(),long.max(),lat.min(),lat.max())
     f = glob.glob(olcis+"/**/"+str(var)+".nc",recursive=True)[0]
-    nc = Dataset(f)
+    try:
+        nc = Dataset(f)
+    except:
+        print("Error while reading file %s"%f)
+        return 1
     _temp = olcis.split("/")[-1]
     _date = _temp.split("_")[-11]
     _obj = parser.parse(_date)
