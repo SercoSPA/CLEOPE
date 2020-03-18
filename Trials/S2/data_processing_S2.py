@@ -39,7 +39,7 @@ def open_rgb_bands(product):
         print("Error. Choose L1C or L2A products")
         return 1
     if S2_files:
-        print("Files opened:\n")
+        print("Access to files:\n")
         print("\n\n".join(S2_files)) 
         return S2_files
     else:
@@ -73,12 +73,6 @@ def image(S2_files,show=False):
     S2_images = []
     with tqdm_notebook(total=len(S2_files),desc="Opening raster data") as pbar:
         for i in S2_files:
-<<<<<<< HEAD
-            img = rasterio.open(i)
-            img2 = img.read()
-            S2_images.append(img2) 
-            pbar.update(1)
-=======
             try:
                 img = rasterio.open(i)
                 img2 = img.read()
@@ -87,7 +81,6 @@ def image(S2_files,show=False):
             except:
                 print("Error while reading file %s"%i)
                 return 1
->>>>>>> a1e18c31fd1ea59a9437534e28516d21b536117f
     # tile coordinates section 
     with img as dataset: # ne basta una 
         mask = dataset.dataset_mask()
@@ -215,11 +208,6 @@ def ndsi(products):
         for f in files:
             temp_img = []
             for i in range(len(f)):
-<<<<<<< HEAD
-                pbar.update(1)
-                temp = (rasterio.open(f[i])).read(1)
-                temp_img.append(temp)
-=======
                 try:
                     temp = (rasterio.open(f[i])).read(1)
                     temp_img.append(temp)
@@ -227,7 +215,6 @@ def ndsi(products):
                 except:
                     print("Error while reading file %s"%f[i])
                     return 1
->>>>>>> a1e18c31fd1ea59a9437534e28516d21b536117f
             images.append(temp_img)
     ratio = []
     with np.errstate(divide="ignore",invalid="ignore"):
@@ -270,7 +257,18 @@ def dump_coordinates(geo_json):
     file = os.path.join(os.getcwd(),filename)
     with open(file, 'w') as fp:
         json.dump(geo_json, fp)
-        print("\n\tDump coordinates as %s"%filename)  
+        print("Dump coordinates as %s"%filename)  
             
-            
+# display mean values of the computation above 
+def analysis(products,arrays):
+    data = pd.DataFrame(np.nan,columns=["min","max","mean"],index=range(0,len(arrays)))
+    for i in range(len(arrays)):
+#         print(arrays[i].min(),arrays[i].max(),arrays[i].mean())
+        data.iloc[i,0] = arrays[i].min()
+        data.iloc[i,1] = arrays[i].max()
+        data.iloc[i,2] = arrays[i].mean()
+    data.index = dates(products)
+    display(data)
+    sns.set_style("whitegrid")
+    sns.scatterplot(x=data.index,y="mean",data=data,marker="s",color="Navy")
             

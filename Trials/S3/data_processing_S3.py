@@ -69,7 +69,8 @@ def water(olcis,imgname,var="tsm_nn"):
     _date = _temp.split("_")[-11]
     _obj = parser.parse(_date)
     title = _obj.strftime("%b %d %Y %H:%M")
-    cmap = matplotlib.cm.jet
+#     cmap = matplotlib.cm.jet
+    cmap = matplotlib.cm.ocean_r
     fig,ax = plt.subplots(1,1,sharey=True,figsize=(10,6))
     varname = var.upper()
     temp = nc.variables[varname][::] 
@@ -96,7 +97,7 @@ def water(olcis,imgname,var="tsm_nn"):
     plt.close()
 
 def land(olcis,imgname,var="otci"):
-    opt = ["otci","ogvi"]
+    opt = ["otci","ogvi","iwv"]
     if var not in opt:
         print("Land: variable name error")
         return None
@@ -124,7 +125,8 @@ def land(olcis,imgname,var="otci"):
     _date = _temp.split("_")[-11]
     _obj = parser.parse(_date)
     title = _obj.strftime("%b %d %Y %H:%M")
-    cmap = matplotlib.cm.terrain_r
+#     cmap = matplotlib.cm.terrain_r
+    cmap = matplotlib.cm.gist_earth_r
     fig,ax = plt.subplots(1,1,sharey=True,figsize=(10,6))
     varname = var.upper()
     temp = nc.variables[varname][::] 
