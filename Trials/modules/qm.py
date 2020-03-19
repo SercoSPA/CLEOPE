@@ -76,20 +76,7 @@ def check_out_product(product):
 #             f.write("\n")
 #         f.close()
         return 1
-    
-# # download function available - use this to cache a product in the current directory 
-# def download(product,username,password):
-#     dataframe = get_my_product(product)
-#     uuid = dataframe.iloc[:,0].values[0]
-#     curl = "https://catalogue.onda-dias.eu/dias-catalogue/Products("+uuid+")/$value"
-#     st = time.time()
-#     print("Download started")
-#     r = requests.get(curl,auth=(username, password))
-#     z = zipfile.ZipFile(io.BytesIO(r.content))
-#     z.extractall()
-#     print("Download completed in %.3f s"%(time.time()-st))
-#     print("Find your product:\n%s"%os.path.join(os.getcwd(),str(dataframe.iloc[:,1].values[0])))
-#     return None
+
     
 # progress bar
 def work(progress,delta):
@@ -160,5 +147,6 @@ def download(product,username,password):
         print("Download completed in %.3f s"%(time.time()-st))
         print("Find your product:\n%s"%os.path.join(os.getcwd(),str(dataframe.iloc[:,1].values[0])))
     return None              
+                            
               
               
