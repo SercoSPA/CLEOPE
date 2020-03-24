@@ -4,7 +4,7 @@ Created on Mon Jan 13 14:10:29 2020
 
 @author: GCIPOLLETTA 
 """
-from ipywidgets import widgets, interact, Layout, interactive, VBox
+from ipywidgets import widgets, interact, Layout, interactive, VBox, HBox
 from IPython.display import display
 import pandas as pd
 import numpy as np
@@ -29,26 +29,75 @@ def sensing():
         description='End date')
     return start,stop
 
+def gmt_widget():
+    options = ["GMT 00:00","GMT 12:00"]
+    return [widgets.Checkbox(value=False,description=opt) for opt in options] 
+
+def _b_(color="lightgreen"):
+    b = widgets.Button(description="OK",layout=Layout(width='auto'))
+    b.style.button_color = color
+    return b
+
 def _select_():
     # sensing range
     start, stop = sensing()
-    display(VBox([start,stop],layout=Layout(width='50%', height='80px')))
-    btn = widgets.Button(description="Submit range")
-    display(btn)    
-    def inputs(b):  
-        print("Sensing range from %s to %s"%(start.value,stop.value))
+    btn_1 = _b_()
+    vbox1 = VBox([start,stop],layout=Layout(width='auto', height='80px'))
+    box_1 = (HBox([vbox1,btn_1],layout=Layout(width='65%', height='80px')))
+    btn_2 = _b_()
+    variable = _variable_()
+    box_2 = HBox([variable,btn_2],layout=Layout(width='90%'))
+    btn_3 = _b_()
+    wlist = gmt_widget()
+    box_3 = HBox([wlist[0],wlist[1],btn_3],layout=Layout(width='auto'))
+    BOX = VBox([box_1,box_2,box_3],layout=Layout(width='auto', height='auto'))
+    display(BOX)
+    def sens_input(b):
+        print("Sensing date range from %s to %s"%(start.value,stop.value))
+        check = check_sensing(start.value,stop.value)
+        if check:
+            print("DatePicker Error")
+            stop.value = datetime.now()
+            start.value = datetime.now()-timedelta(1)
         sens = sensing_range(start.value,stop.value)
         save_s(sens)
-    btn.on_click(inputs)
-    variable = _variable_()
-    display(variable)
-    btn_p = widgets.Button(description="Submit variable")
-    display(btn_p) 
+    btn_1.on_click(sens_input)
     def var_input(b):
         var = convert_var(variable.value)
         print("Variable to monitor: %s" %var)
         save_var(var)
-    btn_p.on_click(var_input)
+    btn_2.on_click(var_input)
+    def time_inputs(b):  
+#         print("GMT: %s %s"%(wlist[0].value,wlist[1].value))
+        flag_gmt = check_gmt(wlist[0].value,wlist[1].value)
+        if flag_gmt:
+            save_gmt([True,True])
+        else:
+            print("GMT set")
+            save_gmt([wlist[0].value,wlist[1].value])
+    btn_3.on_click(time_inputs)
+
+def check_sensing(start,stop):
+    tmp = np.array([start,stop])
+    if tmp.all()==None:
+        print("None is not a date!")
+        return 1
+    else:
+        return 0    
+
+def check_gmt(var1,var2):
+    tmp = np.array([var1,var2])
+    if tmp.any() == False:
+        print("GMT not set - selected both options")
+        return 1
+    else:
+        return 0
+    
+def save_gmt(list):
+    data = pd.DataFrame(np.array(list).reshape(1,2),columns=["GMT00","GMT12"])
+    dest = os.path.join(os.getcwd(),"out")
+    file = os.path.join(dest,"gmt.log")
+    data.to_csv(file)
 
 def sensing_range(start,stop):
     df = pd.DataFrame(np.nan,index=range(1),columns=["start","stop"])
@@ -71,19 +120,29 @@ def save_var(data):
     file = os.path.join(dest,"variable.log")
     with open(file, 'w') as outfile:
         json.dump(data, outfile)
-        
-def convert_var(input):
-    if input == "carbon_monoxide":
-        var = "tcco"
-    elif input == "nitrogen_dioxide":
-        var = "tcno2"
-    else:
-        return None
-    return var
-        
+               
+def convert_var(argument):
+    switcher = {
+        "nitrogen_dioxide": "tcno2",
+        "carbon_monoxide": "tcco",
+        "sulfur_dioxide":"tcso2",
+        "methane":"tc_ch4",
+        "ethane":"tc_c2h6",
+        "propane":"tc_c3h8",
+        "isoprene":"tc_c5h8",
+        "hydrogen_peroxide":"tc_h2o2",
+        "formaldehyde":"tchcho",
+        "nitric_acid":"tc_hno3",
+        "nitrogen_monoxide":"tc_no",
+        "hydroxide":"tc_oh",
+        "peroxyacyl_nitrates":"tc_pan",
+    }
+    return switcher.get(argument, "Invalid input")
+    
 def _variable_():
-    options = ["nitrogen_dioxide","carbon_monoxide"]
-    m = widgets.Dropdown(options=options,layout=Layout(width='20%'))
+    options = ["nitrogen_dioxide","carbon_monoxide","sulfur_dioxide","methane","ethane","propane","isoprene",
+               "hydrogen_peroxide","formaldehyde","nitric_acid","nitrogen_monoxide","hydroxide","peroxyacyl_nitrates"]
+    m = widgets.Dropdown(options=options,layout=Layout(width='30%'),description="Element")
     return m        
 
 def read_sen():
@@ -154,17 +213,31 @@ def compose_pseudopath(freq="D"):
     dates = dates_list(freq=freq)
     var = read_var()
     return [str(root)+str(var)+str(d) for d in dates]
-        
+
+def read_gmt():
+    dest = os.path.join(os.getcwd(),"out")
+    file = os.path.join(dest,"gmt.log")
+    data = pd.read_csv(file,header=0,index_col=0)
+    if data.values.all():
+        return ["*000000_*.nc","*120000_*.nc"]
+    else:
+        if data.iloc[0,0] == True:
+            return ["*000000_*.nc"]
+        else:
+            return ["*120000_*.nc"]
+
 def _processing_(freq="D"):
-    files00 = [glob.glob(path+"*000000_*.nc",recursive=True) for path in compose_pseudopath(freq=freq)] 
-    files12 = [glob.glob(path+"*120000_*.nc",recursive=True) for path in compose_pseudopath(freq=freq)]
-    products = []
-    for f,g in zip(files00,files12):
-        if f and g:
-            products.append(f[0])
-            products.append(g[0])
-# define 00 or 12 *120000_* #######!!!!!
-#     products = [f[0] for f in files if f]
+    gmt = read_gmt()
+    if len(gmt)>1:
+        files00 = [glob.glob(path+gmt[0],recursive=True) for path in compose_pseudopath(freq=freq)] 
+        files12 = [glob.glob(path+gmt[1],recursive=True) for path in compose_pseudopath(freq=freq)]
+        products = []
+        for f,g in zip(files00,files12):
+            if f and g:
+                products.append(f[0])
+                products.append(g[0])
+    else:
+        products = [glob.glob(path+gmt[0],recursive=True)[0] for path in compose_pseudopath(freq=freq)]
     var = read_var()
     xlist = [np.log10(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products] # log10 scale
     image = xarray.concat(xlist, dim='time')

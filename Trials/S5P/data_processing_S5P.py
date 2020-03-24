@@ -17,7 +17,9 @@ from tqdm import tqdm_notebook
 import matplotlib.animation as animation
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import imageio
-from IPython.core.display import display, HTML
+# from IPython.core.display import display, HTML
+from IPython.display import Image
+import matplotlib.ticker as ticker
 
 # cmap = sns.cubehelix_palette(light=1,as_cmap=True)
 cmap = matplotlib.cm.magma_r
@@ -25,6 +27,8 @@ cmap = matplotlib.cm.magma_r
 from holoviews import opts
 import holoviews as hv
 hv.extension('matplotlib')
+
+gif_name = "pmovie.gif"
 
 def products(file=os.path.join(os.getcwd(),"list.txt")):
     with open(file,"r") as f:
@@ -105,7 +109,7 @@ def read(bounds,products=query(),verbose=True):
 
 def dates(products):
     dates = [datetime.datetime.strptime(p.split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S") for p in products]
-    return [datetime.datetime.strftime(d,"%b/%d/%Y") for d in dates]
+    return [datetime.datetime.strftime(d,"%Y - %b - %d") for d in dates]
 
 import ipywidgets as widgets
 from IPython.display import display
@@ -180,6 +184,7 @@ def analysis(df,key):
         ylims = (data.val_u.min()-data.val_u.min()*0.1,data.val_u.max()+data.val_u.max()*0.1)
     ax.set(xlim=xlims,ylim=ylims,xlabel="date",ylabel=label,title="Timeseries of %s mean value over selected area"%key)
     ax.grid(color="lavender")
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(7))
     fig.autofmt_xdate()
     return data
 
@@ -212,7 +217,7 @@ def plot_var(ds,key,create_movie=True):
     xlims = tuple(read_coordinates()[2:4])
     ylims = tuple(read_coordinates()[0:2])
     for i in range(len(ds)):
-        fig,ax = plt.subplots(1,1)
+        fig,ax = plt.subplots(1,1,figsize=(8,6))
         im = ax.scatter(ds[i].lon.values, ds[i].lat.values, c=variable[i], s=5, cmap=cmap, norm=normalize)
         ax.set(xlim=xlims,ylim=ylims,xlabel='longitude',ylabel='latitude',title="%s"%labels[i])
         ax.minorticks_on()
@@ -224,10 +229,19 @@ def plot_var(ds,key,create_movie=True):
         fig.tight_layout()
         plt.close(fig)
     if create_movie==True:
+        try:
+            os.remove(gif_name)
+        except:
+            flag = 0
         images=[]
         imf = glob.glob(os.path.join(dirName,"plot_*.png"))
         imf.sort(key=os.path.getmtime)
         for im in imf:
             images.append(imageio.imread(im))
-        imageio.mimsave("pmovie.gif", images, duration=.60)
-        display(HTML('<img src="pmovie.gif">'))
+        imageio.mimsave(gif_name, images, duration=1)
+        display_img()
+
+def display_img(img_file=gif_name):
+    with open(img_file,'rb') as f:
+        display(Image(data=f.read(), format='png'))
+    
