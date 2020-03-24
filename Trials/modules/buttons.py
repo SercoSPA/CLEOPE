@@ -102,9 +102,7 @@ def mission():
                                         "L2__NO2___","L2__O3____","L2__O3_TCL"],
                'Envisat':["ASA_IM__0P","ASA_WS__0P"],
                'Landsat-*':["L1TP"],
-               'Copernicus-Land':["All CLand"],
-               'Copernicus-Marine':["All CMarine"],
-               'Copernicus-Atmosphere':["All Cams"]}
+               }
     m = widgets.Select(options=options)
     return m
 
