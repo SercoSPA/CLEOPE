@@ -8,7 +8,7 @@ In the framework of ONDA-DIAS, **CLEOPE** (CLoud Earth Observation Processing En
 
 CLEOPE consists in a collection of pre-installed libraries and template notebooks to enhance users experience with ONDA data offer. All the examples are available in a shared environment with the aim to help users to easily explore ONDA services main functionalities, to learn how to access data and the way to approach EO cloud resources through Advanced API (ENS). 
 Example notebooks are read and executable only. They are split into two main categories:
-  - a set of templates aimed at facilitate the data access on Cloud;
+  - a set of templates aimed at facilitating the data access on Cloud;
   - a collection of mission specific tutorials, particularly suited for educational purposes, which will help users to process EO data offered by ONDA.
 
 # The Workspace
@@ -16,7 +16,7 @@ In CLEOPE **public workspace** users find a first set of trial notebooks aimed a
 
 Data access trial notebooks are called as follows and more details are provided [here](./notebooks.md).
 ```
-FIND_PSEUDOPATH.ipynb
+DISCOVER_ONDA.ipynb
 ORDER.ipynb
 SEARCH.ipynb
 ``` 
@@ -25,7 +25,7 @@ Folder containing the main libraries related to the set of templates dedicated t
 - `aoi.py`: collects the `http` queries related to geographic search notebook;
 - `buttons.py`: read and write in the `output` folder all the users selections;
 - `empty.py`: function called by `buttons` module to remove files from the `output` directory;
-- `qm.py`: collects the `http` queries related to the product order notebook.
+- `qm.py`: collects the `http` queries related to the product order and download.
 
 ### Output and resources 
 Folders sharing temporary data (i.e. logs) and sample inputs for trial notebooks. 
