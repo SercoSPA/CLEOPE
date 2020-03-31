@@ -39,4 +39,4 @@ SEARCH.ipynb
 
 ### S2, S3, S5P, cams
 📁🌎🌍🌏 Folders collecting mission specific notebooks, showing some type of processing of Sentinel-2, Sentinel-3 and Sentinel-5P EO products. 
-Full explanation of mission specific trial notebooks is given [here](Trials/readme.md). 
+Full explanation of mission specific trial notebooks is given [here](Trials/user_guide.md). 
