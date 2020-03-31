@@ -98,6 +98,7 @@ Trial notebooks make the use of packages and modules that don't come as part of 
 | `S2`| `rasterio`,`cv2`| `matplotlib`,`holoviews`|
 | `S3`| `netCDF4`| `matplotlib`|
 | `S5P`|`netCDF4`|`holoviews`|
+| `CAMS`| `xarray` | `hvplot`|
 | `SEARCH`|`requests`|`ipyleaflet`|
 | `ORDER`|`requests`| |
 
