@@ -16,6 +16,8 @@ import threading
 from IPython.display import display
 from tqdm import tqdm_notebook
 
+du_thresh = 3 # GiB threshold for a single product
+
 def get(url):
     res = requests.get(url)
     val = res.json()
@@ -151,53 +153,56 @@ def download_item(url,auth,filename):
                 f.write(chunk)
     return filename
 
-# download function available - use this to cache a product in the current directory 
+# download function available - use this to cache a product in the local_files directory 
 def download(product,username,password):
-    dest = "local_files"
+    dest = "local_files" #os.path.join(os.path.expanduser("~"),
     make_dir(dest)
     dataframe = get_my_product(product)
     uuid = dataframe.iloc[:,0].values[0]
-    curl = "https://catalogue.onda-dias.eu/dias-catalogue/Products("+uuid+")/$value"
-    file = download_item(curl,(username, password),os.path.join(dest,product))
-    if product.endswith(".zip"):  
-        with zipfile.ZipFile(file, 'r') as zip_ref:
-            zip_ref.extractall(dest)
-        zip_ref.close()
-        print("%s successfully downloaded"%product)
-        flag = True
-    elif product.endswith(".tar.gz"): #! to be tested 
-        tar = tarfile.open(os.path.join(dest,product), "r:gz")
-        tar.extractall(os.path.join(dest,product.split(".")[0]+".ls8")) # extract landsat8 in a folder named after the product name 
-        tar.close() 
-        print("%s successfully downloaded"%product)
-        flag = True
-    elif product.endswith(".nc"):
-        print("%s successfully downloaded"%product)
-        flag = False
-    elif product.startswith("EN1_"): #! to be tested ? fa casino con .zip??
-        with zipfile.ZipFile(file, 'r') as zip_ref:
-            zip_ref.extractall(os.path.join(dest,product.split(".")[0]+".en1"))
-        zip_ref.close()
-        print("%s successfully downloaded"%product)
-        flag = True
-    else:
-        print("Product format not recognized as .zip, .nc or .tar.gz.\nCheck out product name and specify extension.")
-        return None
-    # remove zip file after download 
-    if flag:
-        remove_zip(os.path.join(dest,product))
-        file = glob.glob(os.path.join(dest,product.split(".")[0])+".*",recursive=True)
-        if file:
-            write_list(file[0])
+    curl = "https://catalogue.onda-dias.eu/dias-catalogue/Products("+uuid+")/$value" 
+    if check_size_disk():
+        file = download_item(curl,(username, password),os.path.join(dest,product))
+        if product.endswith(".zip"):  
+            with zipfile.ZipFile(file, 'r') as zip_ref:
+                zip_ref.extractall(dest)
+            zip_ref.close()
+            print("%s successfully downloaded"%product)
+            flag = True
+        elif product.endswith(".tar.gz"): #! to be tested 
+            tar = tarfile.open(os.path.join(dest,product), "r:gz")
+            tar.extractall(os.path.join(dest,product.split(".")[0]+".ls8")) # extract landsat8 in a folder named after the product name 
+            tar.close() 
+            print("%s successfully downloaded"%product)
+            flag = True
+        elif product.endswith(".nc"):
+            print("%s successfully downloaded"%product)
+            flag = False
+        elif product.startswith("EN1_"): #! to be tested ? fa casino con .zip??
+            with zipfile.ZipFile(file, 'r') as zip_ref:
+                zip_ref.extractall(os.path.join(dest,product.split(".")[0]+".en1"))
+            zip_ref.close()
+            print("%s successfully downloaded"%product)
+            flag = True
         else:
-            print("Unpacked %s not found"%product)
-    else:
-        file = glob.glob(os.path.join(dest,product))
-        if file:
-            write_list(file[0])
+            print("Product format not recognized as .zip, .nc or .tar.gz.\nCheck out product name and specify extension.")
+            return None
+        # remove zip file after download 
+        if flag:
+            remove_zip(os.path.join(dest,product))
+            file = glob.glob(os.path.join(dest,product.split(".")[0])+".*",recursive=True)
+            if file:
+                write_list(file[0])
+            else:
+                print("Unpacked %s not found"%product)
         else:
-            print("%s not found"%product)
-    return 0              
+            file = glob.glob(os.path.join(dest,product))
+            if file:
+                write_list(file[0])
+            else:
+                print("%s not found"%product)
+        return 0          
+    else:
+        raise MemoryError("Disk space lower than %d GiB\nRequest\n %s \nnot allowed."%(du_thresh,curl))
               
 def remove_zip(item):
     file = glob.glob(item)
@@ -205,3 +210,13 @@ def remove_zip(item):
         os.remove(file[0])
     else:
         print("%s not found"%item)
+
+def check_size_disk():
+    user_home = os.path.expanduser("~")
+    total, used, free = shutil.disk_usage(user_home)
+    space = free//(2**30)
+    if space>=du_thresh:
+        return True
+    else:
+        return False
+    
