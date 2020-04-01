@@ -5,7 +5,7 @@ Created on Tue Jan 14 09:56:19 2020
 @author: GCIPOLLETTA
 """
 
-import requests, json, glob, os, zipfile, io, time
+import requests, json, glob, os, zipfile, io, time, shutil
 import IPython
 import pandas as pd
 import numpy as np
@@ -15,6 +15,8 @@ import datetime, time
 import threading
 from IPython.display import display
 from tqdm import tqdm_notebook
+
+du_thresh = 3 # GiB threshold for a single product
 
 def get(url):
     res = requests.get(url)
@@ -77,20 +79,7 @@ def check_out_product(product):
 #         f.close()
         return 1
     
-# # download function available - use this to cache a product in the current directory 
-# def download(product,username,password):
-#     dataframe = get_my_product(product)
-#     uuid = dataframe.iloc[:,0].values[0]
-#     curl = "https://catalogue.onda-dias.eu/dias-catalogue/Products("+uuid+")/$value"
-#     st = time.time()
-#     print("Download started")
-#     r = requests.get(curl,auth=(username, password))
-#     z = zipfile.ZipFile(io.BytesIO(r.content))
-#     z.extractall()
-#     print("Download completed in %.3f s"%(time.time()-st))
-#     print("Find your product:\n%s"%os.path.join(os.getcwd(),str(dataframe.iloc[:,1].values[0])))
-#     return None
-    
+
 # progress bar
 def work(progress,delta):
     total = int(delta)+1 
@@ -138,27 +127,96 @@ def read_product_list(file="resources/product_list_trial.txt"):
     display(dataframe)
     return dataframe
               
-# download function available - use this to cache a product in the current directory 
+def write_list(item,filename=os.path.join(os.getcwd(),"list_local.txt")):
+    with open(filename,"a+") as f:
+        f.write(item+"\n")
+        print("%s updated"%filename)
+
+def make_dir(dirname):
+    try:
+        os.mkdir(dirname)
+    except FileExistsError:
+        return 0      
+        
+def download_item(url,auth,filename):
+    """
+    Helper method handling downloading large files from `url` to `filename`. Returns a pointer to `filename`.
+    auth tuple with ONDA credentials 
+    """
+    chunkSize = 1024
+    r = requests.get(url,auth=auth,stream=True)
+    with open(filename, 'wb') as f:
+        pbar = tqdm_notebook(unit="B",total=int( r.headers['Content-Length'] ),desc="Downloading")
+        for chunk in r.iter_content(chunk_size=chunkSize): 
+            if chunk: # filter out keep-alive new chunks
+                pbar.update (len(chunk))
+                f.write(chunk)
+    return filename
+
+# download function available - use this to cache a product in the local_files directory 
 def download(product,username,password):
+    dest = os.path.join(os.path.expanduser("~"),"local_files") #os.path.join(os.path.expanduser("~"),
+    make_dir(dest)
     dataframe = get_my_product(product)
     uuid = dataframe.iloc[:,0].values[0]
-    curl = "https://catalogue.onda-dias.eu/dias-catalogue/Products("+uuid+")/$value"
-    if product.endswith(".zip"):  
-        st = time.time()
-        print("Download started")
-        r = requests.get(curl,auth=(username, password))
-        z = zipfile.ZipFile(io.BytesIO(r.content))
-        z.extractall()
-        print("Download completed in %.3f s"%(time.time()-st))
-        print("Find your product:\n%s"%os.path.join(os.getcwd(),str(dataframe.iloc[:,1].values[0])))
+    curl = "https://catalogue.onda-dias.eu/dias-catalogue/Products("+uuid+")/$value" 
+    if check_size_disk():
+        file = download_item(curl,(username, password),os.path.join(dest,product))
+        if product.endswith(".zip"):  
+            with zipfile.ZipFile(file, 'r') as zip_ref:
+                zip_ref.extractall(dest)
+            zip_ref.close()
+            print("%s successfully downloaded"%product)
+            flag = True
+        elif product.endswith(".tar.gz"): #! to be tested 
+            tar = tarfile.open(os.path.join(dest,product), "r:gz")
+            tar.extractall(os.path.join(dest,product.split(".")[0]+".ls8")) # extract landsat8 in a folder named after the product name 
+            tar.close() 
+            print("%s successfully downloaded"%product)
+            flag = True
+        elif product.endswith(".nc"):
+            print("%s successfully downloaded"%product)
+            flag = False
+        elif product.startswith("EN1_"): #! to be tested ? fa casino con .zip??
+            with zipfile.ZipFile(file, 'r') as zip_ref:
+                zip_ref.extractall(os.path.join(dest,product.split(".")[0]+".en1"))
+            zip_ref.close()
+            print("%s successfully downloaded"%product)
+            flag = True
+        else:
+            print("Product format not recognized as .zip, .nc or .tar.gz.\nCheck out product name and specify extension.")
+            return None
+        # remove zip file after download 
+        if flag:
+            remove_zip(os.path.join(dest,product))
+            file = glob.glob(os.path.join(dest,product.split(".")[0])+".*",recursive=True)
+            if file:
+                write_list(file[0])
+            else:
+                print("Unpacked %s not found"%product)
+        else:
+            file = glob.glob(os.path.join(dest,product))
+            if file:
+                write_list(file[0])
+            else:
+                print("%s not found"%product)
+        return 0          
     else:
-        st = time.time()
-        print("Download started")
-        r = requests.get(curl,auth=(username, password))
-        with open(product, 'wb') as p:
-            p.write(r.content)
-        print("Download completed in %.3f s"%(time.time()-st))
-        print("Find your product:\n%s"%os.path.join(os.getcwd(),str(dataframe.iloc[:,1].values[0])))
-    return None              
+        raise MemoryError("Disk space lower than %d GiB\nRequest\n %s \nnot allowed."%(du_thresh,curl))
               
-              
+def remove_zip(item):
+    file = glob.glob(item)
+    if file:
+        os.remove(file[0])
+    else:
+        print("%s not found"%item)
+
+def check_size_disk():
+    user_home = os.path.expanduser("~")
+    total, used, free = shutil.disk_usage(user_home)
+    space = free//(2**30)
+    if space>=du_thresh:
+        return True
+    else:
+        return False
+    

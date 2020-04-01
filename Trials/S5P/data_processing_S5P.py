@@ -36,7 +36,7 @@ def query(file):
         data = f.readlines()
         list = [d.split("\n")[0] for d in data]
     if "_local" in file:
-        return [glob.glob(os.getcwd()+l,recursive=True)[0] for l in list] 
+        return list 
     elif "_remote" in file:
         nc = [p.split("/")[-1].split(".")[0]+".nc" for p in list]
         return [os.path.join(list[i],nc[i]) for i in range(len(list))]
@@ -69,7 +69,7 @@ def plot(ds,key,file):
         i+=1
     return images
 
-def read(bounds,file,verbose=True):
+def read(bounds,file):
     products = query(file)
     latmin,latmax,lonmin,lonmax = bounds
     datasets = list()
@@ -108,9 +108,8 @@ def read(bounds,file,verbose=True):
             dataframe = pd.DataFrame(data=A,columns=["lon","lat",key])
             datasets.append(dataframe)
         except:
-            if verbose == True:
-                print("Error occurred when opening file: %s"%file) 
-                continue
+            raise Exception("NetCDF Error occurred when reading file: %s"%file) 
+            continue
     return datasets # all datasets related to product file list
 
 def dates(products):
@@ -187,9 +186,10 @@ def analysis(df,key,file):
         label = str(key)+" u"+str(u) 
         ylims = (variable.min()-variable.min()*0.1,variable.max()+variable.max()*0.1)
     else:
-        ax.plot(data.date,data.val_u,"-o")
-        label = str(key)+" "+str(u)
-        ylims = (data.val_u.min()-data.val_u.min()*0.1,data.val_u.max()+data.val_u.max()*0.1)
+        variable = data.val_u*1E3
+        ax.plot(data.date,variable,"-o")
+        label = str(key)+" m"+str(u)
+        ylims = (variable.min()-variable.min()*0.1,variable.max()+variable.max()*0.1)
     ax.set(xlim=xlims,ylim=ylims,xlabel="date",ylabel=label,title="Timeseries of %s mean value over selected area"%key)
     ax.grid(color="lavender")
     ax.set_xticks(days)
@@ -212,7 +212,7 @@ def plot_var(ds,key,file,create_movie=True):
         if key == "NO2":
             z = val[key]*1E6
         else:
-            z = val[key]
+            z = val[key]*1E3 # 
         maxs = np.append(maxs,z.max())
         variable.append(z.values)   
     max = maxs.max()
@@ -222,7 +222,7 @@ def plot_var(ds,key,file,create_movie=True):
     if key == "NO2":
         cb_label = str(key)+" u"+str(units(file))
     else:
-        cb_label = str(key)+" "+str(units(file))
+        cb_label = str(key)+" m"+str(units(file))
     xlims = tuple(read_coordinates()[2:4])
     ylims = tuple(read_coordinates()[0:2])
     for i in range(len(ds)):
@@ -260,8 +260,8 @@ def _list_():
 def choose():
     mission = widgets.Dropdown(
     options=_list_(),
-    description='Product:',
-    layout=Layout(width="50%"),
+    description='Reading list:',
+    layout=Layout(width="30%"),
     disabled=False,
     )
     display(mission)

@@ -17,7 +17,10 @@ from tqdm import tqdm_notebook
 import matplotlib.animation as animation
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import imageio
-from IPython.core.display import display, HTML
+# from IPython.core.display import display, HTML
+from IPython.display import Image
+import matplotlib.ticker as ticker
+from ipywidgets import widgets, Layout
 
 # cmap = sns.cubehelix_palette(light=1,as_cmap=True)
 cmap = matplotlib.cm.magma_r
@@ -26,15 +29,21 @@ from holoviews import opts
 import holoviews as hv
 hv.extension('matplotlib')
 
-def products(file=os.path.join(os.getcwd(),"list.txt")):
+gif_name = "pmovie.gif"
+
+def query(file):
     with open(file,"r") as f:
         data = f.readlines()
         list = [d.split("\n")[0] for d in data]
-        return list
-    
-def query(pro=products()):
-    nc = [p.split("/")[-1].split(".")[0]+".nc" for p in pro]
-    return [os.path.join(pro[i],nc[i]) for i in range(len(pro))]
+    if "_local" in file:
+        return list 
+    elif "_remote" in file:
+        nc = [p.split("/")[-1].split(".")[0]+".nc" for p in list]
+        return [os.path.join(list[i],nc[i]) for i in range(len(list))]
+    else:
+        print("Error invalid filename.")
+        return None
+        
 
 def read_coordinates(path=os.getcwd(),filename='polygon.json'):
     file = glob.glob(os.path.join(path,filename),recursive=True)[0]
@@ -47,11 +56,11 @@ def read_coordinates(path=os.getcwd(),filename='polygon.json'):
     bounds_stack = np.column_stack(bounds)
     return [bounds_stack[1].min(),bounds_stack[1].max(),bounds_stack[0].min(),bounds_stack[0].max()]
 
-def plot(ds,key):
+def plot(ds,key,file):
     # ["CO","HCHO","CH4","SO2","NO2","O3"] avaliable keys for S5P
     label = []
     images = []
-    p = query()
+    p = query(file)
     for i in range(len(ds)):
         temp = datetime.datetime.strptime(p[i].split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S")
         label = datetime.datetime.strftime(temp,"%b/%d/%Y")
@@ -60,7 +69,8 @@ def plot(ds,key):
         i+=1
     return images
 
-def read(bounds,products=query(),verbose=True):
+def read(bounds,file):
+    products = query(file)
     latmin,latmax,lonmin,lonmax = bounds
     datasets = list()
     #with tqdm_notebook(total=len(products),desc="Reading...") as pbar:
@@ -98,43 +108,43 @@ def read(bounds,products=query(),verbose=True):
             dataframe = pd.DataFrame(data=A,columns=["lon","lat",key])
             datasets.append(dataframe)
         except:
-            if verbose == True:
-                print("Error occurred when opening file: %s"%file) 
-                continue
+            raise Exception("NetCDF Error occurred when reading file: %s"%file) 
+            continue
     return datasets # all datasets related to product file list
 
 def dates(products):
     dates = [datetime.datetime.strptime(p.split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S") for p in products]
-    return [datetime.datetime.strftime(d,"%b/%d/%Y") for d in dates]
+    return [datetime.datetime.strftime(d,"%Y - %b - %d") for d in dates]
 
 import ipywidgets as widgets
 from IPython.display import display
 
-def multiplot(Variable):
-    ds = read(read_coordinates(),verbose=False)
-    labels = dates(query())
-    if ds == 1:
-        print("Unrecognized variable set, drop plotting")
-        return None
-    z = [ds[i].columns[-1] for i in range(len(ds))]
-#     seen = set()
-#     z = [x for x in z_tmp if x not in seen and not seen.add(x)] # remove repeated elements in list
-    val = np.arange(0,len(z),1)
-    map = {}
-    for key,values in zip(z,val):
-        map[key] = values
-    opts = z
-    display(hv.Scatter(ds[map[Variable]]).opts(color=Variable,cmap=cmap,s=50,
-                                               title=labels[map[Variable]],padding=0.05).hist(Variable))
+# def multiplot(Variable):
+#     ds = read(read_coordinates(),verbose=False)
+#     labels = dates(query())
+#     if ds == 1:
+#         print("Unrecognized variable set, drop plotting")
+#         return None
+#     z = [ds[i].columns[-1] for i in range(len(ds))]
+# #     seen = set()
+# #     z = [x for x in z_tmp if x not in seen and not seen.add(x)] # remove repeated elements in list
+#     val = np.arange(0,len(z),1)
+#     map = {}
+#     for key,values in zip(z,val):
+#         map[key] = values
+#     opts = z
+#     display(hv.Scatter(ds[map[Variable]]).opts(color=Variable,cmap=cmap,s=50,
+#                                                title=labels[map[Variable]],padding=0.05).hist(Variable))
 
-def variables():
-    df = read(read_coordinates())
-    z = [df[i].columns[-1] for i in range(len(df))]
-#     return z
-    seen = set()
-    return [x for x in z if x not in seen and not seen.add(x)]  
+# def variables():
+#     df = read(read_coordinates())
+#     z = [df[i].columns[-1] for i in range(len(df))]
+# #     return z
+#     seen = set()
+#     return [x for x in z if x not in seen and not seen.add(x)]  
     
-def units(products=query()):
+def units(file):
+    products = query(file)
     for file in products:
         f = Dataset(file)
         if "L2__CO" in file:
@@ -154,11 +164,12 @@ def units(products=query()):
             return 1
     return unit    
 
-def analysis(df,key):
+def analysis(df,key,file):
     plt.ion() # mute plots 
-    u = units() # pick up units from nc file
+    u = units(file) # pick up units from nc file
     data = pd.DataFrame(np.nan,columns=["date","val_u"],index=range(len(df)))
-    days = [datetime.datetime.strptime(p.split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S") for p in query()]
+    days = [datetime.datetime.strptime(p.split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S") for p in query(file)]
+    ndays = (days[-1]-days[0]).days
     for i in range(len(df)):
         filter = df[i]>0
         df[i].where(filter, inplace=True)
@@ -175,15 +186,18 @@ def analysis(df,key):
         label = str(key)+" u"+str(u) 
         ylims = (variable.min()-variable.min()*0.1,variable.max()+variable.max()*0.1)
     else:
-        ax.plot(data.date,data.val_u,"-o")
-        label = str(key)+" "+str(u)
-        ylims = (data.val_u.min()-data.val_u.min()*0.1,data.val_u.max()+data.val_u.max()*0.1)
+        variable = data.val_u*1E3
+        ax.plot(data.date,variable,"-o")
+        label = str(key)+" m"+str(u)
+        ylims = (variable.min()-variable.min()*0.1,variable.max()+variable.max()*0.1)
     ax.set(xlim=xlims,ylim=ylims,xlabel="date",ylabel=label,title="Timeseries of %s mean value over selected area"%key)
     ax.grid(color="lavender")
+    ax.set_xticks(days)
+#     ax.xaxis.set_major_locator(ticker.MultipleLocator(2))
     fig.autofmt_xdate()
     return data
 
-def plot_var(ds,key,create_movie=True):
+def plot_var(ds,key,file,create_movie=True):
     plt.ioff() # mute plots 
     dirName = 'plots'
     try:
@@ -193,12 +207,12 @@ def plot_var(ds,key,create_movie=True):
         print("\n")
     maxs = ([])
     variable = []
-    labels = dates(query())
+    labels = dates(query(file))
     for val in ds:
         if key == "NO2":
             z = val[key]*1E6
         else:
-            z = val[key]
+            z = val[key]*1E3 # 
         maxs = np.append(maxs,z.max())
         variable.append(z.values)   
     max = maxs.max()
@@ -206,13 +220,13 @@ def plot_var(ds,key,create_movie=True):
     bounds = np.linspace(0, max, 10)
     normalize_cb = matplotlib.colors.BoundaryNorm(bounds, cmap.N)
     if key == "NO2":
-        cb_label = str(key)+" u"+str(units())
+        cb_label = str(key)+" u"+str(units(file))
     else:
-        cb_label = str(key)+" "+str(units())
+        cb_label = str(key)+" m"+str(units(file))
     xlims = tuple(read_coordinates()[2:4])
     ylims = tuple(read_coordinates()[0:2])
     for i in range(len(ds)):
-        fig,ax = plt.subplots(1,1)
+        fig,ax = plt.subplots(1,1,figsize=(8,6))
         im = ax.scatter(ds[i].lon.values, ds[i].lat.values, c=variable[i], s=5, cmap=cmap, norm=normalize)
         ax.set(xlim=xlims,ylim=ylims,xlabel='longitude',ylabel='latitude',title="%s"%labels[i])
         ax.minorticks_on()
@@ -224,10 +238,36 @@ def plot_var(ds,key,create_movie=True):
         fig.tight_layout()
         plt.close(fig)
     if create_movie==True:
+        try:
+            os.remove(gif_name)
+        except:
+            flag = 0
         images=[]
         imf = glob.glob(os.path.join(dirName,"plot_*.png"))
         imf.sort(key=os.path.getmtime)
         for im in imf:
             images.append(imageio.imread(im))
-        imageio.mimsave("pmovie.gif", images, duration=.60)
-        display(HTML('<img src="pmovie.gif">'))
+        imageio.mimsave(gif_name, images, duration=1)
+        display_img()
+
+def display_img(img_file=gif_name):
+    with open(img_file,'rb') as f:
+        display(Image(data=f.read(), format='png'))
+    
+def _list_():
+    return glob.glob("list*",recursive=True)
+    
+def choose():
+    mission = widgets.Dropdown(
+    options=_list_(),
+    description='Reading list:',
+    layout=Layout(width="30%"),
+    disabled=False,
+    )
+    display(mission)
+    label = widgets.Label()
+    btn = widgets.Button(description="CLICK to submit")
+    display(btn)
+    return mission,btn,label
+    
+    

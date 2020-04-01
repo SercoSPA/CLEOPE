@@ -297,7 +297,7 @@ def copy2(file,path=os.path.join(os.getcwd(),"outputs/")):
         if "polygon" in file:
             shutil.copy2(file,path+"/polygon.json")
         else:
-            shutil.copy2(file,path+"/list.txt")
+            shutil.copy2(file,path+"/list_remote.txt")
         print("%s saved in %s"%(file,path))
         return 0
     except:

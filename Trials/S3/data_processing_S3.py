@@ -14,12 +14,34 @@ from dateutil import parser
 
 cmap = sns.color_palette("RdYlGn",256)
 
-def products(file=os.path.join(os.getcwd(),"list.txt")):
+def products(file):
     with open(file,"r") as f:
         data = f.readlines()
         list = [d.split("\n")[0] for d in data]
+    if "_local" in file:
+        return list 
+    elif "_remote" in file:
         return list
+    else:
+        print("Error invalid filename.")
+        return None
 
+def _list_():
+    return glob.glob("list*",recursive=True)
+    
+def choose_files():
+    mission = widgets.Dropdown(
+    options=_list_(),
+    description='Product:',
+    layout=Layout(width="30%"),
+    disabled=False,
+    )
+    display(mission)
+    label = widgets.Label()
+    btn = widgets.Button(description="CLICK to submit")
+    display(btn)
+    return mission,btn,label      
+    
 def dates(products):
     dates = [datetime.datetime.strptime(p.split("/")[-1].split("_")[2],"%Y%m%dT%H%M%S") for p in products]
     return [datetime.datetime.strftime(d,"%b/%d/%Y") for d in dates]
@@ -54,7 +76,7 @@ def water(olcis,imgname,var="tsm_nn"):
     try:
         geoc = Dataset(f_geo)
     except:
-        print("Error while reading file %s"%f_geo)
+        raise Exception("NetCDF Error while reading file %s"%f_geo)
         return 1
     lat = geoc.variables["latitude"][::]
     long = geoc.variables["longitude"][::]
@@ -63,7 +85,7 @@ def water(olcis,imgname,var="tsm_nn"):
     try:
         nc = Dataset(f_w)
     except:
-        print("Error while reading file %s"%f_w)
+        raise Exception("NetCDF Error while reading file %s"%f_w)
         return 1
     _temp = olcis.split("/")[-1]
     _date = _temp.split("_")[-11]
@@ -110,7 +132,7 @@ def land(olcis,imgname,var="otci"):
     try:
         geoc = Dataset(f_geo)
     except:
-        print("Error while reading file %s"%f_geo)
+        raise Exception("NetCDF Error while reading file %s"%f_geo)
         return 1
     lat = geoc.variables["latitude"][::]
     long = geoc.variables["longitude"][::]
@@ -119,7 +141,7 @@ def land(olcis,imgname,var="otci"):
     try:
         nc = Dataset(f)
     except:
-        print("Error while reading file %s"%f)
+        raise Exception("NetCDF Error while reading file %s"%f)
         return 1
     _temp = olcis.split("/")[-1]
     _date = _temp.split("_")[-11]

@@ -13,35 +13,59 @@ cmap = sns.color_palette("RdYlGn",256)
 cmap1 = sns.color_palette("GnBu_d",256)
 from holoviews import opts
 import holoviews as hv
+from ipywidgets import widgets, Layout
+import numpy.ma as ma
+from pathlib import Path
 hv.extension('matplotlib')
 
-def products(file=os.path.join(os.getcwd(),"list.txt")):
+def products(file):
     with open(file,"r") as f:
         data = f.readlines()
         list = [d.split("\n")[0] for d in data]
+    if "_local" in file:
+        return list 
+    elif "_remote" in file:
         return list
+    else:
+        print("Error invalid filename.")
+        return None
+
+def _list_():
+    return glob.glob("list*",recursive=True)
+    
+def choose_files():
+    mission = widgets.Dropdown(
+    options=_list_(),
+    description='Product:',
+    layout=Layout(width="30%"),
+    disabled=False,
+    )
+    display(mission)
+    label = widgets.Label()
+    btn = widgets.Button(description="CLICK to submit")
+    display(btn)
+    return mission,btn,label    
 
 def open_rgb_bands(product):
-#     S2_files = []
     if (product.find('MSIL2A') != -1):
         try:
             S2_files = [f for f in glob.glob(product+"/**/*[2-4]_10m.jp2",recursive=True)]
         except:
-            print("product %s not found"%product)
+            raise Exception("Product %s not found"%product)
             return None
     elif (product.find('MSIL1C') != -1):
         try:
             S2_files = [f for f in glob.glob(product+"/**/*[2-4].jp2",recursive=True)]
         except:
-            print("product %s not found"%product)
+            raise Exception("Product %s not found"%product)
             return None
     else:
         print("Error. Choose L1C or L2A products")
         return 1
     if S2_files:
         print("Access to files:\n")
-        print("\n\n".join(S2_files)) 
-        return S2_files
+        print("\n\n".join(sorted(S2_files))) 
+        return sorted(S2_files) # sorted option interface for local files 
     else:
         print("Warning: no files found!")
         return None
@@ -59,6 +83,7 @@ def choose(mlist):
     display(btn)
     return mission,btn,label
 
+# plot stack of 3 colors 
 def image(S2_files,show=False):
     if not S2_files:
         print("Error: no bands found")
@@ -66,7 +91,7 @@ def image(S2_files,show=False):
     if len(S2_files)>3:
         print("\n !! Too many bands opened for an RGB stack !!")
         S2_files = S2_files[0:-1]
-    tmp = S2_files[0].split("/")[-1].split("_")
+    tmp = str(S2_files[0]).split("/")[-1].split("_")
     temp_date = datetime.datetime.strptime(tmp[1],"%Y%m%dT%H%M%S")
     title = str(datetime.datetime.strftime(temp_date,"%Y-%m-%d %H:%M"))
     # processing
@@ -79,7 +104,7 @@ def image(S2_files,show=False):
                 S2_images.append(img2) 
                 pbar.update(1)
             except:
-                print("Error while reading file %s"%i)
+                raise Exception("Error occurred when reading file %s"%i)
                 return 1
     # tile coordinates section 
     with img as dataset: # ne basta una 
@@ -109,7 +134,6 @@ def image(S2_files,show=False):
         plt.figure(); plt.hist(eq_RGB.ravel(),bins=256,color="Red");plt.grid(color="lavender",lw=0.5); plt.show()
     print("- Plotting...")
     plt.clf();
-#     plt.figure(dpi=100); plt.title(title); plt.axis("off"); plt.imshow(eq_RGB); plt.show() plt.ylim(tuple([coords[0],coords[2]])); plt.xlim(tuple([coords[1],coords[3]]));
     plt.figure(dpi=100); plt.title(title);
     plt.imshow(eq_RGB,extent=extent); 
     plt.show()
@@ -117,22 +141,37 @@ def image(S2_files,show=False):
     return eq_RGB
 
 def nbr(products):
-    files = list()
-    for p in products:
-        if (p.find('MSIL2A') != -1):
+    if isinstance(products,list):
+        files = list()
+        for p in products:
+            if (p.find('MSIL2A') != -1):
+                try:
+                    b8 = glob.glob(p+"/**/*B8A_20m.jp2",recursive=True)[0]
+                    b12 = glob.glob(p+"/**/*B12_20m.jp2",recursive=True)[0]
+                except:
+                    raise Exception("File %s bands not found: Error occurred when opening bands"%p)
+            else:
+                try:
+                    b8 = glob.glob(p+"/**/*B8A.jp2",recursive=True)[0]
+                    b12 = glob.glob(p+"/**/*B12.jp2",recursive=True)[0]
+                except:
+                    raise Exception("File %s bands not found: Error occurred when opening bands"%p)
+                    continue
+            files.append([b8,b12])
+    else:
+        files = []
+        if (products.find('MSIL2A') != -1):
             try:
-                b8 = glob.glob(p+"/*/*/*/*/*/*B8A_20m.jp2",recursive=True)[0]
-                b12 = glob.glob(p+"/*/*/*/*/*/*B12_20m.jp2",recursive=True)[0]
+                b8 = glob.glob(products+"/**/*B8A_20m.jp2",recursive=True)[0]
+                b12 = glob.glob(products+"/**/*B12_20m.jp2",recursive=True)[0]
             except:
-                print("Warning %s: Error occurred when opening bands"%p)
-                continue
+                raise Exception("File %s bands not found: Error occurred when opening bands"%products)
         else:
             try:
-                b8 = glob.glob(p+"/*/*/*/*/*B8A.jp2",recursive=True)[0]
-                b12 = glob.glob(p+"/*/*/*/*/*B12.jp2",recursive=True)[0]
+                b8 = glob.glob(products+"/**/*B8A.jp2",recursive=True)[0]
+                b12 = glob.glob(products+"/**/*B12.jp2",recursive=True)[0]
             except:
-                print("Warning %s: Error occurred when opening bands"%p)
-                continue
+                raise Exception("File %s bands not found: Error occurred when opening bands"%p)
         files.append([b8,b12])
     images = []
     with tqdm_notebook(total=len(files)*len(files[0]),desc="Opening raster data") as pbar:
@@ -144,7 +183,7 @@ def nbr(products):
                     temp_img.append(temp)
                     pbar.update(1)
                 except:
-                    print("Error while reading file %s"%f[i])
+                    raise Exception("Rasterio Error while reading file %s"%f[i])
                     return 1
             images.append(temp_img)
     nbr_series = []
@@ -155,19 +194,12 @@ def nbr(products):
     return nbr_series
 
 def dates(products):
-    dates = [datetime.datetime.strptime(p.split("/")[-1].split("_")[2],"%Y%m%dT%H%M%S") for p in products]
-    return [datetime.datetime.strftime(d,"%b/%d/%Y") for d in dates]
-
-# def bounds():
-#     b = []
-#     for file in glob.glob("poly*.json",recursive=True):
-#         try:
-#             with open(file, 'r') as fp:
-#                 polysel = json.load(fp)
-#                 b.append(tuple([polysel["coordinates"][0][0][0],polysel["coordinates"][0][0][1],polysel["coordinates"][0][2][0],polysel["coordinates"][0][1][1]]))
-#         except:
-#             return None    
-#     return b 
+    if isinstance(products,list):
+        dates = [datetime.datetime.strptime(p.split("/")[-1].split("_")[2],"%Y%m%dT%H%M%S") for p in products]
+        return [datetime.datetime.strftime(d,"%b/%d/%Y") for d in dates]
+    else:
+        dates = datetime.datetime.strptime(products.split("/")[-1].split("_")[2],"%Y%m%dT%H%M%S")
+        return [datetime.datetime.strftime(dates,"%b/%d/%Y")]
 
 def bounds():
     try:
@@ -190,19 +222,26 @@ def plot(nbr,label=[],bounds=None):
         i+=1
     return images
             
-# new! NDSI module 
 def ndsi(products):
-    files = list()
-    for p in products:
-        if (p.find('MSIL2A') != -1):
-#             a = glob.glob(os.path.join(p,"**/*B02_20m.jp2"),recursive=True)[0]
-#             b = glob.glob(os.path.join(p,"**/*B05_20m.jp2"),recursive=True)[0]
-            a = glob.glob(os.path.join(p,"**/*B03_20m.jp2"),recursive=True)[0]
-            b = glob.glob(os.path.join(p,"**/*B11_20m.jp2"),recursive=True)[0]
+    if isinstance(products,list):
+        files = list()
+        for p in products:
+            if (p.find('MSIL2A') != -1):
+                a = glob.glob(os.path.join(p,"**/*B03_20m.jp2"),recursive=True)[0]
+                b = glob.glob(os.path.join(p,"**/*B11_20m.jp2"),recursive=True)[0]
+                files.append([a,b])
+            else:
+                print("L1C not supported; skip")
+                continue
+    else:
+        files = list()
+        if (products.find('MSIL2A') != -1):
+            a = glob.glob(os.path.join(products,"**/*B03_20m.jp2"),recursive=True)[0]
+            b = glob.glob(os.path.join(products,"**/*B11_20m.jp2"),recursive=True)[0]
+            files.append([a,b])
         else:
-            print("Error. L1C not supported")
-            return None
-        files.append([a,b])
+            raise Exception("L1C not supported")
+            return None 
     images = []
     with tqdm_notebook(total=len(files)*len(files[0]),desc="Opening raster data") as pbar:
         for f in files:
@@ -213,7 +252,7 @@ def ndsi(products):
                     temp_img.append(temp)
                     pbar.update(1)
                 except:
-                    print("Error while reading file %s"%f[i])
+                    raise Exception("Rasterio Error while reading file %s"%f[i])
                     return 1
             images.append(temp_img)
     ratio = []
@@ -226,16 +265,17 @@ def ndsi(products):
 def open_rgb_snow(product):
     S2_files = []
     if (product.find('MSIL2A') != -1):
-        S2_files.append(glob.glob(product+"/**/*B12_20m.jp2",recursive=True)[0])
-        S2_files.append(glob.glob(product+"/**/*B11_20m.jp2",recursive=True)[0])
-        S2_files.append(glob.glob(product+"/**/*B05_20m.jp2",recursive=True)[0])
+        bands = ["*B12_20m.jp2","*B11_20m.jp2","*B05_20m.jp2"]
+        for b in bands:
+            for path in Path(product).rglob(b):
+                S2_files.append(path)
     else:
-        print("Error. L1C not supported")
-        return 1
+        bands = ["*B12.jp2","*B11.jp2","*B05.jp2"]
+        for b in bands:
+            for path in Path(product).rglob(b):
+                S2_files.append(path)
     if len(S2_files)>3: # check
         S2_files = S2_files[0:3]
-    print("Files opened:\n")
-    print("\n\n".join(S2_files)) 
     return S2_files      
     
         
@@ -261,14 +301,15 @@ def dump_coordinates(geo_json):
             
 # display mean values of the computation above 
 def analysis(products,arrays):
+    # mask invalid values
+    mask_arr = [ma.masked_invalid(a) for a in arrays]
     data = pd.DataFrame(np.nan,columns=["min","max","mean"],index=range(0,len(arrays)))
     for i in range(len(arrays)):
 #         print(arrays[i].min(),arrays[i].max(),arrays[i].mean())
-        data.iloc[i,0] = arrays[i].min()
-        data.iloc[i,1] = arrays[i].max()
-        data.iloc[i,2] = arrays[i].mean()
+        data.iloc[i,0] = mask_arr[i].min()
+        data.iloc[i,1] = mask_arr[i].max()
+        data.iloc[i,2] = mask_arr[i].mean()
     data.index = dates(products)
     display(data)
     sns.set_style("whitegrid")
-    sns.scatterplot(x=data.index,y="mean",data=data,marker="s",color="Navy")
-            
+    sns.scatterplot(x=data.index,y="mean",data=data,marker="s",color="Navy")        

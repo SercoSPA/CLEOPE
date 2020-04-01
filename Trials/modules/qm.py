@@ -129,7 +129,7 @@ def read_product_list(file="resources/product_list_trial.txt"):
               
 def write_list(item,filename=os.path.join(os.getcwd(),"list_local.txt")):
     with open(filename,"a+") as f:
-        f.write("/"+item+"\n")
+        f.write(item+"\n")
         print("%s updated"%filename)
 
 def make_dir(dirname):
@@ -155,7 +155,7 @@ def download_item(url,auth,filename):
 
 # download function available - use this to cache a product in the local_files directory 
 def download(product,username,password):
-    dest = "local_files" #os.path.join(os.path.expanduser("~"),
+    dest = os.path.join(os.path.expanduser("~"),"local_files") #os.path.join(os.path.expanduser("~"),
     make_dir(dest)
     dataframe = get_my_product(product)
     uuid = dataframe.iloc[:,0].values[0]
