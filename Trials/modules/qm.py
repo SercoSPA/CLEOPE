@@ -5,7 +5,7 @@ Created on Tue Jan 14 09:56:19 2020
 @author: GCIPOLLETTA
 """
 
-import requests, json, glob, os, zipfile, io, time, shutil
+import requests, json, glob, os, zipfile, io, time, shutil, tarfile
 import IPython
 import pandas as pd
 import numpy as np
@@ -52,6 +52,8 @@ def get_uuid(product):
 
 
 def get_my_product(product):
+    if product.endswith(".tar.gz"):
+        product = product.split(".")[0]
     url = "https://catalogue.onda-dias.eu/dias-catalogue/Products?$search=%22"+str(product)+"%22&$top=10&$format=json"
     res = requests.get(url)
     val = res.json()
@@ -168,7 +170,7 @@ def download(product,username,password):
             zip_ref.close()
             print("%s successfully downloaded"%product)
             flag = True
-        elif product.endswith(".tar.gz"): #! to be tested 
+        elif product.endswith(".tar.gz"): 
             tar = tarfile.open(os.path.join(dest,product), "r:gz")
             tar.extractall(os.path.join(dest,product.split(".")[0]+".ls8")) # extract landsat8 in a folder named after the product name 
             tar.close() 
@@ -177,14 +179,14 @@ def download(product,username,password):
         elif product.endswith(".nc"):
             print("%s successfully downloaded"%product)
             flag = False
-        elif product.startswith("EN1_"): #! to be tested ? fa casino con .zip??
-            with zipfile.ZipFile(file, 'r') as zip_ref:
-                zip_ref.extractall(os.path.join(dest,product.split(".")[0]+".en1"))
-            zip_ref.close()
-            print("%s successfully downloaded"%product)
-            flag = True
+#         elif product.startswith("EN1_"): #! Envisat not supported 
+#             with zipfile.ZipFile(file, 'r') as zip_ref:
+#                 zip_ref.extractall(os.path.join(dest,product.split(".")[0]+".en1"))
+#             zip_ref.close()
+#             print("%s successfully downloaded"%product)
+#             flag = True
         else:
-            print("Product format not recognized as .zip, .nc or .tar.gz.\nCheck out product name and specify extension.")
+            print("Product not recognized as .zip, .nc or .tar.gz. !Check out product name and specify extension.>\nPlease note that Envisat products are not supported by this function: download Envisat from ONDA Catalogue.<")
             return None
         # remove zip file after download 
         if flag:
