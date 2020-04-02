@@ -1,6 +1,6 @@
 # ONDA data access dedicated trial notebooks
 
-![image](./media/actions.PNG)
+<img src="./media/actions.PNG" alt="drawing" width="200"/>
 
 The data access template notebooks are called as follows:
 ```
@@ -100,7 +100,13 @@ Sentinel-5P tutorial is developed into two case study taken under analysis.
 [![N|Solid](https://atmosphere.copernicus.eu/themes/custom/ce/logo.svg)](https://atmosphere.copernicus.eu/themes/custom/ce/logo.svg)
 
 ONDA provides access to data and tools related to the Copernicus Atmosphere Monitoring Services with an extensive catalogue of products coming from a variety of sources. These products are released in the form of maps and charts, being an ensemble of air quality models processed by diverse data centres. <br>
-The CAMS oriented trial notebook is an interactive tool aimed at data visualisation of _Analysis_ _Surface Fields_ products, powered by ENS. Users can choose a period of interest and a sampling frequency within it (i.n. days, weeks or months), slicing the map in the way of need. 
+The CAMS oriented trial notebook is an interactive tool aimed at data visualisation of _Analysis_ _Surface Fields_ products, powered by ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), slicing the map in the way of need. 
+
+## CMEMS trial notebook
+![N|Solid](https://www.mercator-ocean.fr/wp-content/uploads/2017/06/MercatorOceanLogo2018-286x150.jpg)
+
+ONDA provides access to the Copernicus Marine Services data sets of ocean products derived from satellite and in situ observation, suited for science and global monitoring purposes. <br>
+CLEOPE CMEMS trial notebook is an interactive tool aimed at data visualisation of _Global Ocean Analysis_ products exploiting the power of ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), visualising interactive layers on the map.
 
 # Read more
 Trial notebooks make the use of packages and modules that do not come as part of the standard Python library, so CLEOPE is provided with additional modules specifically related to each one.
@@ -111,6 +117,7 @@ Trial notebooks make the use of packages and modules that do not come as part of
 | `S3`| `netCDF4`| `matplotlib`|
 | `S5P`|`netCDF4`|`holoviews`|
 | `CAMS`|`xarray`|`hvplot`|
+| `CMEMS`|`xarray`|`hvplot`|
 | `DISCOVER_ONDA`|`requests`| |
 | `ORDER`|`requests`| |
 | `SEARCH`|`requests`|`ipyleaflet`|

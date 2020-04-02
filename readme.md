@@ -14,7 +14,7 @@ Example notebooks are read and executable only. They are split into two main cat
 # The Workspace
 CLEOPE **public workspace** offers collection of template notebooks aimed at easly introducing users to browse, inspect and download products via the OData API protocol or using DIAS-ONDA Advanced API (ENS). 
 
-![Product exploitation options](./Trials/media/use_case.PNG)
+<img src="./Trials/media/use_case.PNG" alt="drawing" width="500"/>
 
 ### OData API provided interface
 Via their own Jupyter notebooks users can easily download ONDA products, by specifying their ONDA `username` and `password` and the desired item within the data offer. The download option is supported by the [OData API](https://www.onda-dias.eu/cms/knowledge-base/odata-odata-open-data-protocol/) protocol, an interface exposed by the Catalogue which allows browsing, selecting and downloading EO products in the Catalogue itself. Downloads are stored in the 📁 `local_files` folder within users own CLEOPE workspace, unzipped and ready to be used.
@@ -36,7 +36,7 @@ On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/k
 📄 `aoi.py`, `buttons.py` and `empty.py` are specific scripts interfaced with the geographical research of products via Jupyter Notebook; <br>
 📄 `qm.py` is a module dedicated to the product **search**, **order** and **download** via Jupyter Notebooks. 
 
-#### S2, S3, S5P, cams dedicated notebooks
+#### S2, S3, S5P, CAMS, CMEMS dedicated notebooks
 📁🌎🌍🌏 Folders collecting mission specific notebooks, showing some type of processing for Sentinel missions and Copernicus Monitoring Services. <br>
 The full explanation of mission specific trial notebooks is given 👉[here](Trials/readme.md). 
 
