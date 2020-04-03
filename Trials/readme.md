@@ -103,13 +103,13 @@ ONDA provides access to data and tools related to the Copernicus Atmosphere Moni
 The CAMS oriented trial notebook is an interactive tool aimed at data visualisation of _Analysis_ _Surface Fields_ products, powered by ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), slicing the map in the way of need. 
 
 ## CMEMS trial notebook
-<img src="https://lh3.googleusercontent.com/proxy/f75V78_ncvLdxr9aojyUmAahjPsv9H0DME57ddHnFbApsukPpUU0k3y7G-hFLtfJjWugv58j668E6ziBlbQFNyXS9hMj0EPWgxDXlR1p_dLOw90YTtP2twGvlxG_FtG_XnmoFs7fVfk11ApJlE3rGx4U" width="150" height="150" />
+<img src="https://lh3.googleusercontent.com/proxy/f75V78_ncvLdxr9aojyUmAahjPsv9H0DME57ddHnFbApsukPpUU0k3y7G-hFLtfJjWugv58j668E6ziBlbQFNyXS9hMj0EPWgxDXlR1p_dLOw90YTtP2twGvlxG_FtG_XnmoFs7fVfk11ApJlE3rGx4U" width="300" height="150" />
 
 ONDA provides access to the Copernicus Marine Services data sets of ocean products derived from satellite and in situ observation, suited for science and global monitoring purposes. <br>
 CLEOPE CMEMS trial notebook is an interactive tool aimed at data visualisation of _Global Ocean Analysis_ products exploiting the power of ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), visualising interactive layers on the map.
 
 ## CGLS trial notebook
-<img src="https://www.eea.europa.eu/about-us/who/copernicus-1/land-monitoring-logo/image" width="200" height="200" />
+<img src="https://www.eea.europa.eu/about-us/who/copernicus-1/land-monitoring-logo/image" width="300" height="200" />
 The Copernicus Global Land Service (CGLS) is part of ONDA data offer and systematically produces a series of qualified bio-geophysical products on the status and evolution of the land surface, at global scale at mid spatial resolution. <br>
 CLEOPE CGLS trial notebook is an interactive tool aimed at visualising an interactive map of vegetation coverage, powered by ENS. Users can choose a variable indicating the vegetation status to produce an interactive land map.
 
@@ -123,6 +123,7 @@ Trial notebooks make the use of packages and modules that do not come as part of
 | `S5P`|`netCDF4`|`holoviews`|
 | `CAMS`|`xarray`|`hvplot`|
 | `CMEMS`|`xarray`|`hvplot`|
+| `CGLS`|`xarray`|`hvplot`|
 | `DISCOVER_ONDA`|`requests`| |
 | `ORDER`|`requests`| |
 | `SEARCH`|`requests`|`ipyleaflet`|
