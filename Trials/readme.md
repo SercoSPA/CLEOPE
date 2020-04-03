@@ -97,16 +97,21 @@ Sentinel-5P tutorial is developed into two case study taken under analysis.
 ✏️ The dataframe of S5P dataframes is customisable according to users choices. In the default CLEOPE workspace a sample list of products is provided, suited on the cases of study described above.
 
 ## CAMS trial notebook
-[![N|Solid](https://atmosphere.copernicus.eu/themes/custom/ce/logo.svg)](https://atmosphere.copernicus.eu/themes/custom/ce/logo.svg)
+<img src="https://atmosphere.copernicus.eu/themes/custom/ce/logo.svg" width="200" height="200" />
 
 ONDA provides access to data and tools related to the Copernicus Atmosphere Monitoring Services with an extensive catalogue of products coming from a variety of sources. These products are released in the form of maps and charts, being an ensemble of air quality models processed by diverse data centres. <br>
 The CAMS oriented trial notebook is an interactive tool aimed at data visualisation of _Analysis_ _Surface Fields_ products, powered by ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), slicing the map in the way of need. 
 
 ## CMEMS trial notebook
-![N|Solid](https://www.mercator-ocean.fr/wp-content/uploads/2017/06/MercatorOceanLogo2018-286x150.jpg)
+<img src="https://lh3.googleusercontent.com/proxy/o3qDURw4gqmYvTAyuPBSpuBBRCrifD3KBtXJOIussXml8faBgCBj4RPCa8Ib8zPOOu2WRWwMM5A " width="150" height="100" />
 
 ONDA provides access to the Copernicus Marine Services data sets of ocean products derived from satellite and in situ observation, suited for science and global monitoring purposes. <br>
 CLEOPE CMEMS trial notebook is an interactive tool aimed at data visualisation of _Global Ocean Analysis_ products exploiting the power of ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), visualising interactive layers on the map.
+
+## CGLS trial notebook
+<img src="https://www.eea.europa.eu/about-us/who/copernicus-1/land-monitoring-logo/image" width="200" height="200" />
+The Copernicus Global Land Service (CGLS) is part of ONDA data offer and systematically produces a series of qualified bio-geophysical products on the status and evolution of the land surface, at global scale at mid spatial resolution. <br>
+CLEOPE CGLS trial notebook is an interactive tool aimed at visualising an interactive map of vegetation coverage, powered by ENS. Users can choose a variable indicating the vegetation status to produce an interactive land map.
 
 # Read more
 Trial notebooks make the use of packages and modules that do not come as part of the standard Python library, so CLEOPE is provided with additional modules specifically related to each one.

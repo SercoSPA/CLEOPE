@@ -36,7 +36,7 @@ On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/k
 📄 `aoi.py`, `buttons.py` and `empty.py` are specific scripts interfaced with the geographical research of products via Jupyter Notebook; <br>
 📄 `qm.py` is a module dedicated to the product **search**, **order** and **download** via Jupyter Notebooks. 
 
-#### S2, S3, S5P, CAMS, CMEMS dedicated notebooks
+#### S2, S3, S5P, CAMS, CMEMS, CGLS dedicated notebooks
 📁🌎🌍🌏 Folders collecting mission specific notebooks, showing some type of processing for Sentinel missions and Copernicus Monitoring Services. <br>
 The full explanation of mission specific trial notebooks is given 👉[here](Trials/readme.md). 
 
