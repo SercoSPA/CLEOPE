@@ -49,8 +49,14 @@ This trial notebook allows the geographical search of ONDA EO data offer by simu
 
 # Mission dedicated trial notebooks
 This collection of trial notebooks has been published with the purpose of leading users into data processing of EO products exploiting the ONDA data offer in a few mission dedicated tutorials. The current CLEOPE version supports:
- - 🌱 Land applications (S2 and S3)
+ - 🌱 Land applications (S1, S2 and S3)
  - 🏭 Atmospheric applications (S5P and Copernicus Atmosphere Monitoring Services)
+
+## S1 trial notebook
+[![N|Solid](https://earth.esa.int/image/image_gallery?uuid=23f73931-c1c7-4013-a7dc-fb506ff182e2&groupId=10174&t=1354275607606)](https://earth.esa.int/image/image_gallery?uuid=23f73931-c1c7-4013-a7dc-fb506ff182e2&groupId=10174&t=1354275607606)
+
+Sentinel-1 trial notebook is a useful introduction to Sentinel-1 data processing aimed at finding new build-up areas, in order to monitor how the urban sprawl is changing the environment. Sentinel-1 trial notebook is dedicated to the visualisation of the built-up area extended near Wuhan, where a new hospital has been built in 10 days during the COVID-19 emergency. <br>
+To this aim the S1 L1 Ground Range Detected (GRD) products with high resolution (H), sensed before and after the building site in order to detect the environmental changes. Images are clipped over custom-selected coordinates and plot out on screen side-by-side, normalised over the backscattering coefficient color in order to allow users to easily detect changes. <br>✏️ The dataframe of S1 products is customisable according to users choices, as for the coordinates needed to clip data. In the default CLEOPE workspace the sample list of example products is provided.
 
 ## S2 trial notebook
 [![N|Solid](https://sentinel.esa.int/documents/247904/250463/Sentinel-2-bw-120.jpg)](https://sentinel.esa.int/documents/247904/250463/Sentinel-2-bw-120.jpg)
@@ -103,13 +109,13 @@ ONDA provides access to data and tools related to the Copernicus Atmosphere Moni
 The CAMS oriented trial notebook is an interactive tool aimed at data visualisation of _Analysis_ _Surface Fields_ products, powered by ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), slicing the map in the way of need. 
 
 ## CMEMS trial notebook
-<img src="https://lh3.googleusercontent.com/proxy/f75V78_ncvLdxr9aojyUmAahjPsv9H0DME57ddHnFbApsukPpUU0k3y7G-hFLtfJjWugv58j668E6ziBlbQFNyXS9hMj0EPWgxDXlR1p_dLOw90YTtP2twGvlxG_FtG_XnmoFs7fVfk11ApJlE3rGx4U" width="300" height="150" />
+<img src="https://lh3.googleusercontent.com/proxy/o3qDURw4gqmYvTAyuPBSpuBBRCrifD3KBtXJOIussXml8faBgCBj4RPCa8Ib8zPOOu2WRWwMM5A " width="150" height="100" />
 
 ONDA provides access to the Copernicus Marine Services data sets of ocean products derived from satellite and in situ observation, suited for science and global monitoring purposes. <br>
 CLEOPE CMEMS trial notebook is an interactive tool aimed at data visualisation of _Global Ocean Analysis_ products exploiting the power of ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), visualising interactive layers on the map.
 
 ## CGLS trial notebook
-<img src="https://www.eea.europa.eu/about-us/who/copernicus-1/land-monitoring-logo/image" width="300" height="200" />
+<img src="https://www.eea.europa.eu/about-us/who/copernicus-1/land-monitoring-logo/image" width="200" height="200" />
 The Copernicus Global Land Service (CGLS) is part of ONDA data offer and systematically produces a series of qualified bio-geophysical products on the status and evolution of the land surface, at global scale at mid spatial resolution. <br>
 CLEOPE CGLS trial notebook is an interactive tool aimed at visualising an interactive map of vegetation coverage, powered by ENS. Users can choose a variable indicating the vegetation status to produce an interactive land map.
 
@@ -118,12 +124,12 @@ Trial notebooks make the use of packages and modules that do not come as part of
 
 | | processing|visualization|
 | ------------- | ------ |-------------|
+| `S1`| `GDAL`,`xarray`| `matplotlib`|
 | `S2`| `rasterio`,`cv2`| `matplotlib`,`holoviews`|
 | `S3`| `netCDF4`| `matplotlib`|
 | `S5P`|`netCDF4`|`holoviews`|
 | `CAMS`|`xarray`|`hvplot`|
 | `CMEMS`|`xarray`|`hvplot`|
-| `CGLS`|`xarray`|`hvplot`|
 | `DISCOVER_ONDA`|`requests`| |
 | `ORDER`|`requests`| |
 | `SEARCH`|`requests`|`ipyleaflet`|
