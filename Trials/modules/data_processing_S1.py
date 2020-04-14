@@ -1,8 +1,4 @@
 import xarray, glob, os, subprocess, time
-from ipywidgets import widgets, Layout
-import matplotlib.pyplot as plt
-# import matplotlib
-# import numpy as np
 import pandas as pd
 
 def make_dir():

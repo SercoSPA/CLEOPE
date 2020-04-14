@@ -4,8 +4,6 @@ Created on Mon Jan 13 15:47:00 2020
 
 @author: GCIPOLLETTA
 """
-import sys
-sys.path.append("../")
 import os, glob,json, datetime
 from netCDF4 import Dataset
 import numpy as np
@@ -65,7 +63,12 @@ def plot(ds,key,file):
         temp = datetime.datetime.strptime(p[i].split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S")
         label = datetime.datetime.strftime(temp,"%b/%d/%Y")
         if key in ds[i].columns:
-            images.append(hv.Scatter(ds[i]).opts(color=str(key),cmap=cmap, s=1,title=label,padding=0.05).hist(str(key)))
+#             u = units(file).split(' ')
+#             uni = "".join(u)
+#             ds[i].columns.values[-1] = str(key)+str(uni)
+#             new_key = str(key)+str(uni)
+            images.append(hv.Scatter(ds[i]).opts(color=key,cmap=cmap,title=label,padding=0.05,
+                                                 colorbar=True,colorbar_opts={'label':'mol m-2'}))#.hist(str(key)))           
         i+=1
     return images
 

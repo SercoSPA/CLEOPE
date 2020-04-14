@@ -10,7 +10,6 @@ import pandas as pd
 import numpy as np
 import json, os, glob, xarray
 from datetime import datetime, timedelta
-from tqdm import tqdm_notebook
 
 # Create output directory
 dirName = 'out'

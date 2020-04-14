@@ -1,8 +1,6 @@
 import pandas as pd
 import os, glob, datetime, json
-import rasterio 
 import numpy as np
-from tqdm import tqdm_notebook
 import matplotlib.pyplot as plt
 from ipywidgets import widgets, Layout
 import datetime

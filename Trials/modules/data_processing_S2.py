@@ -13,7 +13,6 @@ cmap = sns.color_palette("RdYlGn",256)
 cmap1 = sns.color_palette("GnBu_d",256)
 from holoviews import opts
 import holoviews as hv
-from ipywidgets import widgets, Layout
 import numpy.ma as ma
 from pathlib import Path
 hv.extension('matplotlib')

@@ -48,9 +48,10 @@ This trial notebook allows the geographical search of ONDA EO data offer by simu
  4. 📝 (optional) save a batch of selected products in a dedicated file named `list.txt` located by default into the `outputs` folder (but any other destinations are allowed within users own workspace).
 
 # Mission dedicated trial notebooks
+<a id="mission"></a>
 This collection of trial notebooks has been published with the purpose of leading users into data processing of EO products exploiting the ONDA data offer in a few mission dedicated tutorials. The current CLEOPE version supports:
- - 🌱 Land applications (S1, S2 and S3)
- - 🏭 Atmospheric applications (S5P and Copernicus Atmosphere Monitoring Services)
+ - 🌱 Land monitoring applications (S1, S2 and S3)
+ - 🏭 Atmospheric monitoring applications (S5P and Copernicus Atmosphere Monitoring Services)
 
 ## S1 trial notebook
 [![N|Solid](https://earth.esa.int/image/image_gallery?uuid=23f73931-c1c7-4013-a7dc-fb506ff182e2&groupId=10174&t=1354275607606)](https://earth.esa.int/image/image_gallery?uuid=23f73931-c1c7-4013-a7dc-fb506ff182e2&groupId=10174&t=1354275607606)
@@ -119,7 +120,7 @@ CLEOPE CMEMS trial notebook is an interactive tool aimed at data visualisation o
 The Copernicus Global Land Service (CGLS) is part of ONDA data offer and systematically produces a series of qualified bio-geophysical products on the status and evolution of the land surface, at global scale at mid spatial resolution. <br>
 CLEOPE CGLS trial notebook is an interactive tool aimed at visualising an interactive map of vegetation coverage, powered by ENS. Users can choose a variable indicating the vegetation status to produce an interactive land map.
 
-# Read more
+# Requirements
 Trial notebooks make the use of packages and modules that do not come as part of the standard Python library, so CLEOPE is provided with additional modules specifically related to each one.
 
 | | processing|visualization|
@@ -134,27 +135,5 @@ Trial notebooks make the use of packages and modules that do not come as part of
 | `ORDER`|`requests`| |
 | `SEARCH`|`requests`|`ipyleaflet`|
 
-Moreover, CLEOPE supports the possibility to install complementary or additional libraries. <br>👉 [Read how to do here](#packages).
-
-# Python 3 Packages
-<a id="packages"></a>
-Users can call 
-```python
-!pip list
-```
-shell command directly into a notebook cell in order to list all the installed packages and version. 
-New packages can be easily installed running:
-```python
-!pip install <package_name>
-```
-or specifying the version
-```python
-!pip install <package_name>==<version>
-```
-# Add modules to local path
-By default, Python looks for its modules and packages in its absolute `PATH`. Within a python script, you can add path(s) occasionally to the default path by adding the following lines in the head section of your python application or script:
-```python
-import sys
-sys.path.append('/home/jupyter-user/directory')
-```
+Moreover, CLEOPE supports the possibility to install complementary or additional libraries. <br>👉 [Read how to do here](../readme.md#packages).
 
