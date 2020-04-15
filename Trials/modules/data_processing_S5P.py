@@ -59,6 +59,7 @@ def plot(ds,key,file):
     label = []
     images = []
     p = query(file)
+    unit = units(file)
     for i in range(len(ds)):
         temp = datetime.datetime.strptime(p[i].split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S")
         label = datetime.datetime.strftime(temp,"%b/%d/%Y")
@@ -68,7 +69,7 @@ def plot(ds,key,file):
 #             ds[i].columns.values[-1] = str(key)+str(uni)
 #             new_key = str(key)+str(uni)
             images.append(hv.Scatter(ds[i]).opts(color=key,cmap=cmap,title=label,padding=0.05,
-                                                 colorbar=True,colorbar_opts={'label':'mol m-2'}))#.hist(str(key)))           
+                                                 colorbar=True,clabel=str(unit)))#.hist(str(key)))           
         i+=1
     return images
 
