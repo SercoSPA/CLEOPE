@@ -1,4 +1,4 @@
-import os, glob, xarray
+import os, glob, xarray,json
 import numpy as np
 import seaborn as sns
 sns.set(style="whitegrid", palette="pastel", color_codes=True)
@@ -7,17 +7,11 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 from tqdm import tqdm_notebook
-import datetime
 
 def product(file):
     with open(file,"r") as f:
         data = f.readlines()
         return [d.split("\n")[0] for d in data]
-
-# def create_labels(file):
-#     items = product(file)
-#     dates = [datetime.datetime.strptime(f.split("/")[-1].split(".")[-2].split("_")[7],"%Y%m%dT%H%M%S") for f in items]
-#     return [datetime.datetime.strftime(d,"%Y-%m%dT%H:%M:%S") for d in dates]
     
 def open_files(file):
     products = product(file)
@@ -92,21 +86,23 @@ def plot_map(grid_x,grid_y,mask,df,ds,centre=None):
     bounds = np.linspace(min, max, 256)
     norm = matplotlib.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
     xc,yc = centre
+    xshape,yshape = shapefile("EMSR435_AOI01_FEP_PRODUCT_observedEventA_r1_v2.json")
     n = len(titles)+1 # we add mask 
     if n%2==0:
-        fig, axs = plt.subplots(int(n//2),2,dpi=100,figsize=(10,6))
+        fig, axs = plt.subplots(int(n//2),2,figsize=(10,8))
         axes = axs.ravel()
         im=axes[0].pcolormesh(grid_x,grid_y,mask,cmap="inferno")
         axes[0].set_aspect('equal', 'box')
         axes[0].plot(xc,yc,"*",color='k',markersize=10)
+        axes[0].plot(xshape,yshape,lw=1.,color="lime")
         axes[0].set(xlabel='longitude',ylabel='latitude')
         axes[0].set_title("mask",fontsize=8)
         divider = make_axes_locatable(axes[0])
         cax = divider.append_axes('right', size='5%', pad=0.05)
         fig.colorbar(im, cax=cax, orientation='vertical',label="K")
         for i,ax in enumerate(axes[1:]):
-#             im=ax.imshow(np.flip(values[i], 1),cmap="viridis",extent=extent,norm=norm,aspect="equal")
             im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="viridis")
+            ax.plot(xshape,yshape,lw=1.,color="lime")
             ax.set_aspect('equal', 'box')
             ax.plot(xc,yc,"*",color='k',markersize=10)
             ax.set(xlabel='longitude',ylabel='latitude')
@@ -114,32 +110,31 @@ def plot_map(grid_x,grid_y,mask,df,ds,centre=None):
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('right', size='5%', pad=0.05)
             fig.colorbar(im, cax=cax, orientation='vertical',label="K") 
-        fig.tight_layout()
+        fig.tight_layout(pad=0.3)
     else:
-        fig, axs = plt.subplots(int(n//2)+1,2,dpi=100,figsize=(10,6))
-        axes = axs.ravel()
-        fig, axs = plt.subplots(int(n//2),2,dpi=100,figsize=(10,6))
+        fig, axs = plt.subplots(int(n//2)+1,2,figsize=(10,8))
         axes = axs.ravel()
         im=axes[0].pcolormesh(grid_x,grid_y,mask,cmap="inferno")
         axes[0].set_aspect('equal', 'box')
         axes[0].plot(xc,yc,"*",color='k',markersize=10)
+        axes[0].plot(xshape,yshape,lw=1.,color="lime")
         axes[0].set(xlabel='longitude',ylabel='latitude')
         axes[0].set_title("mask",fontsize=8)
         divider = make_axes_locatable(axes[0])
         cax = divider.append_axes('right', size='5%', pad=0.05)
         fig.colorbar(im, cax=cax, orientation='vertical',label="K")
-        for i,ax in enumerate(axes):
+        for i,ax in enumerate(axes[1:-1]):
             im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="viridis")
             ax.set_aspect('equal', 'box')
-#             im=ax.imshow(values[i],cmap="viridis",extent=extent,norm=norm,aspect="equal")
             ax.plot(xc,yc,"*",color='k',markersize=10)
+            ax.plot(xshape,yshape,lw=1.,color="lime")
             ax.set(xlabel='longitude',ylabel='latitude')
             ax.set_title(titles[i],fontsize=8)
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('right', size='5%', pad=0.05)
             fig.colorbar(im, cax=cax, orientation='vertical',label="K")
         axes[-1].axis('off')
-        fig.tight_layout()
+        fig.tight_layout(pad=0.3)
     return 
         
 def apply_diff(x,y,target_df,coords,file="slstr_mask.txt",plot=False):
@@ -152,13 +147,10 @@ def apply_diff(x,y,target_df,coords,file="slstr_mask.txt",plot=False):
             pbar.update(1)
     stacked_mask = np.dstack((interp_grid))
     mask = np.median(stacked_mask,axis=2) # pixel along deep axis <<< 
-#     plt.pcolormesh(x,y,mask);plt.colorbar();plt.title("mask")
     diff = [np.subtract(d,mask) for i,d in enumerate(target_df)]
     if plot==True:
         # plot out mask
         fig,ax = plt.subplots(1,1)
-#         for i,data in enumerate(target_df):
-#             sns.distplot(data.ravel(),ax=ax,hist=False)
         sns.distplot(mask.ravel(),ax=ax,label="mask",hist=False)
         ax.set(xlabel="T (K)")
     return mask,diff  
@@ -178,4 +170,8 @@ def uncertainity(file):
         a = [dataset.mean() for dataset in ds]
     return a
 
-
+def shapefile(file):
+    with open(file) as json_file:
+        data = json.load(json_file)
+    aline = np.array(data["features"][2]["geometry"]["coordinates"][0])
+    return aline[:,0],aline[:,1] #lon,lat
