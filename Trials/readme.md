@@ -79,7 +79,8 @@ All generated plots are geo-referenced, through the extraction of coordinates fr
 ## S3 trial notebook
 [![N|Solid](https://sentinel.esa.int/documents/247904/251193/Sentinel-3-ocean-120.jpg)](https://sentinel.esa.int/documents/247904/251193/Sentinel-3-ocean-120.jpg)
 
-Sentinel-3 trial notebook is an introduction to the processing and visualization of Sentinel-3 OLCI Full Resolution Land and Water product types (LFR and WFR), allowing a colormap visualization of the extracted datasets.
+### OLCI L2
+Sentinel-3 OLCI trial notebook is an introduction to the processing and visualization of Sentinel-3 OLCI Full Resolution Land and Water product types (LFR and WFR), allowing a colormap visualization of the extracted datasets.
 The notebook loads a list of custom products, which can be the one saved via the `SEARCH.ipynb`, filters the S3 OLCI full resolution products via two dedicated functions called `land` and `water` for OLCI LFR and WFR respectively, and finally allows the visualisation of the variables of interest in a geo-referenced plot. 
 
 The following table shows the possible variables available in the notebook.
@@ -92,8 +93,14 @@ The following table shows the possible variables available in the notebook.
 
 ✏️ The dataframe of S3 products is customisable according to users choices. In the default CLEOPE workspace a sample list of OLCI products is provided.
 
-## S5P trial notebook 
+### SLSTR RBT L1b
+S3 SLSTR trial notebook is a case study focused on the monitoring of the fire developed near Chernobyl on 4/04/2020. Flames burnt for several days all around the area surrounding the abandoned nuclear power plant, enhancing the risk of emanating radioactive particles. In this trial notebook S3 SLSTR radiometric measurements are used, extracted from L1b products as radiances at the top of the atmosphere (TOA), with the purpose to detect some transient radiation indicating the presence of radioactivity in the area of interest.<br>
+This trial notebook makes use of a module developed for [S5P trial notebook](#S5P) which is helpful in selecting the clip boundaries from the CO emission associated to the fire, being a clear example of synergy between trial notebooks powered by CLEOPE.
 
+✏️ In this example the sample list of S3 products is very oriented on the case study under exam but in principle users can customise this data set according to their own scientific specifications.
+
+## S5P trial notebook 
+<a id="S5P"></a>
 [![N|Solid](https://sentinel.esa.int/documents/247904/1624461/Sentinel-5P_tm.jpg/4dbebdc6-4fb2-47ec-bcb3-065581896ad2?t=1505136035800)](https://sentinel.esa.int/documents/247904/1624461/Sentinel-5P_tm.jpg/4dbebdc6-4fb2-47ec-bcb3-065581896ad2?t=1505136035800)
 
 Sentinel-5P trial notebook is an introduction about the composition of stacked frames of TROPOMI L2 variables in a geo-referenced plot. The notebook loads a list of custom products, which can be the one saved via the `SEARCH.ipynb`, filtering the following TROPOMI L2 variable of interest: CH4, NO2, O3, HCHO, SO2 and CO. Input data sets are then cut by taking as input the vertexes dumped in `polygon.json` reference file, which descends from the `SEARCH.ipynb` notebook (i.e. ✏️ it is the drawn rectangle). In general this operation may induce a loss of resolution in the data visualization since no mosaicing technique is performed on data sets at this level. It is useful, though, due to the hugeness of S5P footprints. <br>
