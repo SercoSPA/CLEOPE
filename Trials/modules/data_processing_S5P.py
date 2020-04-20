@@ -1,10 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jan 13 15:47:00 2020
-
-@author: GCIPOLLETTA
-"""
-import os, glob,json, datetime
+import os, glob,json, datetime,xarray
 from netCDF4 import Dataset
 import numpy as np
 import matplotlib 
@@ -15,12 +9,11 @@ from tqdm import tqdm_notebook
 import matplotlib.animation as animation
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import imageio
-# from IPython.core.display import display, HTML
 from IPython.display import Image
 import matplotlib.ticker as ticker
 from ipywidgets import widgets, Layout
+from scipy.interpolate import griddata
 
-# cmap = sns.cubehelix_palette(light=1,as_cmap=True)
 cmap = matplotlib.cm.magma_r
 
 from holoviews import opts
@@ -64,11 +57,7 @@ def plot(ds,key,file):
         temp = datetime.datetime.strptime(p[i].split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S")
         label = datetime.datetime.strftime(temp,"%b/%d/%Y")
         if key in ds[i].columns:
-#             u = units(file).split(' ')
-#             uni = "".join(u)
-#             ds[i].columns.values[-1] = str(key)+str(uni)
-#             new_key = str(key)+str(uni)
-            images.append(hv.Scatter(ds[i]).opts(color=key,cmap=cmap,title=label,padding=0.05,
+            images.append(hv.Scatter(ds[i]).opts(s=20,color=key,cmap=cmap,title=label,padding=0.05,
                                                  colorbar=True,clabel=str(unit)))#.hist(str(key)))           
         i+=1
     return images
@@ -77,7 +66,6 @@ def read(bounds,file):
     products = query(file)
     latmin,latmax,lonmin,lonmax = bounds
     datasets = list()
-    #with tqdm_notebook(total=len(products),desc="Reading...") as pbar:
     for file in products:
         try:
             f = Dataset(file)
@@ -123,30 +111,6 @@ def dates(products):
 import ipywidgets as widgets
 from IPython.display import display
 
-# def multiplot(Variable):
-#     ds = read(read_coordinates(),verbose=False)
-#     labels = dates(query())
-#     if ds == 1:
-#         print("Unrecognized variable set, drop plotting")
-#         return None
-#     z = [ds[i].columns[-1] for i in range(len(ds))]
-# #     seen = set()
-# #     z = [x for x in z_tmp if x not in seen and not seen.add(x)] # remove repeated elements in list
-#     val = np.arange(0,len(z),1)
-#     map = {}
-#     for key,values in zip(z,val):
-#         map[key] = values
-#     opts = z
-#     display(hv.Scatter(ds[map[Variable]]).opts(color=Variable,cmap=cmap,s=50,
-#                                                title=labels[map[Variable]],padding=0.05).hist(Variable))
-
-# def variables():
-#     df = read(read_coordinates())
-#     z = [df[i].columns[-1] for i in range(len(df))]
-# #     return z
-#     seen = set()
-#     return [x for x in z if x not in seen and not seen.add(x)]  
-    
 def units(file):
     products = query(file)
     for file in products:
@@ -180,10 +144,8 @@ def analysis(df,key,file):
         data.iloc[i,1] = df[i][key].mean()
         data.iloc[i,0] = days[i]
     data.sort_values(by="date",inplace=True)
-#     display(data)    
     xlims=(data.iloc[0,0],data.iloc[-1,0])
     fig,ax = plt.subplots(1,1,constrained_layout=False)
-#     ax = sns.lineplot(x="date",y="val_u",data=data,color="Navy")
     if key == "NO2":
         variable = data.val_u*1E6
         ax.plot(data.date,variable,"-o")
@@ -197,7 +159,6 @@ def analysis(df,key,file):
     ax.set(xlim=xlims,ylim=ylims,xlabel="date",ylabel=label,title="Timeseries of %s mean value over selected area"%key)
     ax.grid(color="lavender")
     ax.set_xticks(days)
-#     ax.xaxis.set_major_locator(ticker.MultipleLocator(2))
     fig.autofmt_xdate()
     return data
 
@@ -273,5 +234,84 @@ def choose():
     btn = widgets.Button(description="CLICK to submit")
     display(btn)
     return mission,btn,label
-    
-    
+
+def mapping(bounds,ds,file,plotmap=False,centre=(None,None),dynamic=False):
+    ymin,ymax,xmin,xmax = bounds
+    gridx = np.linspace(xmin,xmax,1000)
+    gridy = np.linspace(ymin,ymax,1000)
+    grid_x, grid_y = np.meshgrid(gridx,gridy)
+    maps = []
+    for dataset in ds:
+        M = np.copy(dataset.values)
+        interp = griddata(M[:,0:2], M[:,-1], (grid_x, grid_y), method="cubic")
+        maps.append(interp*1E3)
+    if plotmap==True:
+        keys = [d.columns[-1] for d in ds]
+        plot_maps(grid_x, grid_y, maps, file, centre, keys, dynamic)
+    return maps
+        
+def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
+    xc,yc = centre
+    if dynamic==True:
+        maxs = [d[~np.isnan(d)].max() for d in df]
+        bounds = [np.linspace(0, max, 256) for max in maxs]
+        norm = [matplotlib.colors.BoundaryNorm(boundaries=b, ncolors=256) for b in bounds]
+    else:
+        maxs = [d[~np.isnan(d)].max() for d in df]
+        min,max=(0,np.array(maxs).max())
+        bounds = np.linspace(0, max, 256)
+        norm = matplotlib.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    products = query(file)
+    titles = [xarray.open_dataset(p).attrs["time_coverage_start"] for p in products]
+    unit = units(file)
+    n = len(df)
+    if n%2==0:
+        fig, axs = plt.subplots(int(n//2),2,figsize=(10,8))
+        axes = axs.ravel()
+        for i,ax in enumerate(axes):
+            if dynamic==True:
+                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm[i],cmap="inferno")
+            else:
+                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="inferno")
+            ax.plot(xc,yc,'o',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
+            ax.set_aspect('equal', 'box')
+            ax.set(xlabel='longitude',ylabel='latitude')
+            ax.set_title(titles[i],fontsize=8)
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit) 
+        fig.tight_layout()
+    else:
+        if n==1:
+            i=0
+            fig, ax = plt.subplots(1,1,figsize=(8,6),dpi=100)
+            if dynamic==True:
+                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm[i],cmap="inferno")
+            else:
+                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="inferno")
+            ax.plot(xc,yc,'o',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
+            ax.set_aspect('equal', 'box')
+            ax.set(xlabel='longitude',ylabel='latitude')
+            ax.set_title(titles[i],fontsize=8)
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit) 
+            fig.tight_layout()
+        else:
+            fig, axs = plt.subplots(int(n//2)+1,2,figsize=(10,8))
+            axes = axs.ravel()
+            for i,ax in enumerate(axes):
+                if dynamic==True:
+                    im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm[i],cmap="inferno")
+                else:
+                    im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="inferno")
+                ax.plot(xc,yc,'o',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
+                ax.set_aspect('equal', 'box')
+                ax.set(xlabel='longitude',ylabel='latitude')
+                ax.set_title(titles[i],fontsize=8)
+                divider = make_axes_locatable(ax)
+                cax = divider.append_axes('right', size='5%', pad=0.05)
+                fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit)
+            axes[-1].axis('off')
+            fig.tight_layout()
+    return 

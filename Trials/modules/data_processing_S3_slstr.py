@@ -56,7 +56,7 @@ def distribution(coords,datasets,plot=False):
     if plot == True:
         fig,ax = plt.subplots(1,1,figsize=(8,4))
         for i in range(len(M)):
-            sns.distplot(M[i][:,2],ax=ax,label=titles[i],hist=False)
+            sns.distplot(M[i][:,2],ax=ax,label=titles[i],hist=True)
         ax.set(xlabel='  '.join([var[0].attrs["standard_name"],var[0].attrs["units"]]),title="TOA temperature distribution")
         ax.legend()
     return M
@@ -86,6 +86,7 @@ def plot_map(grid_x,grid_y,mask,df,ds,centre=None):
     bounds = np.linspace(min, max, 256)
     norm = matplotlib.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
     xc,yc = centre
+    circ = plt.Circle((xc, yc), 0.381,color="Red",fill=False)
     xshape,yshape = shapefile("EMSR435_AOI01_FEP_PRODUCT_observedEventA_r1_v2.json")
     n = len(titles)+1 # we add mask 
     if n%2==0:
@@ -94,6 +95,7 @@ def plot_map(grid_x,grid_y,mask,df,ds,centre=None):
         im=axes[0].pcolormesh(grid_x,grid_y,mask,cmap="inferno")
         axes[0].set_aspect('equal', 'box')
         axes[0].plot(xc,yc,"*",color='k',markersize=10)
+        axes[0].add_artist(circ)
         axes[0].plot(xshape,yshape,lw=1.,color="lime")
         axes[0].set(xlabel='longitude',ylabel='latitude')
         axes[0].set_title("mask",fontsize=8)
@@ -101,8 +103,10 @@ def plot_map(grid_x,grid_y,mask,df,ds,centre=None):
         cax = divider.append_axes('right', size='5%', pad=0.05)
         fig.colorbar(im, cax=cax, orientation='vertical',label="K")
         for i,ax in enumerate(axes[1:]):
+            circ = plt.Circle((xc, yc), 0.381,color="Red",fill=False)
             im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="viridis")
             ax.plot(xshape,yshape,lw=1.,color="lime")
+            ax.add_artist(circ)
             ax.set_aspect('equal', 'box')
             ax.plot(xc,yc,"*",color='k',markersize=10)
             ax.set(xlabel='longitude',ylabel='latitude')
@@ -118,15 +122,18 @@ def plot_map(grid_x,grid_y,mask,df,ds,centre=None):
         axes[0].set_aspect('equal', 'box')
         axes[0].plot(xc,yc,"*",color='k',markersize=10)
         axes[0].plot(xshape,yshape,lw=1.,color="lime")
+        axes[0].add_artist(circ)
         axes[0].set(xlabel='longitude',ylabel='latitude')
         axes[0].set_title("mask",fontsize=8)
         divider = make_axes_locatable(axes[0])
         cax = divider.append_axes('right', size='5%', pad=0.05)
         fig.colorbar(im, cax=cax, orientation='vertical',label="K")
         for i,ax in enumerate(axes[1:-1]):
+            circ = plt.Circle((xc, yc), 0.381,color="Red",fill=False)
             im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="viridis")
             ax.set_aspect('equal', 'box')
             ax.plot(xc,yc,"*",color='k',markersize=10)
+            ax.add_artist(circ)
             ax.plot(xshape,yshape,lw=1.,color="lime")
             ax.set(xlabel='longitude',ylabel='latitude')
             ax.set_title(titles[i],fontsize=8)
@@ -151,8 +158,9 @@ def apply_diff(x,y,target_df,coords,file="slstr_mask.txt",plot=False):
     if plot==True:
         # plot out mask
         fig,ax = plt.subplots(1,1)
-        sns.distplot(mask.ravel(),ax=ax,label="mask",hist=False)
+        sns.distplot(mask.ravel(),ax=ax,label="mask",hist=True)
         ax.set(xlabel="T (K)")
+        ax.legend()
     return mask,diff  
 
 def reference_df(file,coords):
@@ -175,3 +183,9 @@ def shapefile(file):
         data = json.load(json_file)
     aline = np.array(data["features"][2]["geometry"]["coordinates"][0])
     return aline[:,0],aline[:,1] #lon,lat
+
+def draw_circle(centre,radius=0.381):
+    xc,yc = centre
+    angles = np.linspace(0, 2*np.pi, 100)
+    return (radius*np.sin(angles)+xc,radius*np.cos(angles)+yc)
+    
