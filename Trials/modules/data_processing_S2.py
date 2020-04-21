@@ -16,6 +16,7 @@ import holoviews as hv
 import numpy.ma as ma
 from pathlib import Path
 hv.extension('matplotlib')
+sns.set_style("ticks")
 
 def products(file):
     with open(file,"r") as f:
@@ -83,7 +84,7 @@ def choose(mlist):
     return mission,btn,label
 
 # plot stack of 3 colors 
-def image(S2_files,show=False):
+def image(S2_files,ax=True,show_equal=False):
     if not S2_files:
         print("Error: no bands found")
         return None
@@ -118,6 +119,8 @@ def image(S2_files,show=False):
     # read coordinates to be assigned to the imshow extent
     coords = list(bounds())
     extent = tuple([coords[0],coords[2],coords[1],coords[3]])
+    if ax == False:
+        extent = tuple([coords[0],coords[2],coords[3],coords[1]]) # some S2 products are packed with latitude mirrored 
     print("- Creating RGB stack")
     Stk_images = np.concatenate(S2_images, axis=0)
     rgb = np.dstack((Stk_images[2],Stk_images[1],Stk_images[0]))
@@ -127,7 +130,7 @@ def image(S2_files,show=False):
     eq_G = cv2.equalizeHist(norm_img[:,:,1].astype(np.uint8))
     eq_B = cv2.equalizeHist(norm_img[:,:,2].astype(np.uint8))
     eq_RGB = np.dstack((eq_R,eq_G,eq_B)) 
-    if show == True:
+    if show_equal == True:
         print("Equalization results")
         plt.figure(); plt.hist(norm_img[:,:,0].ravel(),bins=256,color="Blue"); plt.grid(color="lavender",lw=0.5); plt.show()
         plt.figure(); plt.hist(eq_RGB.ravel(),bins=256,color="Red");plt.grid(color="lavender",lw=0.5); plt.show()

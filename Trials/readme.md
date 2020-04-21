@@ -106,7 +106,8 @@ This trial notebook makes use of a module developed for [S5P trial notebook](#S5
 Sentinel-5P trial notebook is an introduction about the composition of stacked frames of TROPOMI L2 variables in a geo-referenced plot. The notebook loads a list of custom products, which can be the one saved via the `SEARCH.ipynb`, filtering the following TROPOMI L2 variable of interest: CH4, NO2, O3, HCHO, SO2 and CO. Input data sets are then cut by taking as input the vertexes dumped in `polygon.json` reference file, which descends from the `SEARCH.ipynb` notebook (i.e. ✏️ it is the drawn rectangle). In general this operation may induce a loss of resolution in the data visualization since no mosaicing technique is performed on data sets at this level. It is useful, though, due to the hugeness of S5P footprints. <br>
 Sentinel-5P tutorial is developed into two case study taken under analysis.
 1. The carbon monoxide (CO) variation over the western Australia, a region which was hit by several fire episodes during December 2019 and January 2020;
-2. The nitrogen dioxide (NO2) overall decline over Italy due to the lockdown during the emergency of COVID-19 virus in February/March 2020.
+2. The nitrogen dioxide (NO2) overall decline over Italy due to the lockdown during the emergency of COVID-19 virus in February/March 2020;
+3. The sulfure dioxide (SO2) transient concentration over the Anak Krakatoa volcano, located in the Sonda strait between Sumatra and Java islands in Indonesia, which awoke on 12/04/2020.
 
 ✏️ The dataframe of S5P dataframes is customisable according to users choices. In the default CLEOPE workspace a sample list of products is provided, suited on the cases of study described above.
 

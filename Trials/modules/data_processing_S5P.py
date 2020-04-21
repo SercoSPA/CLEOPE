@@ -35,7 +35,6 @@ def query(file):
         print("Error invalid filename.")
         return None
         
-
 def read_coordinates(path=os.getcwd(),filename='polygon.json'):
     file = glob.glob(os.path.join(path,filename),recursive=True)[0]
     with open(file, 'r') as fp:
@@ -110,7 +109,7 @@ def dates(products):
 
 import ipywidgets as widgets
 from IPython.display import display
-
+   
 def units(file):
     products = query(file)
     for file in products:
@@ -235,6 +234,7 @@ def choose():
     display(btn)
     return mission,btn,label
 
+# new functions 
 def mapping(bounds,ds,file,plotmap=False,centre=(None,None),dynamic=False):
     ymin,ymax,xmin,xmax = bounds
     gridx = np.linspace(xmin,xmax,1000)
@@ -266,13 +266,13 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
     unit = units(file)
     n = len(df)
     if n%2==0:
-        fig, axs = plt.subplots(int(n//2),2,figsize=(10,8))
+        fig, axs = plt.subplots(int(n//2),2,figsize=(12,10),dpi=75)
         axes = axs.ravel()
         for i,ax in enumerate(axes):
             if dynamic==True:
-                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm[i],cmap="inferno")
+                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm[i],cmap="magma")
             else:
-                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="inferno")
+                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="magma")
             ax.plot(xc,yc,'o',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
             ax.set_aspect('equal', 'box')
             ax.set(xlabel='longitude',ylabel='latitude')
@@ -286,9 +286,9 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
             i=0
             fig, ax = plt.subplots(1,1,figsize=(8,6),dpi=100)
             if dynamic==True:
-                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm[i],cmap="inferno")
+                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm[i],cmap="magma")
             else:
-                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="inferno")
+                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="magma")
             ax.plot(xc,yc,'o',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
             ax.set_aspect('equal', 'box')
             ax.set(xlabel='longitude',ylabel='latitude')
@@ -300,11 +300,11 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
         else:
             fig, axs = plt.subplots(int(n//2)+1,2,figsize=(10,8))
             axes = axs.ravel()
-            for i,ax in enumerate(axes):
+            for i,ax in enumerate(axes[:-1]):
                 if dynamic==True:
-                    im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm[i],cmap="inferno")
+                    im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm[i],cmap="magma")
                 else:
-                    im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="inferno")
+                    im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="magma")
                 ax.plot(xc,yc,'o',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
                 ax.set_aspect('equal', 'box')
                 ax.set(xlabel='longitude',ylabel='latitude')

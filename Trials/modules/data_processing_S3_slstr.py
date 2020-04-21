@@ -188,4 +188,53 @@ def draw_circle(centre,radius=0.381):
     xc,yc = centre
     angles = np.linspace(0, 2*np.pi, 100)
     return (radius*np.sin(angles)+xc,radius*np.cos(angles)+yc)
-    
+
+# plot the map after interpolation (no mask)
+def image(grid_x,grid_y,df,ds,centre=None):
+    lon,lat,var,titles = ds
+    mins = [d[~np.isnan(d)].min() for d in df]
+    maxs = [d[~np.isnan(d)].max() for d in df]
+    min,max=(np.array(mins).min(),np.array(maxs).max())
+    bounds = np.linspace(min, max, 256)
+    norm = matplotlib.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    xc,yc = centre
+    n = len(titles) # we add mask 
+    if n%2==0:
+        fig, axs = plt.subplots(int(n//2),2,figsize=(10,8))
+        axes = axs.ravel()
+        for i,ax in enumerate(axes[1:]):
+            im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="magma")
+            ax.set_aspect('equal', 'box')
+            ax.plot(xc,yc,"o",color='k',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
+            ax.set(xlabel='longitude',ylabel='latitude')
+            ax.set_title(titles[i],fontsize=8)
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            fig.colorbar(im, cax=cax, orientation='vertical',label="K") 
+        fig.tight_layout(pad=0.3)
+    else:
+        if n==1:
+            fig,ax = plt.subplots(1,1,figsize=(10,8))
+            im = ax.pcolormesh(grid_x,grid_y,df[0],norm=norm,cmap="magma")
+            ax.set_aspect('equal', 'box')
+            ax.plot(xc,yc,"o",color='k',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
+            ax.set(xlabel='longitude',ylabel='latitude')
+            ax.set_title(titles[0],fontsize=8)
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            fig.colorbar(im, cax=cax, orientation='vertical',label="K")
+            fig.tight_layout()
+        else:
+            fig, axs = plt.subplots(int(n//2)+1,2,figsize=(10,8))
+            axes = axs.ravel()
+            for i,ax in enumerate(axes[:-1]):
+                im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="magma")
+                ax.set_aspect('equal', 'box')
+                ax.plot(xc,yc,"o",color='k',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
+                ax.set(xlabel='longitude',ylabel='latitude')
+                ax.set_title(titles[i],fontsize=8)
+                divider = make_axes_locatable(ax)
+                cax = divider.append_axes('right', size='5%', pad=0.05)
+                fig.colorbar(im, cax=cax, orientation='vertical',label="K")
+            axes[-1].axis('off')
+            fig.tight_layout(pad=0.3)
