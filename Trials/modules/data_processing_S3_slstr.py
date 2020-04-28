@@ -214,12 +214,12 @@ def image(grid_x,grid_y,df,ds,centre=None):
         fig.tight_layout(pad=0.3)
     else:
         if n==1:
-            fig,ax = plt.subplots(1,1,figsize=(10,8))
+            fig,ax = plt.subplots(1,1,figsize=(10,8),dpi=100)
             im = ax.pcolormesh(grid_x,grid_y,df[0],norm=norm,cmap="magma")
             ax.set_aspect('equal', 'box')
             ax.plot(xc,yc,"o",color='k',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
             ax.set(xlabel='longitude',ylabel='latitude')
-            ax.set_title(titles[0],fontsize=8)
+            ax.set_title(titles[0],fontsize=12)
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('right', size='5%', pad=0.05)
             fig.colorbar(im, cax=cax, orientation='vertical',label="K")
@@ -238,3 +238,4 @@ def image(grid_x,grid_y,df,ds,centre=None):
                 fig.colorbar(im, cax=cax, orientation='vertical',label="K")
             axes[-1].axis('off')
             fig.tight_layout(pad=0.3)
+    return fig

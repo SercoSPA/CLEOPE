@@ -1,5 +1,6 @@
 import xarray, glob, os, subprocess, time
 import pandas as pd
+import warnings
 
 def make_dir():
     try:
@@ -45,7 +46,7 @@ def run(file):
     except:
         raise Exception("Error when running file %s"%file)
 
-def image():
+def image(rgb=False):
     clipped_files = glob.glob("clipped_files/*.tiff",recursive=True)
     if len(clipped_files)>0:
         data_sets, titles = [], []
@@ -56,9 +57,28 @@ def image():
         dc = xarray.concat([d for d in data_sets],pd.Index([d.attrs["TIFFTAG_DATETIME"] for d in data_sets]))
         dc = dc.rename({"concat_dim":"UTC"})
         t = dc.transpose("x","y","UTC").isel(UTC=slice(0,len(data_sets),1))
-        g_simple = t.plot(x='x', y='y',col='UTC',col_wrap=2,robust=True,cmap="binary_r",figsize=(15,6))
-        return data_sets
+        if dc.shape[0]<3:
+            if dc.shape[0]==1:
+                col_warp = 1
+            else:
+                col_warp = 2
+        else:
+            col_warp = 3
+        g_simple = t.plot(x='x', y='y',col='UTC',col_wrap=col_warp,robust=True,cmap="binary_r",figsize=(15,5),cbar_kwargs={'pad':0.02})
+        RGB(dc,rgb)
+        return dc
     else:
-        print("No .tiff clips found in clipped_files folder")
+        warnings.warn("No tiff clips found in clipped_files folder")
         return None
+
+def RGB(dc,rgb):
+    # check dimensions along time
+    if rgb == True:
+        if dc.shape[0]!=3:
+            warnings.warn("Invalid shape for RGB stack")
+        else:
+            dc["band"] = "RGB"
+            dc.plot.imshow(robust=True,figsize=(8,6))
+    else:
+        return 
         

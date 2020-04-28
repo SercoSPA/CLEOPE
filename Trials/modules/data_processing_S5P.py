@@ -56,8 +56,8 @@ def plot(ds,key,file):
         temp = datetime.datetime.strptime(p[i].split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S")
         label = datetime.datetime.strftime(temp,"%b/%d/%Y")
         if key in ds[i].columns:
-            images.append(hv.Scatter(ds[i]).opts(s=20,color=key,cmap=cmap,title=label,padding=0.05,
-                                                 colorbar=True,clabel=str(unit)))#.hist(str(key)))           
+            images.append(hv.Scatter(ds[i]).opts(s=10,color=key,cmap=cmap,title=label,padding=0.05,
+                                                 colorbar=True,clabel=str(key)+'  '+str(unit)))#.hist(str(key)))           
         i+=1
     return images
 
@@ -65,6 +65,7 @@ def read(bounds,file):
     products = query(file)
     latmin,latmax,lonmin,lonmax = bounds
     datasets = list()
+    #with tqdm_notebook(total=len(products),desc="Reading...") as pbar:
     for file in products:
         try:
             f = Dataset(file)
@@ -109,7 +110,8 @@ def dates(products):
 
 import ipywidgets as widgets
 from IPython.display import display
-   
+
+    
 def units(file):
     products = query(file)
     for file in products:
@@ -235,7 +237,7 @@ def choose():
     return mission,btn,label
 
 # new functions 
-def mapping(bounds,ds,file,plotmap=False,centre=(None,None),dynamic=False):
+def mapping(bounds,ds,file,plotmap=False,centre=(None,None),dynamic=False,method='cubic'):
     ymin,ymax,xmin,xmax = bounds
     gridx = np.linspace(xmin,xmax,1000)
     gridy = np.linspace(ymin,ymax,1000)
@@ -243,12 +245,14 @@ def mapping(bounds,ds,file,plotmap=False,centre=(None,None),dynamic=False):
     maps = []
     for dataset in ds:
         M = np.copy(dataset.values)
-        interp = griddata(M[:,0:2], M[:,-1], (grid_x, grid_y), method="cubic")
+        interp = griddata(M[:,0:2], M[:,-1], (grid_x, grid_y), method=method)
         maps.append(interp*1E3)
     if plotmap==True:
         keys = [d.columns[-1] for d in ds]
-        plot_maps(grid_x, grid_y, maps, file, centre, keys, dynamic)
-    return maps
+        fig = plot_maps(grid_x, grid_y, maps, file, centre, keys, dynamic)
+    else:
+        fig = None
+    return grid_x,grid_y,maps,fig
         
 def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
     xc,yc = centre
@@ -314,4 +318,4 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
                 fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit)
             axes[-1].axis('off')
             fig.tight_layout()
-    return 
+    return fig

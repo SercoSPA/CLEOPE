@@ -1,174 +1,95 @@
-import pandas as pd
-import os, glob, datetime, json
+import os, glob, xarray
 import numpy as np
-import matplotlib.pyplot as plt
-from ipywidgets import widgets, Layout
-import datetime
-import seaborn as sns
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib 
-from netCDF4 import Dataset
-from dateutil import parser
+import warnings
 
-cmap = sns.color_palette("RdYlGn",256)
+switcher = {
+        "TSM_NN":"tsm_nn.nc",
+        "CHL_OC4ME":"chl_oc4me.nc",
+        "CHL_NN":"chl_nn.nc",
+        "IWV":"iwv.nc",
+        "OTCI":"otci.nc",
+        "OGVI":"ogvi.nc",
+    }
 
 def products(file):
     with open(file,"r") as f:
         data = f.readlines()
         list = [d.split("\n")[0] for d in data]
-    if "_local" in file:
-        return list 
-    elif "_remote" in file:
-        return list
-    else:
-        print("Error invalid filename.")
-        return None
+    return list
 
-def _list_():
-    return glob.glob("list*",recursive=True)
+def key2file(argument):
+    return switcher.get(argument, "Invalid input, choices: %s"%list(switcher.keys()))
     
-def choose_files():
-    mission = widgets.Dropdown(
-    options=_list_(),
-    description='Product:',
-    layout=Layout(width="30%"),
-    disabled=False,
-    )
-    display(mission)
-    label = widgets.Label()
-    btn = widgets.Button(description="CLICK to submit")
-    display(btn)
-    return mission,btn,label      
+def check_file(files):
+    flag = []
+    cleanf = files.copy()
+    for f in files:
+        if "_OL_2_WFR" in f:
+            flag.append(0)
+        elif "_OL_2_LFR" in f:
+            flag.append(1)
+        else:
+            cleanf.remove(f)
+            continue
+    return cleanf,flag
     
-def dates(products):
-    dates = [datetime.datetime.strptime(p.split("/")[-1].split("_")[2],"%Y%m%dT%H%M%S") for p in products]
-    return [datetime.datetime.strftime(d,"%b/%d/%Y") for d in dates]
+def open_da(products,key):
+    files,flag = check_file(products)
+    c,v = [],[]
+    ncfile = key2file(key)
+    if ncfile not in list(switcher.values()):
+        print("Invalid input for key value, choices: %s"%list(switcher.keys()))
+        return 
+    for p in files:
+        geos = glob.glob(p+"/**/geo_coordinates.nc",recursive=True)
+        bands = glob.glob(p+"/**/"+str(ncfile),recursive=True)
+        if len(geos)>0 and len(bands)>0:
+            try:
+                coords = xarray.open_dataset(geos[0])
+                var = xarray.open_dataset(bands[0])
+            except:
+                raise Exception("HDF error when handling %s"%p)
+            c.append(coords)
+            v.append(var)
+        else:
+            warnings.warn("%s not found"%p)
+    return c,v # list of merged datasets
 
-def bounds():
-    try:
-        with open('polygon.json', 'r') as fp:
-            polysel = json.load(fp)
-            return tuple([polysel["coordinates"][0][0][0],polysel["coordinates"][0][0][1],polysel["coordinates"][0][2][0],polysel["coordinates"][0][1][1]])
-    except:
-        return None
-
-
-def water(olcis,imgname,var="tsm_nn"):
-    opt = ["tsm_nn","chl_oc4me","iwv"]
-    inf = np.array([0,1E-1,1])
-    bmap = {}; nmap = {}
-    for key,values in zip(opt,inf):
-        bmap[key] = values
-    u = ["g m-3","mg(ch a) m-3","kg m-2"]
-    for key,values in zip(opt,u):
-        nmap[key] = values
-    if var not in opt:
-        print("Water: variable name error")
-        return None
-    f_geo = glob.glob(olcis+"/**/geo_coordinates.nc",recursive=True)
-    if f_geo:
-        f_geo = f_geo[0]
+def make_ds(files,key,bounds=None):
+    if bounds:
+        xmin,xmax,ymin,ymax = bounds
+    c,v = open_da(files,key)
+    dataset = []
+    for coords,var in zip(c,v):
+        dam = xarray.merge([coords,var],join="exact") # merge
+        if bounds:
+            ind_y = np.logical_and(dam.latitude>ymin,dam.latitude<ymax)
+            ind_x = np.logical_and(dam.longitude>xmin,dam.longitude<xmax)
+            ind = np.logical_and(ind_x,ind_y)
+            daclip = dam.where(ind)
+        else:
+            daclip = dam.copy()
+        dtime64 = np.datetime64(var.attrs["start_time"]) # sensing start
+        # create the clipped dataset
+        darr = xarray.Dataset({str(key):(['rows', 'columns'],daclip[str(key)].data)},
+                                coords={'lat': (['rows', 'columns'],daclip.latitude.data),
+                                        'lon': (['rows', 'columns'],daclip.longitude.data),
+                                        'time': dtime64})
+        # give attrs
+        darr.attrs = var.attrs
+        darr[str(key)].attrs = var[str(key)].attrs
+        if key in list(switcher.keys())[-2:]: # OTCI and OGVI do not have units 
+            darr[str(key)].attrs['units'] = str(key)
+        darr.lat.attrs = coords.latitude.attrs
+        darr.lon.attrs = coords.longitude.attrs
+        dataset.append(darr)
+        dam,darr = None,None
+    c,v = None,None
+    if len(dataset)>1:
+        try:
+            return xarray.concat(dataset,dim='time')
+        except:
+            raise Exception("Error when concat along time, data must be time ordered")
     else:
-        print("Product not found\n")
-        return 1
-    try:
-        geoc = Dataset(f_geo)
-    except:
-        raise Exception("NetCDF Error while reading file %s"%f_geo)
-        return 1
-    lat = geoc.variables["latitude"][::]
-    long = geoc.variables["longitude"][::]
-    tile = (long.min(),long.max(),lat.min(),lat.max())
-    f_w = glob.glob(olcis+"/**/"+str(var)+".nc",recursive=True)[0]
-    try:
-        nc = Dataset(f_w)
-    except:
-        raise Exception("NetCDF Error while reading file %s"%f_w)
-        return 1
-    _temp = olcis.split("/")[-1]
-    _date = _temp.split("_")[-11]
-    _obj = parser.parse(_date)
-    title = _obj.strftime("%b %d %Y %H:%M")
-#     cmap = matplotlib.cm.jet
-    cmap = matplotlib.cm.ocean_r
-    fig,ax = plt.subplots(1,1,sharey=True,figsize=(10,6))
-    varname = var.upper()
-    temp = nc.variables[varname][::] 
-    im = ax.imshow(temp,cmap=cmap,extent=(long.min(),long.max(),lat.min(),lat.max()))
-    ax.set(xlabel='longitude',ylabel="latitude",title=title)
-    max = np.max(temp.max())
-    bounds = np.linspace(bmap[var],max,256)
-    norm = matplotlib.colors.BoundaryNorm(boundaries=bounds,ncolors=256) #
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right",size="5%",pad=0.05)
-    cb = matplotlib.colorbar.ColorbarBase(cax,cmap=cmap,norm=norm,orientation="vertical")
-    cb.set_label(nmap[var])
-    plt.show()
-    wd = os.getcwd()
-    dirName = "plots"
-    try:
-        os.mkdir(os.path.join(wd,dirName))
-        print("Created directory %s collecting plots" %os.path.join(wd,dirName))
-    except FileExistsError:
-        print("Directory %s collects plots" %os.path.join(wd,dirName))
-    dest = os.path.join(wd,dirName)
-    fig.savefig(dest+"/"+str(imgname)+".png",dpi=150)
-    print("%s saved in %s"%(imgname,dest))
-    plt.close()
-
-def land(olcis,imgname,var="otci"):
-    opt = ["otci","ogvi","iwv"]
-    if var not in opt:
-        print("Land: variable name error")
-        return None
-    f_geo = glob.glob(olcis+"/**/geo_coordinates.nc",recursive=True)
-    if f_geo:
-        f_geo = f_geo[0]
-    else:
-        print("Product not found\n")
-        return 1
-    try:
-        geoc = Dataset(f_geo)
-    except:
-        raise Exception("NetCDF Error while reading file %s"%f_geo)
-        return 1
-    lat = geoc.variables["latitude"][::]
-    long = geoc.variables["longitude"][::]
-    tile = (long.min(),long.max(),lat.min(),lat.max())
-    f = glob.glob(olcis+"/**/"+str(var)+".nc",recursive=True)[0]
-    try:
-        nc = Dataset(f)
-    except:
-        raise Exception("NetCDF Error while reading file %s"%f)
-        return 1
-    _temp = olcis.split("/")[-1]
-    _date = _temp.split("_")[-11]
-    _obj = parser.parse(_date)
-    title = _obj.strftime("%b %d %Y %H:%M")
-#     cmap = matplotlib.cm.terrain_r
-    cmap = matplotlib.cm.gist_earth_r
-    fig,ax = plt.subplots(1,1,sharey=True,figsize=(10,6))
-    varname = var.upper()
-    temp = nc.variables[varname][::] 
-    im = ax.imshow(temp,cmap=cmap,extent=(long.min(),long.max(),lat.min(),lat.max()))
-    ax.set(xlabel='longitude',ylabel="latitude",title=title)
-    max = np.max(temp.max()); min = np.min(temp.min())
-    bounds = np.linspace(min,max,256)
-    norm = matplotlib.colors.BoundaryNorm(boundaries=bounds,ncolors=256) #
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right",size="5%",pad=0.05)
-    cb = matplotlib.colorbar.ColorbarBase(cax,cmap=cmap,norm=norm,orientation="vertical")
-    cb.set_label(var)
-    plt.show()
-    wd = os.getcwd()
-    dirName = "plots"
-    try:
-        os.mkdir(os.path.join(wd,dirName))
-        print("Created directory %s collecting plots" %os.path.join(wd,dirName))
-    except FileExistsError:
-        print("Directory %s collects plots" %os.path.join(wd,dirName))
-    dest = os.path.join(wd,dirName)
-    fig.savefig(dest+"/"+str(imgname)+".png",dpi=150)
-    print("%s saved in %s"%(imgname,dest))
-    plt.close()    
-   
+        return dataset[0]
+    

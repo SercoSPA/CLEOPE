@@ -57,7 +57,7 @@ This collection of trial notebooks has been published with the purpose of leadin
 [![N|Solid](https://earth.esa.int/image/image_gallery?uuid=23f73931-c1c7-4013-a7dc-fb506ff182e2&groupId=10174&t=1354275607606)](https://earth.esa.int/image/image_gallery?uuid=23f73931-c1c7-4013-a7dc-fb506ff182e2&groupId=10174&t=1354275607606)
 
 Sentinel-1 trial notebook is a useful introduction to Sentinel-1 data processing aimed at finding new build-up areas, in order to monitor how the urban sprawl is changing the environment. Sentinel-1 trial notebook is dedicated to the visualisation of the built-up area extended near Wuhan, where a new hospital has been built in 10 days during the COVID-19 emergency. <br>
-To this aim the S1 L1 Ground Range Detected (GRD) products with high resolution (H), sensed before and after the building site in order to detect the environmental changes. Images are clipped over custom-selected coordinates and plot out on screen side-by-side, normalised over the backscattering coefficient color in order to allow users to easily detect changes. <br>✏️ The dataframe of S1 products is customisable according to users choices, as for the coordinates needed to clip data. In the default CLEOPE workspace the sample list of example products is provided.
+To this aim the S1 L1 Ground Range Detected (GRD) products with high resolution (H), sensed before and after the building site in order to detect the environmental changes. Images are clipped over custom-selected coordinates and plot out on screen side-by-side, normalised over the backscattering coefficient color in order to allow users to easily detect landcover changes. <br>✏️ The dataframe of S1 products is customisable according to users choices, as for the coordinates needed to clip data. In the default CLEOPE workspace the sample list of example products is provided.
 
 ## S2 trial notebook
 [![N|Solid](https://sentinel.esa.int/documents/247904/250463/Sentinel-2-bw-120.jpg)](https://sentinel.esa.int/documents/247904/250463/Sentinel-2-bw-120.jpg)
@@ -79,17 +79,18 @@ All generated plots are geo-referenced, through the extraction of coordinates fr
 ## S3 trial notebook
 [![N|Solid](https://sentinel.esa.int/documents/247904/251193/Sentinel-3-ocean-120.jpg)](https://sentinel.esa.int/documents/247904/251193/Sentinel-3-ocean-120.jpg)
 
-### OLCI L2
+### OLCI L2 LFR-WFR
 Sentinel-3 OLCI trial notebook is an introduction to the processing and visualization of Sentinel-3 OLCI Full Resolution Land and Water product types (LFR and WFR), allowing a colormap visualization of the extracted datasets.
-The notebook loads a list of custom products, which can be the one saved via the `SEARCH.ipynb`, filters the S3 OLCI full resolution products via two dedicated functions called `land` and `water` for OLCI LFR and WFR respectively, and finally allows the visualisation of the variables of interest in a geo-referenced plot. 
+With this notebook users can load OLCI LFR and WFR products, collected into separated lists, extracting the data sets through the `xarray` Python package; data sets are re-arranged and concatenated together into a final 3d data array which depth is the new _time_ dimension. Users can also specify bounds as `xmin,xmax,ymin,ymax` to create a custom subset over these vertexes.
+Finally the visualisation of the variables of interest is displayed in a dynamical and interactive geo-referenced plot. <br>
+The following table shows the possible variables available in the notebook. Possible choices vary according to the OLCI product type.
 
-The following table shows the possible variables available in the notebook.
-
-| `land`       |   | `water`       | | 
-| ------------- | ------ |-------------|-------------|
-| OTCI     | _OLCI_ _Terrestrial_ _Chlorophyll_ _Index_| TSM | _Total_ _Suspended_ _Matter_ |
-|OGVI      |_OLCI_ _Global_ _Vegetation_ _Index_ | CHL_OC4ME |Algal Pigment Concentration  |
-| IWV | _Integrated_ _Water_ _Vapour_ |IWV | _Integrated_ _Water_ _Vapour_|
+| _LFR_ | _WFR_ |
+| --- | --- |
+| `OTCI` OLCI Terrestrial Clorophyll Index| `TSM_NN` Total suspended matter concentration (Neural Net)|
+| `OGVI` OLCI Global Vegetation Index | `CHL_OC4ME` Algal pigment concentration|
+| `IWV` Integrated water vapour column above the current pixel|`CHL_NN` Algal pigment concentration (Neural Net)|
+||`IWV` Integrated water vapour column above the current pixel|
 
 ✏️ The dataframe of S3 products is customisable according to users choices. In the default CLEOPE workspace a sample list of OLCI products is provided.
 
@@ -112,33 +113,34 @@ Sentinel-5P tutorial is developed into two case study taken under analysis.
 ✏️ The dataframe of S5P dataframes is customisable according to users choices. In the default CLEOPE workspace a sample list of products is provided, suited on the cases of study described above.
 
 ## CAMS trial notebook
-<img src="https://atmosphere.copernicus.eu/themes/custom/ce/logo.svg" width="200" height="200" />
+<img src="https://www.copernicus.eu/sites/default/files/styles/servicecards_icon_hover/public/2018-10/Atmosphere-hover.png?itok=rc5-OANv" width="100" height="100" />
 
 ONDA provides access to data and tools related to the Copernicus Atmosphere Monitoring Services with an extensive catalogue of products coming from a variety of sources. These products are released in the form of maps and charts, being an ensemble of air quality models processed by diverse data centres. <br>
 The CAMS oriented trial notebook is an interactive tool aimed at data visualisation of _Analysis_ _Surface Fields_ products, powered by ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), slicing the map in the way of need. 
 
 ## CMEMS trial notebook
-<img src="https://lh3.googleusercontent.com/proxy/o3qDURw4gqmYvTAyuPBSpuBBRCrifD3KBtXJOIussXml8faBgCBj4RPCa8Ib8zPOOu2WRWwMM5A " width="150" height="100" />
+<img src="https://www.copernicus.eu/sites/default/files/styles/servicecards_icon_hover/public/2018-10/Marine-hover.png?itok=0bCGpFuu" width="100" height="100" />
 
 ONDA provides access to the Copernicus Marine Services data sets of ocean products derived from satellite and in situ observation, suited for science and global monitoring purposes. <br>
 CLEOPE CMEMS trial notebook is an interactive tool aimed at data visualisation of _Global Ocean Analysis_ products exploiting the power of ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), visualising interactive layers on the map.
 
 ## CGLS trial notebook
-<img src="https://www.eea.europa.eu/about-us/who/copernicus-1/land-monitoring-logo/image" width="200" height="200" />
+<img src="https://www.copernicus.eu/sites/default/files/styles/servicecards_icon_hover/public/2018-10/Land-hover.png?itok=LuSkXVw2" width="100" height="100" />
 The Copernicus Global Land Service (CGLS) is part of ONDA data offer and systematically produces a series of qualified bio-geophysical products on the status and evolution of the land surface, at global scale at mid spatial resolution. <br>
 CLEOPE CGLS trial notebook is an interactive tool aimed at visualising an interactive map of vegetation coverage, powered by ENS. Users can choose a variable indicating the vegetation status to produce an interactive land map.
 
 # Requirements
-Trial notebooks make the use of packages and modules that do not come as part of the standard Python library, so CLEOPE is provided with additional modules specifically related to each one.
+Trial notebooks make the use of packages and modules that do not come as part of the standard Python library, so CLEOPE is provided with additional modules specifically related to each one. Main Python modules associated to each notebook are collected in the Table below.
 
 | | processing|visualization|
 | ------------- | ------ |-------------|
 | `S1`| `GDAL`,`xarray`| `matplotlib`|
 | `S2`| `rasterio`,`cv2`| `matplotlib`,`holoviews`|
-| `S3`| `netCDF4`| `matplotlib`|
+| `S3`| `xarray`| `hvplot`|
 | `S5P`|`netCDF4`|`holoviews`|
-| `CAMS`|`xarray`|`hvplot`|
+| `CAMS`|`xarray`|`hvplot`,`matplotlib`|
 | `CMEMS`|`xarray`|`hvplot`|
+| `CGLS`|`xarray`|`hvplot`|
 | `DISCOVER_ONDA`|`requests`| |
 | `ORDER`|`requests`| |
 | `SEARCH`|`requests`|`ipyleaflet`|
