@@ -136,9 +136,9 @@ Trial notebooks make the use of packages and modules that do not come as part of
 | ------------- | ------ |-------------|
 | `S1`| `GDAL`,`xarray`| `matplotlib`|
 | `S2`| `rasterio`,`cv2`| `matplotlib`,`holoviews`|
-| `S3`| `xarray`| `hvplot`|
+| `S3`| `xarray`| `hvplot`,`matplotlib`|
 | `S5P`|`netCDF4`|`holoviews`|
-| `CAMS`|`xarray`|`hvplot`,`matplotlib`|
+| `CAMS`|`xarray`|`hvplot`|
 | `CMEMS`|`xarray`|`hvplot`|
 | `CGLS`|`xarray`|`hvplot`|
 | `DISCOVER_ONDA`|`requests`| |

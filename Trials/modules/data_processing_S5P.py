@@ -1,18 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+@author: GCIPOLLETTA
+"""
 import os, glob,json, datetime,xarray
 from netCDF4 import Dataset
 import numpy as np
 import matplotlib 
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
-from tqdm import tqdm_notebook
-import matplotlib.animation as animation
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import imageio
-from IPython.display import Image
-import matplotlib.ticker as ticker
-from ipywidgets import widgets, Layout
+from IPython.display import Image, display
 from scipy.interpolate import griddata
+from pathlib import Path
+import warnings
 
 cmap = matplotlib.cm.magma_r
 
@@ -22,18 +23,26 @@ hv.extension('matplotlib')
 
 gif_name = "pmovie.gif"
 
+L2_variables = {"CO":"carbonmonoxide_total_column",
+                "HCHO":"formaldehyde_tropospheric_vertical_column",
+                "CH4":"methane_mixing_ratio",
+                "SO2":"sulfurdioxide_total_vertical_column",
+                "NO2":"nitrogendioxide_tropospheric_column",
+                "O3":"ozone_total_vertical_column",
+               }
+
 def query(file):
     with open(file,"r") as f:
         data = f.readlines()
         list = [d.split("\n")[0] for d in data]
-    if "_local" in file:
-        return list 
-    elif "_remote" in file:
-        nc = [p.split("/")[-1].split(".")[0]+".nc" for p in list]
-        return [os.path.join(list[i],nc[i]) for i in range(len(list))]
-    else:
-        print("Error invalid filename.")
-        return None
+    products = []
+    for item in list:
+        if item.endswith('.nc'):
+            products.append(item)
+        else:
+            for file in Path(item).rglob('*.nc'):
+                products.append(str(file))
+    return products
         
 def read_coordinates(path=os.getcwd(),filename='polygon.json'):
     file = glob.glob(os.path.join(path,filename),recursive=True)[0]
@@ -47,7 +56,8 @@ def read_coordinates(path=os.getcwd(),filename='polygon.json'):
     return [bounds_stack[1].min(),bounds_stack[1].max(),bounds_stack[0].min(),bounds_stack[0].max()]
 
 def plot(ds,key,file):
-    # ["CO","HCHO","CH4","SO2","NO2","O3"] avaliable keys for S5P
+    if key not in list(L2_variables.keys()):
+        warnings.warn("Unknown key, call dp.L2_variables.keys() to display choices.")
     label = []
     images = []
     p = query(file)
@@ -65,7 +75,6 @@ def read(bounds,file):
     products = query(file)
     latmin,latmax,lonmin,lonmax = bounds
     datasets = list()
-    #with tqdm_notebook(total=len(products),desc="Reading...") as pbar:
     for file in products:
         try:
             f = Dataset(file)
@@ -90,7 +99,7 @@ def read(bounds,file):
                 var = f["PRODUCT"].variables["ozone_total_vertical_column"][0,::]
                 key = "O3"
             else:
-                print("Key Error: unrecognized variable")
+                print("Key Error: unknown variable")
                 return 1
             b = np.ma.where(np.logical_and(np.logical_and(lat>=latmin,lat<=latmax),np.logical_and(lon>lonmin,lon<lonmax)))
             A = np.ma.zeros((len(b[0]),3))
@@ -107,11 +116,7 @@ def read(bounds,file):
 def dates(products):
     dates = [datetime.datetime.strptime(p.split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S") for p in products]
     return [datetime.datetime.strftime(d,"%Y - %b - %d") for d in dates]
-
-import ipywidgets as widgets
-from IPython.display import display
-
-    
+   
 def units(file):
     products = query(file)
     for file in products:
@@ -134,6 +139,8 @@ def units(file):
     return unit    
 
 def analysis(df,key,file):
+    if key not in list(L2_variables.keys()):
+        raise KeyError("Unknown key, call dp.L2_variables.keys() to display choices.")
     plt.ion() # mute plots 
     u = units(file) # pick up units from nc file
     data = pd.DataFrame(np.nan,columns=["date","val_u"],index=range(len(df)))
@@ -164,6 +171,8 @@ def analysis(df,key,file):
     return data
 
 def plot_var(ds,key,file,create_movie=True):
+    if key not in list(L2_variables.keys()):
+        raise KeyError("Unknown key, call dp.L2_variables.keys() to display choices.")
     plt.ioff() # mute plots 
     dirName = 'plots'
     try:
@@ -220,23 +229,6 @@ def display_img(img_file=gif_name):
     with open(img_file,'rb') as f:
         display(Image(data=f.read(), format='png'))
     
-def _list_():
-    return glob.glob("list*",recursive=True)
-    
-def choose():
-    mission = widgets.Dropdown(
-    options=_list_(),
-    description='Reading list:',
-    layout=Layout(width="30%"),
-    disabled=False,
-    )
-    display(mission)
-    label = widgets.Label()
-    btn = widgets.Button(description="CLICK to submit")
-    display(btn)
-    return mission,btn,label
-
-# new functions 
 def mapping(bounds,ds,file,plotmap=False,centre=(None,None),dynamic=False,method='cubic'):
     ymin,ymax,xmin,xmax = bounds
     gridx = np.linspace(xmin,xmax,1000)
@@ -280,7 +272,7 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
             ax.plot(xc,yc,'o',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
             ax.set_aspect('equal', 'box')
             ax.set(xlabel='longitude',ylabel='latitude')
-            ax.set_title(titles[i],fontsize=8)
+            ax.set_title(titles[i],fontsize=12)
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('right', size='5%', pad=0.05)
             fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit) 
@@ -296,7 +288,7 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
             ax.plot(xc,yc,'o',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
             ax.set_aspect('equal', 'box')
             ax.set(xlabel='longitude',ylabel='latitude')
-            ax.set_title(titles[i],fontsize=8)
+            ax.set_title(titles[i],fontsize=12)
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('right', size='5%', pad=0.05)
             fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit) 
@@ -312,7 +304,7 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
                 ax.plot(xc,yc,'o',markersize=10,markerfacecolor="None",markeredgecolor='lime', markeredgewidth=1.)
                 ax.set_aspect('equal', 'box')
                 ax.set(xlabel='longitude',ylabel='latitude')
-                ax.set_title(titles[i],fontsize=8)
+                ax.set_title(titles[i],fontsize=12)
                 divider = make_axes_locatable(ax)
                 cax = divider.append_axes('right', size='5%', pad=0.05)
                 fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit)
