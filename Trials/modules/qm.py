@@ -15,6 +15,7 @@ import datetime, time
 import threading
 from IPython.display import display
 from tqdm import tqdm_notebook
+import warnings
 
 du_thresh = 3 # GiB threshold for a single product
 
@@ -162,6 +163,7 @@ def download(product,username,password):
     dataframe = get_my_product(product)
     uuid = dataframe.iloc[:,0].values[0]
     curl = "https://catalogue.onda-dias.eu/dias-catalogue/Products("+uuid+")/$value" 
+    remove_item(dest,product) # check if products already exists in folder and delete it
     if check_size_disk():
         file = download_item(curl,(username, password),os.path.join(dest,product))
         if product.endswith(".zip"):  
@@ -179,12 +181,6 @@ def download(product,username,password):
         elif product.endswith(".nc"):
             print("%s successfully downloaded"%product)
             flag = False
-#         elif product.startswith("EN1_"): #! Envisat not supported 
-#             with zipfile.ZipFile(file, 'r') as zip_ref:
-#                 zip_ref.extractall(os.path.join(dest,product.split(".")[0]+".en1"))
-#             zip_ref.close()
-#             print("%s successfully downloaded"%product)
-#             flag = True
         else:
             print("Product not recognized as .zip, .nc or .tar.gz. !Check out product name and specify extension.>\nPlease note that Envisat products are not supported by this function: download Envisat from ONDA Catalogue.<")
             return None
@@ -221,4 +217,32 @@ def check_size_disk():
         return True
     else:
         return False
-    
+
+def remove_item(location,item): # location and product file
+    file = glob.glob(os.path.join(location,item.split(".")[0]+'*'),recursive=True)
+    if file:
+        warnings.warn("Item: %s has already been downloaded."%item)
+        if os.path.isdir(file[0]):
+            try:
+                shutil.rmtree(file[0])
+            except:
+                raise Exception("Exception occurred when trying to remove %s"%file)
+        elif os.path.isfile(file[0]):
+            os.remove(file[0])
+        else:
+            raise ValueError("Unrecognized item %s"%file[0])
+            
+def download_list(file,username,password):
+    with open(file,"r") as f:
+        data = f.readlines()
+        list = [d.split("\n")[0] for d in data]
+    if list:
+        for f in list:
+            download(f,username,password)
+        print("\n EOF: Good Job!")
+        return 0
+    else:
+        warning.warn("Empty file list: %s"%file)
+
+        
+        

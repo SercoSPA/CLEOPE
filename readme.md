@@ -63,14 +63,10 @@ Registered users' hardware features are:
     - command line:<br>`cp:error writing 'file': Disk quota exceeded`
     - GUI: <br><img src="Trials/media/disk_quota_error.png" alt="drawing" width="300"/>
 
-- **RAM limit** - for memory consuming assignments the RAM threshold may be exceeded so the exception<br>
-    ````python
-    MemoryError:
-    ````
-    is raised. In this case users have to restart kernel -<br> 
-    🔄 Kernel Restart & ▶️ Run<br> being careful to run only tasks compliant to the quota limit imposed by CLEOPE configuration. Please note that shutdown unused notebooks is supplemental to helping with memory errors.
+- **RAM limit** - If users use more than the allowed amount of RAM, their notebook kernel will restart and a pop-up message is displayed:
+<br><img src="Trials/media/dead_kernel.png" alt="drawing" width="300"/> <br>No other actions are allowed on the notebook in this case. Please note that shutdown unused notebooks is supplemental to helping with memory errors.
 
-- **CPU property** specifies the total CPU cores that each user can use within CLEOPE workspace..
+- **CPU limit** specifies the total CPU cores that each user can use within CLEOPE workspace. If the CPU limit is exceeded, computations may become very slow.
 
 👉 Please note that CLEOPE service can be upgraded to _premium_ according to our commercial offer (REFERENCE), allowing to increase the resources.
 

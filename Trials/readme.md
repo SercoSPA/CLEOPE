@@ -34,7 +34,15 @@ import qm
 qm.download(product,"onda_username","onda_pswd")
 ````
 where the product field is the requested item.
-Users need to specify their ONDA username and password and the product name they are interested in, including its native format (i.e. zip, netCDF).
+Users need to specify their ONDA username and password and the product name they are interested in, including its native format (i.e. zip, netCDF).<br>
+Similarly, users can download products recursively from a custom list given as input of the `download_list` function:
+````python
+import os, sys
+sys.path.append(os.path.join(os.path.expanduser("~"),"Trials/modules"))
+import qm
+qm.download_list("list_of_products.txt","onda_username","onda_pswd")
+````
+Also in this case the native file format of products in the list must be specified explicitly.
 
 ## ORDER trial notebook
 This trial notebook provides the possibility to order an archived product via Jupyter. Archived products, in fact, are not available to ENS browsing nor to the download via 🌍ONDA Catalogue. <br>👉 [Read more on ONDA Catalogue](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-overview/).<br>
@@ -136,9 +144,9 @@ Trial notebooks make the use of packages and modules that do not come as part of
 | ------------- | ------ |-------------|
 | `S1`| `GDAL`,`xarray`| `matplotlib`|
 | `S2`| `rasterio`,`cv2`| `matplotlib`,`holoviews`|
-| `S3`| `xarray`| `hvplot`,`matplotlib`|
+| `S3`| `xarray`| `hvplot`|
 | `S5P`|`netCDF4`|`holoviews`|
-| `CAMS`|`xarray`|`hvplot`|
+| `CAMS`|`xarray`|`hvplot`,`matplotlib`|
 | `CMEMS`|`xarray`|`hvplot`|
 | `CGLS`|`xarray`|`hvplot`|
 | `DISCOVER_ONDA`|`requests`| |
