@@ -11,7 +11,8 @@ Example notebooks provided into CLEOPE are split into two main categories:
   - a set of templates aimed at facilitating the data access on Cloud;
   - a collection of mission specific tutorials, particularly suited for educational purposes, which will help users to process EO data offered by ONDA.
 
-Technical details are provided 👉 [here](#tech).
+More information on the Jupyter Notebooks application can be found  in the 👉 [official documentation](https://jupyter-notebook.readthedocs.io/en/stable/).<br>
+Details on CLEOPE available resources provided 👉 [here](#tech).
 
 # The Workspace
 CLEOPE **public workspace** offers collection of template notebooks aimed at easly introducing users to browse, inspect and download Copernicus products via the OData API protocol and DIAS-ONDA Advanced API (ENS). 
@@ -22,7 +23,7 @@ CLEOPE **public workspace** offers collection of template notebooks aimed at eas
 Via their own Jupyter notebooks users can easily download ONDA products, by specifying their ONDA `username` and `password` and the desired items. The download option is supported by the [OData API](https://www.onda-dias.eu/cms/knowledge-base/odata-odata-open-data-protocol/) protocol which allows browsing the ONDA Catalogue and then selecting and downloading EO products. All the downloaded products are stored in the 📁`local_files` folder accessible within user own CLEOPE workspace, unzipped and ready to be used.
 
 ### Advanced API (ENS) provided interface
-On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) software providesa front-end to the ONDA Data Storage  which extends traditional Object Storages API by exposing standard Directories and Files. Within CLEOPE a dedicated ENS access point exposing products in their native format is provided to users that want to directly access products and process them. 
+On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) software provides a front-end to the ONDA Data Storage  which extends traditional Object Storages API by exposing standard Directories and Files. Within CLEOPE a dedicated ENS access point exposing products in their native format is provided to users that want to directly access products and process them. Check out [here](#pseudopaths) how to access products via ENS.
 
 ## Default directory tree
 
@@ -57,7 +58,7 @@ Registered users' hardware features are:
 
 | **Disk** |**RAM**|**CPU**|
 | ------------- | ------ |-------------|
-|20 GB|2 GB|2|
+|20 GB|7 GB|2|
 
 - **Disk limit** - when the threshold is exceeded an error message is printed out on screen, by both
     - command line:<br>`cp:error writing 'file': Disk quota exceeded`
@@ -92,3 +93,16 @@ By default, Python looks for its modules and packages in its absolute `PATH`. Wi
 import sys
 sys.path.append('/home/jupyter-user/directory')
 ```
+## ENS path to products
+<a id="pseudopaths"></a>
+Within CLEOPE environment, EO cloud resources can be easily accessed via the Advanced API (ENS).<br> Products are spread into hierarchical directories given the CLEOPE mounting point:
+````shell
+/mnt/Copernicus
+````
+Remote location of products can therefore be composed as follows:
+
+|Mounting Point|Pseudopath|Product name|
+| -------------|-------------|-------------|
+`/mnt/Copernicus`|`What/When`|`filename.ext`
+
+where the product name extension _.ext_ will depend on the product main class. We strongly recommand to read the [ONDA official documentation](https://www.onda-dias.eu/cms/knowledge-base/adapi-path-to-products/) about ENS path to products.

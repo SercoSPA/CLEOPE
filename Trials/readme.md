@@ -1,5 +1,31 @@
-# ONDA data access dedicated trial notebooks
+[![N|Solid](https://www.onda-dias.eu/cms/wp-content/uploads/2018/06/logo_onda_retina.png)](https://www.onda-dias.eu/cms/)
 
+# CLEOPE Jupyter Notebooks suite
+
+<img src="./media/nb_flavour.PNG" alt="drawing" width="500"/>
+
+Example notebooks provided into CLEOPE are split into two main categories:
+  - a set of templates aimed at facilitating the data access on Cloud;
+  - a collection of mission specific tutorials, particularly suited for educational purposes, which will help users to perform basic processing of EO data offered by ONDA.
+
+Find the contents below:
+1. [ONDA data access dedicated notebooks](#main1)
+    1. [Discover ENS](#discover_ENS)
+    2. [Download products via Jupyter Notebook](#odata)
+    3. [Order products via Jupyter Notebook](#order)
+    4. [Search products by AOI via Jupyter Notebook](#search)
+2. [Mission-dedicated notebooks](#mission)
+    1. [Sentinel 1](#s1)
+    2. [Sentinel 2](#s2)
+    3. [Sentinel 3](#s3)
+    4. [Sentinel 5P](#S5P)
+    5. [Copernicus Atmosphere](#cams)
+    6. [Copernicus Marine](#cmems)
+    7. [Copernicus Land](#cland)
+3. [Python packages requirements](#requirements)
+
+# ONDA data access dedicated trial notebooks
+<a id="main1"></a>
 <img src="./media/actions.PNG" alt="drawing" width="200"/>
 
 The data access template notebooks are called as follows:
@@ -14,9 +40,11 @@ This set of trial notebooks is aimed at facilitating the data access on Cloud, i
  - the way to browse geographical areas of interest via Jupyter Notebook.
  
 ## DISCOVER_ONDA trial notebook
+<a id="discover_onda"></a>
 This notebook is an easy introduction to the use of [ENS](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) and to the product download via Jupyter notebooks. Both methods allow users to access the online ONDA data offer.
 
 ### Discover ENS
+<a id="discover_ENS"></a>
 Within CLEOPE a dedicated ENS access point exposes products in their native format so that they are accessible to users, who can process them without any previous download. The trial notebook finds a product in the remote file system, if:
  - the single product name is given, or
  - a list of product names stored in a 📄`.txt` file is given.
@@ -45,10 +73,12 @@ qm.download_list("list_of_products.txt","onda_username","onda_pswd")
 Also in this case the native file format of products in the list must be specified explicitly.
 
 ## ORDER trial notebook
+<a id="order"></a>
 This trial notebook provides the possibility to order an archived product via Jupyter. Archived products, in fact, are not available to ENS browsing nor to the download via 🌍ONDA Catalogue. <br>👉 [Read more on ONDA Catalogue](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-overview/).<br>
 Given the product name as input, `ORDER.ipynb` notebook orders the product via [OData HTTP POST protocol](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-via-odata-api/), suited to perform this kind of action. A progress bar is displayed for checking the time left; no worry if the action may take up to 30 minutes to be completed!🕕🕡 It includes the time needed to refresh ♻️ ENS as well.  
 
 ## SEARCH trial notebook
+<a id="search"></a>
 This trial notebook allows the geographical search of ONDA EO data offer by simutating a small 🌍ONDA Catalogue via Jupyter Notebook. The geographical search works with few simple steps:
  1. ✏️ Select an area of interest on a map drawing a rectangle, a polygon or a polyline. The selected geo-coordinates are saved in a 📄`.json` file;
  2. ✔️ (optional) select mission, product type and sensing range filters. Please note that in case many results are expected, the performace can be impacted, so it is strongly recommended to set filters on;
@@ -57,40 +87,40 @@ This trial notebook allows the geographical search of ONDA EO data offer by simu
 
 # Mission dedicated trial notebooks
 <a id="mission"></a>
-This collection of trial notebooks has been published with the purpose of leading users into data processing of EO products exploiting the ONDA data offer in a few mission dedicated tutorials. The current CLEOPE version supports:
- - 🌱 Land monitoring applications (S1, S2 and S3)
- - 🏭 Atmospheric monitoring applications (S5P and Copernicus Atmosphere Monitoring Services)
+This collection of trial notebooks has been published with the purpose of leading users into basic operations of data processing of EO products exploiting the ONDA data offer in a few mission dedicated tutorials. The current CLEOPE version supports:
+ - 🌱 Land/Water monitoring applications
+ - 🏭 Atmospheric monitoring applications 
+ 
+both using Sentinels and Copernicus Services products. 
 
 ## S1 trial notebook
+<a id="s1"></a>
 [![N|Solid](https://earth.esa.int/image/image_gallery?uuid=23f73931-c1c7-4013-a7dc-fb506ff182e2&groupId=10174&t=1354275607606)](https://earth.esa.int/image/image_gallery?uuid=23f73931-c1c7-4013-a7dc-fb506ff182e2&groupId=10174&t=1354275607606)
 
 Sentinel-1 trial notebook is a useful introduction to Sentinel-1 data processing aimed at finding new build-up areas, in order to monitor how the urban sprawl is changing the environment. Sentinel-1 trial notebook is dedicated to the visualisation of the built-up area extended near Wuhan, where a new hospital has been built in 10 days during the COVID-19 emergency. <br>
-To this aim the S1 L1 Ground Range Detected (GRD) products with high resolution (H), sensed before and after the building site in order to detect the environmental changes. Images are clipped over custom-selected coordinates and plot out on screen side-by-side, normalised over the backscattering coefficient color in order to allow users to easily detect landcover changes. <br>✏️ The dataframe of S1 products is customisable according to users choices, as for the coordinates needed to clip data. In the default CLEOPE workspace the sample list of example products is provided.
+To this aim the S1 L1 Ground Range Detected (GRD) products with high resolution (H), sensed before and after the building site in order to detect the environmental changes. Images are clipped over custom-selected coordinates and plot out on screen side-by-side, normalised over the backscattering coefficient color in order to allow users to easily detect landcover changes. Optionally, a false color RGB stack can be created by concatenating datasets along their temporal dimension (3 products required).<br>✏️ The dataframe of S1 products is customisable according to users choices, as for the coordinates needed to clip data. In the default CLEOPE workspace the sample list of example products is provided.
 
 ## S2 trial notebook
+<a id="s2"></a>
 [![N|Solid](https://sentinel.esa.int/documents/247904/250463/Sentinel-2-bw-120.jpg)](https://sentinel.esa.int/documents/247904/250463/Sentinel-2-bw-120.jpg)
 
-Sentinel-2 trial notebook is a useful introduction to Sentinel-2 products processing. 
-This notebook loads a custom list of products, which can be the one saved in `SEARCH.ipynb`, and filters the S2 products. Module `data_processing_S2` directly finds products pseudopath and unpack raster data with the purposes of:
- - Compose and visualize a true RGB stack in a few computational steps:
-    - open S2 red, green and blue channels as raster data matrixes;
-    - compose the 3D matrix of colors;
-    - equalize the image
-    - show the image. 📷
- - Compose and visualize the _Normalised_ _Burnt_ _Index_ (NBR) on a timeseries. This operation is interesting if applied on a dataframe containing the same S2 tile subject to hard changes in the vegetation richness (e.g fires 🔥) on different sensing dates, so that to detect changes in the vegetation water content. 
- - Compose and visualise a false color image (using SWIR and NIR bands) aimed at enhancing the snow coverage on the image representation. Computational steps are identical to the RGB stack.
- - Compose and visualise the _Normalised_ _Difference_ _Snow_ _Index_ (NDSI) on a timeseries. This computation is interesting if applied on the same area analysed during different seasons so that it is possible to see changes in the snow/ice ❄️ content. 
+Sentinel-2 trial notebook is a useful introduction to Sentinel-2 products tile processing.
+The module `data_processing_S2_affine` unpack raster data and perform a coordinates reprojection to allow optional clips on the image. Examples are based on popular RGB compositions (true color, false color IR and false color NIR) and on index computations. In particular notebooks show the computation of:
+- the _Normalised_ _Burnt_ _Index_, on the Australian areas hit by fires during December 2019;
+- the _Normalised_ _Difference_ _Snow_ _Index_ which is shown on a glacier in Sierra Nevada
+- the _Normalised Difference Water Index_ aimed at detecting floating plastic in the sea.
 
-All generated plots are geo-referenced, through the extraction of coordinates from raster data.<br> 
-✏️ The dataframe of S2 tiles is customisable according to users choices. In the default CLEOPE workspace a sample list of examples is provided.
+Optionally, users can compute other indexes via the combination of `bands` and `ratio` functions provided in the suite, given an input resolution. All Sentinel-2 bands are at users disposal to this aim. The generated plots are geo-referenced through the extraction of coordinates from raster data.<br> 
+✏️ The dataframe of S2 tiles is customisable according to users choices. In the default CLEOPE workspace a sample list of products is provided on the example detailed above.
 
 ## S3 trial notebook
+<a id="s3"></a>
 [![N|Solid](https://sentinel.esa.int/documents/247904/251193/Sentinel-3-ocean-120.jpg)](https://sentinel.esa.int/documents/247904/251193/Sentinel-3-ocean-120.jpg)
 
 ### OLCI L2 LFR-WFR
 Sentinel-3 OLCI trial notebook is an introduction to the processing and visualization of Sentinel-3 OLCI Full Resolution Land and Water product types (LFR and WFR), allowing a colormap visualization of the extracted datasets.
-With this notebook users can load OLCI LFR and WFR products, collected into separated lists, extracting the data sets through the `xarray` Python package; data sets are re-arranged and concatenated together into a final 3d data array which depth is the new _time_ dimension. Users can also specify bounds as `xmin,xmax,ymin,ymax` to create a custom subset over these vertexes.
-Finally the visualisation of the variables of interest is displayed in a dynamical and interactive geo-referenced plot. <br>
+With this notebook users can load OLCI LFR and WFR products, collected into separated lists, extract the data sets to re-arranging and concatenating them together to obtain a final 3d data array which depth is the new _time_ dimension. Users can also specify bounds as `xmin,xmax,ymin,ymax` to create a custom subset.
+The visualisation of the variables of interest is displayed in an interactive geo-referenced plot. <br>
 The following table shows the possible variables available in the notebook. Possible choices vary according to the OLCI product type.
 
 | _LFR_ | _WFR_ |
@@ -112,32 +142,40 @@ This trial notebook makes use of a module developed for [S5P trial notebook](#S5
 <a id="S5P"></a>
 [![N|Solid](https://sentinel.esa.int/documents/247904/1624461/Sentinel-5P_tm.jpg/4dbebdc6-4fb2-47ec-bcb3-065581896ad2?t=1505136035800)](https://sentinel.esa.int/documents/247904/1624461/Sentinel-5P_tm.jpg/4dbebdc6-4fb2-47ec-bcb3-065581896ad2?t=1505136035800)
 
-Sentinel-5P trial notebook is an introduction about the composition of stacked frames of TROPOMI L2 variables in a geo-referenced plot. The notebook loads a list of custom products, which can be the one saved via the `SEARCH.ipynb`, filtering the following TROPOMI L2 variable of interest: CH4, NO2, O3, HCHO, SO2 and CO. Input data sets are then cut by taking as input the vertexes dumped in `polygon.json` reference file, which descends from the `SEARCH.ipynb` notebook (i.e. ✏️ it is the drawn rectangle). In general this operation may induce a loss of resolution in the data visualization since no mosaicing technique is performed on data sets at this level. It is useful, though, due to the hugeness of S5P footprints. <br>
+Sentinel-5P trial notebook is an introduction about the composition of stacked frames of TROPOMI L2 variables CH4, NO2, O3, HCHO, SO2 and CO in a geo-referenced plot. Input data sets can be cut by taking an input footprint clip, given by hand by users or rather using the `SEARCH.ipynb` notebook (i.e. ✏️ draw rectangle on the map) which automatically dumps the input vertexes in the `polygon.json` reference file. In general this operation may induce a loss of resolution in the data visualization since no mosaicing technique is performed on the data sets. Clipping S5P datasets is useful, though, due to the hugeness of S5P footprints. <br>
 Sentinel-5P tutorial is developed into two case study taken under analysis.
-1. The carbon monoxide (CO) variation over the western Australia, a region which was hit by several fire episodes during December 2019 and January 2020;
-2. The nitrogen dioxide (NO2) overall decline over Italy due to the lockdown during the emergency of COVID-19 virus in February/March 2020;
-3. The sulfure dioxide (SO2) transient concentration over the Anak Krakatoa volcano, located in the Sonda strait between Sumatra and Java islands in Indonesia, which awoke on 12/04/2020.
+1. The carbon monoxide (CO) variation over the western Australia, hit by several fire episodes during December 2019 and January 2020;
+2. The nitrogen dioxide (NO2) overall decline over Italy due to the lockdown emergency of COVID-19 during February/March 2020;
+3. The sulfure dioxide (SO2) transient concentration over the Anak Krakatoa volcano (Indonesia), which awoke on 12/04/2020.
 
-✏️ The dataframe of S5P dataframes is customisable according to users choices. In the default CLEOPE workspace a sample list of products is provided, suited on the cases of study described above.
+✏️ The dataframe of S5P dataframes is customisable according to users choices. In the default CLEOPE workspace a sample list of products is provided, suited on the case studies described above.
 
 ## CAMS trial notebook
+<a id="cams"></a>
+
 <img src="https://www.copernicus.eu/sites/default/files/styles/servicecards_icon_hover/public/2018-10/Atmosphere-hover.png?itok=rc5-OANv" width="100" height="100" />
 
 ONDA provides access to data and tools related to the Copernicus Atmosphere Monitoring Services with an extensive catalogue of products coming from a variety of sources. These products are released in the form of maps and charts, being an ensemble of air quality models processed by diverse data centres. <br>
-The CAMS oriented trial notebook is an interactive tool aimed at data visualisation of _Analysis_ _Surface Fields_ products, powered by ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), slicing the map in the way of need. 
+The CAMS oriented trial notebook is an interactive tool aimed at data visualisation of _Analysis_ _Surface Fields_ products, powered by ENS. Users can interactively choose a period of interest and a sampling frequency within it (i.e. days, weeks or months) and visualise the interactive global layers of nitrogen dioxide, carbon monixide, sulfure dioxide, methane, ethane, propane, isoprene, hydrogen peroxide, formaldehyde, nitric acid, nitrogen monoxide, hydroxide and peroxyacyl nitrates.
 
 ## CMEMS trial notebook
+<a id="cmems"></a>
+
 <img src="https://www.copernicus.eu/sites/default/files/styles/servicecards_icon_hover/public/2018-10/Marine-hover.png?itok=0bCGpFuu" width="100" height="100" />
 
 ONDA provides access to the Copernicus Marine Services data sets of ocean products derived from satellite and in situ observation, suited for science and global monitoring purposes. <br>
-CLEOPE CMEMS trial notebook is an interactive tool aimed at data visualisation of _Global Ocean Analysis_ products exploiting the power of ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), visualising interactive layers on the map.
+CLEOPE CMEMS trial notebook is an interactive tool aimed at data visualisation of _Global Ocean Analysis_ products exploiting the power of ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), visualising interactive global layers on the map. Variables allowed are: the temperature, temperature at see floor, wind velocity, ice concentration, mixed layer depth, salinity and sea surface heigh.
 
 ## CGLS trial notebook
+<a id="cland"></a>
+
 <img src="https://www.copernicus.eu/sites/default/files/styles/servicecards_icon_hover/public/2018-10/Land-hover.png?itok=LuSkXVw2" width="100" height="100" />
 The Copernicus Global Land Service (CGLS) is part of ONDA data offer and systematically produces a series of qualified bio-geophysical products on the status and evolution of the land surface, at global scale at mid spatial resolution. <br>
-CLEOPE CGLS trial notebook is an interactive tool aimed at visualising an interactive map of vegetation coverage, powered by ENS. Users can choose a variable indicating the vegetation status to produce an interactive land map.
+CLEOPE CGLS trial notebook allows the visualisation of interactive vegetation coverage maps, powered by ENS, by choosing a variable of interest indicating the vegetation status, e.g. the NDVI, the  Fraction of Absorbed Photosynthetically Active Radiation, the Fraction of green vegetation cover and the Leaf Area Index.
 
 # Requirements
+<a id="requirements"></a>
+
 Trial notebooks make the use of packages and modules that do not come as part of the standard Python library, so CLEOPE is provided with additional modules specifically related to each one. Main Python modules associated to each notebook are collected in the Table below.
 
 | | processing|visualization|
