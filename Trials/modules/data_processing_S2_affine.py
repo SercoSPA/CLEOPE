@@ -138,3 +138,81 @@ def dates(products):
     else:
         dates = datetime.datetime.strptime(products.split("/")[-1].split("_")[2],"%Y%m%dT%H%M%S")
         return [datetime.datetime.strftime(dates,"%b/%d/%Y")]
+
+# RGB true color equalised
+def image(bands,ax=True,show_equal=False):
+    import rasterio.features
+    from tqdm import tqdm_notebook
+    import cv2
+    if not bands:
+        print("Error: no bands found")
+        return None
+    if len(bands)>3:
+        bands = bands[0:-1]
+    S2_files = sorted(bands)
+    tmp = str(S2_files[0]).split("/")[-1].split("_")
+    temp_date = datetime.datetime.strptime(tmp[1],"%Y%m%dT%H%M%S")
+    title = str(datetime.datetime.strftime(temp_date,"%Y-%m-%d %H:%M"))
+    # processing
+    S2_images = []
+    with tqdm_notebook(total=len(S2_files),desc="Opening raster data") as pbar:
+        for i in S2_files:
+            try:
+                img = rasterio.open(i)
+                img2 = img.read()
+                S2_images.append(img2) 
+                pbar.update(1)
+            except:
+                raise Exception("Error occurred when reading file %s"%i)
+                return 1
+    # tile coordinates section 
+    with img as dataset: # ne basta una 
+        mask = dataset.dataset_mask()
+        # Extract feature shapes and values from the array.
+        for geom, val in rasterio.features.shapes(
+                mask, transform=dataset.transform):
+            # Transform shapes from the dataset's own coordinate
+            # reference system to CRS84 (EPSG:4326).
+            geom = rasterio.warp.transform_geom(dataset.crs, 'EPSG:4326', geom, precision=6)
+            dump_coordinates(geom) # save
+    # read coordinates to be assigned to the imshow extent
+    coords = list(bounds())
+    extent = tuple([coords[0],coords[2],coords[1],coords[3]])
+    if ax == False:
+        extent = tuple([coords[0],coords[2],coords[3],coords[1]]) # some S2 products are packed with latitude mirrored 
+    print("True color equalized RGB stack")
+    Stk_images = np.concatenate(S2_images, axis=0)
+    rgb = np.dstack((Stk_images[2],Stk_images[1],Stk_images[0]))
+    norm_img = np.uint8(cv2.normalize(rgb, None, 0, 255, cv2.NORM_MINMAX))
+    eq_R = cv2.equalizeHist(norm_img[:,:,0].astype(np.uint8))
+    eq_G = cv2.equalizeHist(norm_img[:,:,1].astype(np.uint8))
+    eq_B = cv2.equalizeHist(norm_img[:,:,2].astype(np.uint8))
+    eq_RGB = np.dstack((eq_R,eq_G,eq_B)) 
+    if show_equal == True:
+        print("Equalization results")
+        plt.figure(); plt.hist(norm_img[:,:,0].ravel(),bins=256,color="Blue"); plt.grid(color="lavender",lw=0.5); plt.show()
+        plt.figure(); plt.hist(eq_RGB.ravel(),bins=256,color="Red");plt.grid(color="lavender",lw=0.5); plt.show()
+    plt.clf();
+    plt.figure(dpi=100); plt.title(title);
+    plt.imshow(eq_RGB,extent=extent); 
+    plt.show();
+    plt.close();
+    return eq_RGB
+
+def dump_coordinates(geo_json):
+    import json
+    filename = "polygon.json"
+    file = os.path.join(os.getcwd(),filename)
+    with open(file, 'w') as fp:
+        json.dump(geo_json, fp)
+#         print("Dump coordinates as %s"%filename)  
+
+def bounds():
+    import json
+    try:
+        with open('polygon.json', 'r') as fp:
+            polysel = json.load(fp)
+            return tuple([polysel["coordinates"][0][0][0],polysel["coordinates"][0][0][1],polysel["coordinates"][0][2][0],polysel["coordinates"][0][1][1]])
+    except:
+        return None
+    
