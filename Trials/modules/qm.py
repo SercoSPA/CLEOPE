@@ -102,24 +102,30 @@ def order(product, username, password):
         delta = datetime.datetime.timestamp(s)-datetime.datetime.timestamp(datetime.datetime.utcnow())+600. # time elapse estimate to upgrade bar, 10 minutes added to wait for ENS refresh
         progress = widgets.FloatProgress(value=0.0, min=0.0, max=1.0, description="Ordering")
         thread = threading.Thread(target=work, args=(progress,delta,))
-        print("Instance is %s.\nEstimated time out %s UTC"%(r["Status"],datetime.datetime.strftime(s,'%H:%M:%S')))
-        print("Wait for further 10 minutes to be sure ENS is properly refreshed.")
+        tot_elaps_time = datetime.datetime.timestamp(s)+600
+        estimated_timeout = datetime.datetime.utcfromtimestamp(tot_elaps_time) 
+        print("Instance is %s.\nEstimated time out %s UTC"%(r["Status"],estimated_timeout.strftime("%d-%b-%Y (%H:%M:%S.%f)")))
+#         print("Instance is %s.\nEstimated time out %s UTC"%(r["Status"],datetime.datetime.strftime(s,'%H:%M:%S')))
+#         print("Wait for further 10 minutes to be sure ENS is properly refreshed.")
         display(progress)
         thread.start()
     else:
         print("Warning! Products is already avaliable.\nCheck it out at:\n%s"%(os.path.join(df.iloc[0,2],product)))
     return df
              
-def pseudopath(dataframe):
+def pseudopath(dataframe,outfile="outputs/product_list_remote.txt"):
     if dataframe.iloc[:,-1].values.any()==True:
         print("Warning! Some products in your dataframe are archived! Trigger an order request first. \nCheck out ORDER notebook to discover how to do it!\n") 
     pp = ["/mnt/Copernicus/"+os.path.join(dataframe.iloc[i,2],dataframe.iloc[i,1]) for i in range(dataframe.shape[0])]
-    np.savetxt("resources/pseudopath_file.txt",np.vstack(pp),fmt="%s",newline="\n",header="pseudopath list",comments="#")
-    print("Pseudopaths saved in %s"%(os.path.join(os.getcwd(),"resources/pseudopath_file.txt")))
+    np.savetxt(outfile,np.vstack(pp),fmt="%s",newline="\n")
+    print("Product list with pseudopaths saved as %s"%(os.path.join(os.getcwd(),outfile)))
     return pp
               
-def read_product_list(file="resources/product_list_trial.txt"):
-    files = np.loadtxt(file,dtype=str)
+def read_product_list(file):
+#     files = np.loadtxt(file,dtype=str)
+    with open(file,"r") as f:
+        data = f.read().splitlines()
+        files = list(filter(None, data)) # remove newlines as empty strings 
     l = list()
     with tqdm_notebook(total=len(files),desc="Waiting for ONDA catalogue") as pbar:
         for f in files:
@@ -163,6 +169,10 @@ def download(product,username,password):
     dataframe = get_my_product(product)
     uuid = dataframe.iloc[:,0].values[0]
     curl = "https://catalogue.onda-dias.eu/dias-catalogue/Products("+uuid+")/$value" 
+    con = check_if_online(product,username,password) # check if online
+    if con==0:
+        print("Please wait until product restoration. Download will re-start authomatically.")
+        time.sleep(1230)
     remove_item(dest,product) # check if products already exists in folder and delete it
     if check_size_disk():
         file = download_item(curl,(username, password),os.path.join(dest,product))
@@ -231,6 +241,8 @@ def remove_item(location,item): # location and product file
             os.remove(file[0])
         else:
             raise ValueError("Unrecognized item %s"%file[0])
+    else:
+        return
             
 def download_list(file,username,password):
     with open(file,"r") as f:
@@ -244,5 +256,11 @@ def download_list(file,username,password):
     else:
         warning.warn("Empty file list: %s"%file)
 
+def check_if_online(product,username,password):
+    df = get_my_product(product)
+    if df["offline"].values==True:
+        warnings.warn("Product %s is archived"%product)
+        order(product,username,password)
+        return 0
         
         

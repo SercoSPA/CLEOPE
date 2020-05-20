@@ -30,7 +30,9 @@ On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/k
 ![CLEOPE default tree](./Trials/media/tree.PNG)
 
 ### Shared resources
-📁 `modules` folder collects the main libraries related to the set of template notebooks provided within CLEOPE workspace.
+`Trials` folder collects CLEOPE notebooks set, while the `local_files` folder is the default destination folder of products downloaded via Jupyter Notebooks. <br>
+
+📁 `Trials/modules` folder collects the main libraries related to the set of template notebooks provided within CLEOPE workspace.
 - Modules aimed at the **data access** are:
     - `aoi.py`, `buttons.py` and `empty.py`, which are specific scripts interfaced with the geographical research of products via Jupyter Notebook;
     - `qm.py` which is a module dedicated to the product **search**, **order** and **download** via Jupyter Notebooks. <br>
@@ -39,14 +41,7 @@ On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/k
     - `cams.py`, `cgls.py` and `cmems.py` are named after the mission they are dedicated to - Copernicus Atmosphere, Copernicus Land and Copernicus Marine, respectively;
     - `data_processing_*.py` are named after the Sentinel mission of reference.<br>
 
-More information on the mission-dedicated notebooks is provided 👉[here](Trials/readme.md#mission).
-
-📁`output` and 📁`resources` are folders sharing temporary data (i.e. logs) and sample inputs for the template notebooks set. <br>
-📁`local_files` folder is the default destination folder of products downloaded via Jupyter Notebooks. <br>
-
-#### Mission dedicated notebooks
-📁🌎🌍🌏 are folders collecting mission specific notebooks, showing some type of processing for Sentinel missions and Copernicus Monitoring Services, using the modules of reference. <br>
-Full explanation of mission specific trial notebooks is given 👉[here](Trials/readme.md#mission). 
+📁 All the other folders into the `Trials` main directory collect the trial notebooks set. More information on CLEOPE notebooks is provided 👉[here](Trials/readme.md).
 
 # CLEOPE technical information
 <a id="tech"></a>

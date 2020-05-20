@@ -8,21 +8,27 @@ from ipywidgets import widgets, interact, Layout, interactive
 from IPython.display import display
 import pandas as pd
 import numpy as np
-import json, os
-from modules import empty
+import json, os, glob
 
+def clearall(file):
+    if os.path.exists(file):
+        os.remove(file)
+        
 # clear workspace logs 
-empty.clearall(os.path.join(os.getcwd(),"outputs/metadata.csv"))
-empty.clearall(os.path.join(os.getcwd(),"outputs/list_remote.txt"))
+pfiles = glob.glob(os.path.join(os.getcwd(),"outputs/product_list*.txt"))
+if pfiles:
+    for f in pfiles:
+        clearall(f)
 
 def remove(file):
     if os.path.exists(file):
         os.remove(file)
 
-def write_click(item,filename=os.path.join(os.getcwd(),"outputs/list_remote.txt")):
+def write_click(item,filename=os.path.join(os.getcwd(),"outputs/product_list.txt")):
     with open(filename,"a+") as f:
-        f.write("/mnt/Copernicus/"+item+"\n")
-        print("Log file created in: %s"%filename)
+        f.write(item+"\n")
+#         f.write("/mnt/Copernicus/"+item+"\n")
+        print("File with products created as: %s"%filename)
 
 class select_product(object):
     def __init__(self, dataframe):
@@ -50,8 +56,9 @@ class select_product(object):
             for f in self.sel_file.value:
                 self.df_objects[f] = self.file_dict[f]
                 k = self.file_dict[f]
-                print(os.path.join(self.pseudopath[k],f))
-                write_click(os.path.join(self.pseudopath[k],f))
+                print("Find using ENS at pseudopath:\n%s"%os.path.join(self.pseudopath[k],f))
+                write_click(f)
+#                 write_click(os.path.join(self.pseudopath[k],f))
                 
 
     def display_widgets(self):
