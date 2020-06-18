@@ -202,7 +202,9 @@ def _filters_():
     display(miss)
 #    ptype = widgets.Label()
     btn_p = widgets.Button(description="Submit mission")
-    display(btn_p)    
+    display(btn_p) 
+    output_btn = widgets.Output()
+    @output_btn.capture()
     def inputs_p(b):  
 #        ptype.val = miss.value
         p = ptypes(miss.value)
@@ -215,5 +217,6 @@ def _filters_():
         button.on_click(inp)
 
     btn_p.on_click(inputs_p)
+    display(output_btn)
 
 
