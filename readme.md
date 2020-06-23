@@ -1,10 +1,12 @@
-[![N|Solid](https://www.onda-dias.eu/cms/wp-content/uploads/2018/06/logo_onda_retina.png)](https://www.onda-dias.eu/cms/)
+<img src="./Trials/media/Cleope_logo.PNG" alt="drawing" width="500"/>
 
 # Welcome to CLEOPE! 
 **CLEOPE** (CLoud Earth Observation Processing Environment) is a DIAS-ONDA service of EO products discovery, manipulation and visualization via interactive Jupyter notebooks supported by Python 3 kernel language.
 
 [![N|Solid](https://www.python.org/static/community_logos/python-logo.png)](https://www.python.org/static/community_logos/python-logo.png) 
-[![N|Solid](https://jupyter.org/assets/main-logo.svg)](https://jupyter.org/assets/main-logo.svg)
+![N|Solid](https://jupyter.org/assets/main-logo.svg)
+![N|Solid](https://www.onda-dias.eu/cms/wp-content/uploads/2018/06/logo_onda_retina.png)
+
 
 CLEOPE consists in a collection of pre-installed libraries and template notebooks to enhance users experience with ONDA data offer. All the examples are available in a shared environment with the aim to help users to easily explore ONDA services main functionalities, to learn how to access data and the way to approach EO cloud resources through Advanced API (ENS). 
 Example notebooks provided into CLEOPE are split into two main categories:
@@ -53,18 +55,19 @@ Registered users' hardware features are:
 
 | **Disk** |**RAM**|**CPU**|
 | ------------- | ------ |-------------|
-|20 GB|7 GB|2|
+|20 GB|5 GB|2|
 
 - **Disk limit** - when the threshold is exceeded an error message is printed out on screen, by both
     - command line:<br>`cp:error writing 'file': Disk quota exceeded`
-    - GUI: <br><img src="Trials/media/disk_quota_error.png" alt="drawing" width="300"/>
+    - GUI: <br><img src="Trials/media/disk_quota_err.png" alt="drawing" width="300"/>
 
 - **RAM limit** - If users use more than the allowed amount of RAM, their notebook kernel will restart and a pop-up message is displayed:
-<br><img src="Trials/media/dead_kernel.png" alt="drawing" width="300"/> <br>No other actions are allowed on the notebook in this case. Please note that shutdown unused notebooks is supplemental to helping with memory errors.
+<br><img src="Trials/media/dead_kernel.png" alt="drawing" width="300"/> <br>
+No other actions are allowed on the notebook in this case. Please note that shutdown unused notebooks is supplemental to helping with memory errors.
 
 - **CPU limit** specifies the total CPU cores that each user can use within CLEOPE workspace. If the CPU limit is exceeded, computations may become very slow.
 
-👉 Please note that CLEOPE service can be upgraded to _premium_ according to our commercial offer (REFERENCE), allowing to increase the resources.
+👉 <font color="blue"> Please note that CLEOPE service can be upgraded to _premium_ according to our commercial offer (REFERENCE), increasing the available computational resources.</font>
 
 ## Python 3 packages
 ### Installation

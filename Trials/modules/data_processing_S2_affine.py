@@ -134,10 +134,10 @@ def ratio(da):
 def dates(products):
     if isinstance(products,list):
         dates = [datetime.datetime.strptime(p.split("/")[-1].split("_")[2],"%Y%m%dT%H%M%S") for p in products]
-        return [datetime.datetime.strftime(d,"%b/%d/%Y") for d in dates]
+        return [datetime.datetime.strftime(d,"%Y-%m-%d %H:%M") for d in dates]
     else:
         dates = datetime.datetime.strptime(products.split("/")[-1].split("_")[2],"%Y%m%dT%H%M%S")
-        return [datetime.datetime.strftime(dates,"%b/%d/%Y")]
+        return [datetime.datetime.strftime(dates,"%Y-%m-%d %H:%M")]
 
 # RGB true color equalised
 def image(bands,ax=True,show_equal=False):

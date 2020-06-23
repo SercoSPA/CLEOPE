@@ -1,6 +1,7 @@
 import xarray, glob, os, subprocess, time
 import pandas as pd
 import warnings
+import matplotlib.pyplot as plt
 
 def make_dir():
     try:
@@ -20,23 +21,23 @@ def open_band(products, pol="vh"):
             file.append(f)
     return file
 
-def wrap(coords,file):
+def wrap(coords,products):
     xmin,ymin,xmax,ymax = coords # tuple containing coordinates to clip
     make_dir() # create directory where to dump clipped files
     localpath = os.path.join(os.getcwd(),"clipped_files")
     cmd_file = "clipper.sh" # filename bash 
-    for inputfile in file:
+    for inputfile in products:
         command = ""
         outputfile = os.path.join(localpath,inputfile.split("/")[-1].split(".")[0]+"_clip.tiff")    
         command = "gdalwarp -te %s %s %s %s %s %s \n" % (xmin, ymin, xmax, ymax, inputfile, outputfile)
-        print(command)
         print("Wrapping image: %s"%inputfile.split("/")[-1].split(".")[0])
+        print(command)
         with open(os.path.join(cmd_file), 'w') as f:
             f.write(command)
             f.close()    
         # run bash file
         run(cmd_file)
-        time.sleep(10) # sleep 30 seconds before proceeding
+        time.sleep(30) # sleep 30 seconds before proceeding
     print("Resampled data sets in: %s"%localpath)
     
     
@@ -79,6 +80,7 @@ def RGB(dc,rgb):
         else:
             dc["band"] = "RGB"
             dc.plot.imshow(robust=True,figsize=(8,6))
+            plt.show()
     else:
         return 
         

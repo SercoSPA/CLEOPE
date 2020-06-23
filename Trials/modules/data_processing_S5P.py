@@ -311,3 +311,35 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
             axes[-1].axis('off')
             fig.tight_layout()
     return fig
+
+def read_dataset(files,key,qa_val=0.0,bounds=None):
+    if key not in list(L2_variables.keys()):
+        warnings.warn("Unknown key, call dp.L2_variables.keys() to display choices.")
+        return
+    else:
+        var = L2_variables[str(key)]
+    try:
+        darray = [xarray.open_dataset(f,group="PRODUCT").isel(time=0) for f in files]
+    except:
+        raise Exception("Exception occurred when handling input files")
+    subsets = []
+    for data in darray:
+        # clip dataset
+        if bounds!=None:
+            xmin,xmax,ymin,ymax=bounds
+            da_sel = data.where(((data.longitude<xmax) & (data.longitude>xmin) & (data.latitude<ymax) & (data.latitude>ymin)), drop=True)
+        else:
+            da_sel = data.copy()
+        # quality
+        da = da_sel.where(da_sel["qa_value"]>qa_val)
+        # convert dataset
+        da_conv = (da[var].multiplication_factor_to_convert_to_molecules_percm2*da[var])
+        subsets.append(da_conv)
+        del da,da_sel
+    return subsets
+    
+        
+        
+        
+        
+        

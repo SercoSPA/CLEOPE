@@ -232,14 +232,3 @@ def check_if_depth(image):
     else:
         return False
 
-# def local_processing(var=None):
-#     products = glob.glob("local_files/z_cams*.nc",recursive=True)
-#     varlist = [p.split("_")[-1].split(".")[0] for p in products]
-#     if varlist[1:] == varlist[:-1]:
-#         var = varlist[0]
-#         xlist = [np.log10(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products] # log10 scale
-#         image = xarray.concat(xlist, dim='time')
-#         return image
-#     else:
-#         print("Different CAMS products found in your dataset folder. Please provide a variable to monitor as var argument of this function, e.g. var='tcco'")
-#         return None       

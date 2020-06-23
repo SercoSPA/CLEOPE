@@ -56,7 +56,7 @@ def distribution(coords,datasets,plot=False):
     if plot == True:
         fig,ax = plt.subplots(1,1,figsize=(8,4))
         for i in range(len(M)):
-            sns.distplot(M[i][:,2],ax=ax,label=titles[i],hist=True)
+            sns.distplot(M[i][:,2],ax=ax,label=titles[i])
         ax.set(xlabel='  '.join([var[0].attrs["standard_name"],var[0].attrs["units"]]),title="TOA temperature distribution")
         ax.legend()
     return M
@@ -104,6 +104,7 @@ def plot_map(grid_x,grid_y,mask,df,ds,centre=None):
         fig.colorbar(im, cax=cax, orientation='vertical',label="K")
         for i,ax in enumerate(axes[1:]):
             circ = plt.Circle((xc, yc), 0.381,color="Red",fill=False)
+#             im=ax.imshow(np.flip(values[i], 1),cmap="viridis",extent=extent,norm=norm,aspect="equal")
             im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="viridis")
             ax.plot(xshape,yshape,lw=1.,color="lime")
             ax.add_artist(circ)
@@ -132,6 +133,7 @@ def plot_map(grid_x,grid_y,mask,df,ds,centre=None):
             circ = plt.Circle((xc, yc), 0.381,color="Red",fill=False)
             im = ax.pcolormesh(grid_x,grid_y,df[i],norm=norm,cmap="viridis")
             ax.set_aspect('equal', 'box')
+#             im=ax.imshow(values[i],cmap="viridis",extent=extent,norm=norm,aspect="equal")
             ax.plot(xc,yc,"*",color='k',markersize=10)
             ax.add_artist(circ)
             ax.plot(xshape,yshape,lw=1.,color="lime")
@@ -154,6 +156,7 @@ def apply_diff(x,y,target_df,coords,file="slstr_mask.txt",plot=False):
             pbar.update(1)
     stacked_mask = np.dstack((interp_grid))
     mask = np.median(stacked_mask,axis=2) # pixel along deep axis <<< 
+#     plt.pcolormesh(x,y,mask);plt.colorbar();plt.title("mask")
     diff = [np.subtract(d,mask) for i,d in enumerate(target_df)]
     if plot==True:
         # plot out mask

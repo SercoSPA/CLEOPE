@@ -1,14 +1,15 @@
-[![N|Solid](https://www.onda-dias.eu/cms/wp-content/uploads/2018/06/logo_onda_retina.png)](https://www.onda-dias.eu/cms/)
+<img src="./media/Cleope_logo.PNG" alt="drawing" width="500"/>
 
 # CLEOPE Jupyter Notebooks suite
 
-<img src="./media/nb_flavour.PNG" alt="drawing" width="500"/>
+<img src="./media/Cleope_EO.PNG" alt="drawing" width="100"/>
 
 Example notebooks provided into CLEOPE are split into two main categories:
   - a set of templates aimed at facilitating the data access on Cloud;
   - a collection of mission specific tutorials, particularly suited for educational purposes, which will help users to perform basic processing of EO data offered by ONDA.
 
-Find the contents below:
+# Table of Contents
+
 1. [ONDA data access dedicated notebooks](#main1)
     1. [Discover ENS](#discover_ENS)
     2. [Download products via Jupyter Notebook](#odata)
@@ -182,16 +183,16 @@ Trial notebooks make the use of packages and modules that do not come as part of
 
 | | processing|visualization|
 | ------------- | ------ |-------------|
-| `S1`| `GDAL`,`xarray`| `matplotlib`|
-| `S2`| `rasterio`,`cv2`| `matplotlib`,`holoviews`|
-| `S3`| `xarray`| `hvplot`|
-| `S5P`|`netCDF4`|`holoviews`|
-| `CAMS`|`xarray`|`hvplot`,`matplotlib`|
-| `CMEMS`|`xarray`|`hvplot`|
-| `CGLS`|`xarray`|`hvplot`|
-| `DISCOVER_ONDA`|`requests`| |
-| `ORDER`|`requests`| |
-| `SEARCH`|`requests`|`ipyleaflet`|
+| S1| `GDAL`,`xarray`| `matplotlib`|
+| S2| `rasterio`,`cv2`,`xarray`| `matplotlib`,`hvplot`|
+| S3| `xarray`|`cartopy`,`hvplot`|
+| S5P|`xarray`|`cartopy`,`matplotlib`|
+| CAMS|`xarray`|`cartopy`,`hvplot`|
+| CMEMS|`xarray`|`cartopy`,`hvplot`|
+| CGLS|`xarray`|`cartopy`,`hvplot`|
+| DISCOVER_ONDA|`requests`| |
+| ORDER|`requests`| |
+| SEARCH|`requests`|`ipyleaflet`|
 
 Moreover, CLEOPE supports the possibility to install complementary or additional libraries. <br>👉 [Read how to do here](../readme.md#packages).
 
