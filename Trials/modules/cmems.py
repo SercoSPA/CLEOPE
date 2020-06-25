@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Apr 02 09:31:07 2020
+CLEOPE - ONDA 
+Developed by Serco Italy - All rights reserved
 
-@author: GCIPOLLETTA 
+@author: GCIPOLLETTA
+Contact me: Gaia.Cipolletta@serco.com
 """
 from ipywidgets import widgets, interact, Layout, interactive, VBox, HBox
 from IPython.display import display

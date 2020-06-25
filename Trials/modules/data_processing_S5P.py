@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
+CLEOPE - ONDA 
+Developed by Serco Italy - All rights reserved
+
 @author: GCIPOLLETTA
+Contact me: Gaia.Cipolletta@serco.com
 """
 import os, glob,json, datetime,xarray
 from netCDF4 import Dataset

@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+CLEOPE - ONDA 
+Developed by Serco Italy - All rights reserved
+
+@author: GCIPOLLETTA
+Contact me: Gaia.Cipolletta@serco.com
+"""
 import xarray, glob, os, subprocess, time
 import pandas as pd
 import warnings
@@ -37,7 +45,7 @@ def wrap(coords,products):
             f.close()    
         # run bash file
         run(cmd_file)
-        time.sleep(30) # sleep 30 seconds before proceeding
+        time.sleep(20) # wait before proceeding
     print("Resampled data sets in: %s"%localpath)
     
     

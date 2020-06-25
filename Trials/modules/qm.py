@@ -1,15 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jan 14 09:56:19 2020
+CLEOPE - ONDA 
+Developed by Serco Italy - All rights reserved
 
 @author: GCIPOLLETTA
-"""
+Contact me: Gaia.Cipolletta@serco.com
 
-import requests, json, glob, os, zipfile, io, time, shutil, tarfile
+Main module to send OData API queries for download and order instances.
+Add this module to path: 
+    import os, sys
+    sys.path.append(os.path.join(os.path.expanduser("~"),"Trials/modules"))
+    import qm
+to easly perform queries via Jupyter Notebook.
+"""
+import requests, json, glob, os, zipfile, io, shutil, tarfile
 import IPython
 import pandas as pd
 import numpy as np
-from time import time
 import ipywidgets as widgets
 import datetime, time
 import threading
@@ -17,9 +24,16 @@ from IPython.display import display
 from tqdm import tqdm_notebook
 import warnings
 
-du_thresh = 3 # GiB threshold for a single product
+du_thresh = 5 # GiB threshold 
 
 def get(url):
+    """Send and get the url to query products using OData API
+    
+    Parameters:
+        url (str): OData url query
+    
+    Returns: query results (pandas dataframe)
+    """
     res = requests.get(url)
     val = res.json()
     n = len(val["value"])
@@ -36,6 +50,15 @@ def get(url):
     return dataframe
 
 def order_product(username, password, uuid):
+    """Send POST OData API to retrieve an archived product
+    
+    Parameters:
+        username (str): ONDA username
+        password (str): ONDA user password
+        uuid (str): unique product identifier (from function: get_uuid)
+    
+    Return: OData POST request feedback (dict)    
+    """
     if username and password:
         headers = {
             'Content-Type': 'application/json',
@@ -46,35 +69,79 @@ def order_product(username, password, uuid):
         return response.json()
 
 def get_uuid(product):
-    product = product if product.endswith(".zip") else product + ".zip"
+    """Get product unique identifier from product name
+    
+    Parameters:
+        product (str): product name with its own extension explicit
+    
+    Returns: product uuid (str)
+    Raise exception for invalid URLs.
+    
+    """
+    if product.startswith("LC08"):
+        if product.endswith(".tar.gz"):
+            product = product
+        else:
+            product = product+".tar.gz"
+    elif product.startswith("S"):
+        if product.endswith(".zip"):
+            product = product
+        else:
+            product = product+".zip"
     url = "https://catalogue.onda-dias.eu/dias-catalogue/Products?$search=%22"+str(product)+"%22&$top=10&$format=json"
     res = requests.get(url)
-    return res.json()["value"][0]["id"]
-
+    try:
+        return res.json()["value"][0]["id"]
+    except:
+        raise Exception("Invalid URL: Invalid product name.")
 
 def get_my_product(product):
+    """Search for products given the product name
+    
+    Parameters:
+        product (str): product name
+    
+    Return: query results (pandas dataframe)
+    Raise exception for invalid URLs. 
+    """
     if product.endswith(".tar.gz"):
         product = product.split(".")[0]
+    if product.startswith("S"):
+        if product.endswith(".zip"):
+            product = product
+        else:
+            product = product+".zip"
     url = "https://catalogue.onda-dias.eu/dias-catalogue/Products?$search=%22"+str(product)+"%22&$top=10&$format=json"
     res = requests.get(url)
     val = res.json()
     fields = ["id","name","pseudopath","beginPosition","footprint","size","offline"]
-    dataframe = pd.DataFrame(np.nan,index=range(1), columns=fields)
-    dataframe.iloc[0,0] = val["value"][0]["id"]
-    dataframe.iloc[0,1] = val["value"][0]["name"]
-    dataframe.iloc[0,2] = val["value"][0]["pseudopath"].split(",")[0]
-    dataframe.iloc[0,3] = val["value"][0]["beginPosition"]
-    dataframe.iloc[0,4] = val["value"][0]["footprint"]
-    dataframe.iloc[0,5] = val["value"][0]["size"]
-    dataframe.iloc[0,6] = val["value"][0]["offline"]
-    return dataframe
+    try:
+        dataframe = pd.DataFrame(np.nan,index=range(1), columns=fields)
+        dataframe.iloc[0,0] = val["value"][0]["id"]
+        dataframe.iloc[0,1] = val["value"][0]["name"]
+        dataframe.iloc[0,2] = val["value"][0]["pseudopath"].split(",")[0]
+        dataframe.iloc[0,3] = val["value"][0]["beginPosition"]
+        dataframe.iloc[0,4] = val["value"][0]["footprint"]
+        dataframe.iloc[0,5] = val["value"][0]["size"]
+        dataframe.iloc[0,6] = val["value"][0]["offline"]
+        return dataframe
+    except:
+        raise Exception("Empty dataframe: Invalid product name.")
 
 def check_out_product(product):
-    time.sleep(1800) # forces to sleep for 30 minutes untill order runs 
+    """Check if product has been properly restored in the ENS (ONDA Advanced API)
+    
+    Parameters:
+        product (str): product name
+    
+    Return: exit status (int)
+    """
+#     time.sleep(1800) # sleep for 30 minutes untill order runs 
     pseudopath = get_my_product(product).iloc[0,2]
     link = "/mnt/Copernicus/"+pseudopath+"/"+product
     if os.path.exists(link):
         print("All done! Check out product:\n%s"%link)
+        return 0
     else:
         print("Requested product not found.")
 #         with open(os.path.join(os.getcwd(),"log.log"),"a+") as f:
@@ -85,6 +152,14 @@ def check_out_product(product):
 
 # progress bar
 def work(progress,delta):
+    """Update a progress bar as a background process
+    
+    Parameters:
+        progress (widget): tdqm notebook widget
+        delta (datetime): time elapse
+        
+    Return: None    
+    """
     total = int(delta)+1 
     for i in range(total):
         time.sleep(1) # tick upgrade in seconds
@@ -92,6 +167,15 @@ def work(progress,delta):
 
 # ordering API can manage thread instance 
 def order(product, username, password):
+    """Order an archived product in the background, displaying a progress bar updating untill complete restoration
+    
+    Parameters:
+        product (str): product name
+        username (str): ONDA username
+        password (str): ONDA user password
+    
+    Return: product main attributes (pandas dataframe)
+    """
     df = get_my_product(product)
     display(df)
     if df.iloc[0,6] == True:
@@ -114,6 +198,14 @@ def order(product, username, password):
     return df
              
 def pseudopath(dataframe,outfile="outputs/product_list_remote.txt"):
+    """Compose the product pseudopath into ENS given product main attributes and dump the product list in a file.
+    
+    Parameters: 
+        dataframe (pandas dataframe): product main attributes queried via OData
+        outfile (str): full path of the output file location; default: outputs/product_list_remote.txt
+        
+    Return: pseudopaths list (list)
+    """
     if dataframe.iloc[:,-1].values.any()==True:
         print("Warning! Some products in your dataframe are archived! Trigger an order request first. \nCheck out ORDER notebook to discover how to do it!\n") 
     pp = ["/mnt/Copernicus/"+os.path.join(dataframe.iloc[i,2],dataframe.iloc[i,1]) for i in range(dataframe.shape[0])]
@@ -122,6 +214,13 @@ def pseudopath(dataframe,outfile="outputs/product_list_remote.txt"):
     return pp
               
 def read_product_list(file):
+    """Read a custom product list and returns product pseudopaths into ENS.
+    
+    Parameters:
+        file (str): full path of the input file list of products
+    
+    Return: single products main attributes (pandas dataframe)
+    """
 #     files = np.loadtxt(file,dtype=str)
     with open(file,"r") as f:
         data = f.read().splitlines()
@@ -137,20 +236,41 @@ def read_product_list(file):
     return dataframe
               
 def write_list(item,filename=os.path.join(os.getcwd(),"list_local.txt")):
+    """Save a list with all the downloaded product location within users own workspace. The output list is generated in the current working directory by default and named 'list_local.txt' 
+    
+    Parameters:
+        item (str): downloaded item full path location within CLEOPE workspace
+        filename (str): output file full path location; default: ./list_local.txt
+        
+    Return: None    
+    Note: items are appended to file per each download.
+    """
     with open(filename,"a+") as f:
         f.write(item+"\n")
         print("%s updated"%filename)
 
 def make_dir(dirname):
+    """Create a brand new directory in the current working directory.
+    
+    Parameters:
+        dirname (str): directory name
+    
+    Return: exit status
+    """
     try:
         os.mkdir(dirname)
     except FileExistsError:
         return 0      
         
 def download_item(url,auth,filename):
-    """
-    Helper method handling downloading large files from `url` to `filename`. Returns a pointer to `filename`.
-    auth tuple with ONDA credentials 
+    """Helper method handling downloading large files from `url` to `filename`. 
+    
+    Parameters:
+        url (str): an OData valid URL 
+        auth (tuple): ONDA users own credentials
+        filename (str): full path filename traking all the downloaded items
+    
+    Return: a pointer to `filename`
     """
     chunkSize = 1024
     r = requests.get(url,auth=auth,stream=True)
@@ -162,9 +282,22 @@ def download_item(url,auth,filename):
                 f.write(chunk)
     return filename
 
+message = "CLEOPE free has a limited amount of resources available. To upgrade services under subscription please contact our ONDA Service Desk."
+
 # download function available - use this to cache a product in the local_files directory 
 def download(product,username,password):
-    dest = os.path.join(os.path.expanduser("~"),"local_files") #os.path.join(os.path.expanduser("~"),
+    """Main function to download products via Jupyter Notebook within CLEOPE workspace. This is an alternative to ENS. A list traking all the downloaded files is automatically created in the working directory. Downloaded items are cached in a folder named `local_files` and placed into the /home/cleope-user own workspace.
+    
+    Parameters:
+        product (str): product name
+        username (str): ONDA user name
+        password (str): ONDA user password
+    
+    Return: exit status (int)
+    Raise an exception in case of disk full.
+    
+    """
+    dest = os.path.join(os.path.join(os.path.expanduser("~"),"local_files")) #os.path.join(os.path.expanduser("~"),
     make_dir(dest)
     dataframe = get_my_product(product)
     uuid = dataframe.iloc[:,0].values[0]
@@ -175,6 +308,7 @@ def download(product,username,password):
         time.sleep(1230)
     remove_item(dest,product) # check if products already exists in folder and delete it
     if check_size_disk():
+        warnings.warn("%s"%message)
         file = download_item(curl,(username, password),os.path.join(dest,product))
         if product.endswith(".zip"):  
             with zipfile.ZipFile(file, 'r') as zip_ref:
@@ -213,6 +347,13 @@ def download(product,username,password):
         raise MemoryError("Disk space lower than %d GiB\nRequest\n %s \nnot allowed."%(du_thresh,curl))
               
 def remove_zip(item):
+    """Remove a file or a directory and its related children if exists
+    
+    Parameters:
+        item (str): full path location of file/directory to be removed
+        
+    Return: None    
+    """
     file = glob.glob(item)
     if file:
         os.remove(file[0])
@@ -220,6 +361,10 @@ def remove_zip(item):
         print("%s not found"%item)
 
 def check_size_disk():
+    """Check available the disk space on cleope-users own home directory
+    
+    Return: exit status (bool)
+    """
     user_home = os.path.expanduser("~")
     total, used, free = shutil.disk_usage(user_home)
     space = free//(2**30)
@@ -229,6 +374,15 @@ def check_size_disk():
         return False
 
 def remove_item(location,item): # location and product file
+    """Remove a directory and its related children
+    
+    Parameters:
+        location (str): full path of destination directory to be removed
+        item (str): directory name 
+    
+    Return: None
+    Raise exception if failing in removing the target directory.
+    """
     file = glob.glob(os.path.join(location,item.split(".")[0]+'*'),recursive=True)
     if file:
         warnings.warn("Item: %s has already been downloaded."%item)
@@ -245,6 +399,15 @@ def remove_item(location,item): # location and product file
         return
             
 def download_list(file,username,password):
+    """Call the function: download to download items recorsively from an input file list
+    
+    Parameters:
+        file (str): input file list full path
+        username (str): ONDA username
+        password (str): ONDA user password
+        
+    Return: exit status (int)
+    """
     with open(file,"r") as f:
         data = f.readlines()
         list = [d.split("\n")[0] for d in data]
@@ -257,6 +420,15 @@ def download_list(file,username,password):
         warning.warn("Empty file list: %s"%file)
 
 def check_if_online(product,username,password):
+    """Call the function: order to retrieve an archived product when attempting a download it.
+    
+    Parameters:
+        product (str): product name
+        username (str): ONDA username
+        password (str): ONDA user password
+    
+    Return: exit status (int)
+    """
     df = get_my_product(product)
     if df["offline"].values==True:
         warnings.warn("Product %s is archived"%product)

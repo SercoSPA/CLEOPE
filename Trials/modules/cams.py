@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jan 13 14:10:29 2020
+CLEOPE - ONDA 
+Developed by Serco Italy - All rights reserved
 
-@author: GCIPOLLETTA 
+@author: GCIPOLLETTA
+Contact me: Gaia.Cipolletta@serco.com
 """
 from ipywidgets import widgets, interact, Layout, interactive, VBox, HBox
 from IPython.display import display
@@ -10,8 +12,6 @@ import pandas as pd
 import numpy as np
 import json, os, glob, xarray
 from datetime import datetime, timedelta
-# from IPython.core.display import display, HTML
-# import imageio
 
 # Create output directory
 dirName = 'out'
@@ -239,7 +239,7 @@ def _processing_(freq="D"):
     else:
         products = [glob.glob(path+gmt[0],recursive=True)[0] for path in compose_pseudopath(freq=freq)]
     var = read_var()
-    xlist = [np.log10(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products] # log10 scale
+    xlist = [(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products] 
     image = xarray.concat(xlist, dim='time')
     return image
     
@@ -249,7 +249,7 @@ def local_processing(var=None):
     varlist = [p.split("_")[-1].split(".")[0] for p in products]
     if varlist[1:] == varlist[:-1]:
         var = varlist[0]
-        xlist = [np.log10(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products] # log10 scale
+        xlist = [(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products] 
         image = xarray.concat(xlist, dim='time')
         return image
     else:

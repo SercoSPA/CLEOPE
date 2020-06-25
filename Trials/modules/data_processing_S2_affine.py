@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+CLEOPE - ONDA 
+Developed by Serco Italy - All rights reserved
+
+@author: GCIPOLLETTA
+Contact me: Gaia.Cipolletta@serco.com
+"""
 import os, sys, xarray, datetime
 from pathlib import Path
 import numpy as np

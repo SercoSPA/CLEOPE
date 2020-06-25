@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jan 13 14:10:29 2020
+CLEOPE - ONDA 
+Developed by Serco Italy - All rights reserved
 
 @author: GCIPOLLETTA
+Contact me: Gaia.Cipolletta@serco.com
+
+Module containing all the widgets buttons links for the data access related notebooks.
 """
 from ipywidgets import widgets, interact, Layout, interactive
 from IPython.display import display
@@ -11,6 +15,9 @@ import numpy as np
 import json, os, glob
 
 def clearall(file):
+    """
+    Return: remove a file permanenlty if exists in the current directory    
+    """
     if os.path.exists(file):
         os.remove(file)
         
@@ -20,11 +27,16 @@ if pfiles:
     for f in pfiles:
         clearall(f)
 
-def remove(file):
-    if os.path.exists(file):
-        os.remove(file)
-
 def write_click(item,filename=os.path.join(os.getcwd(),"outputs/product_list.txt")):
+    """Create a file containing saved products full path as string
+    
+    Parameters:
+        item (str): widget selection
+        filename (str): full path of destination file; default: "outputs/product_list.txt"
+        
+    Return:
+        None    
+    """
     with open(filename,"a+") as f:
         f.write(item+"\n")
 #         f.write("/mnt/Copernicus/"+item+"\n")
@@ -77,7 +89,12 @@ class select_product(object):
         return self.df_objects    
 
 
-def sensing():  
+def sensing(): 
+    """Sensing range selection widget
+    
+    Return: sensing start (str), sensing stop (str)
+    
+    """
     sensing_start = widgets.DatePicker(
         description = 'Sensed from:',
         disabled = False)
@@ -88,6 +105,10 @@ def sensing():
     return sensing_start,sensing_stop
 
 def mission():
+    """Mission selection widget
+    
+    Return: dropdown selection widget (Select)    
+    """
     options = {'All':["-"],
                'Sentinel-1':["All S1","SLC","GRD","OCN","RAW"], 
                'Sentinel-2':["All S2","S2MSI1C","S2MSI2A","S2MSI2Ap"],
@@ -116,15 +137,14 @@ def mission():
     m = widgets.Select(options=options)
     return m
 
-def types(input):
-    t = widgets.Dropdown(
-        options=input,
-        description='Type:',
-        layout=Layout(width="30%"),
-        disabled=False)
-    return t
-
 def ptypes(choice):
+    """Product type selection widget
+    
+    Parameters:
+        input (list): list of widget options
+    
+    Return: dropdown selection widget 
+    """
     t = widgets.Dropdown(
         options=choice,
         description='Product type:',
@@ -134,23 +154,53 @@ def ptypes(choice):
     return t
 
 def get_key(miss, val): 
+    """Get a keys from value in a dictionary
+    
+    Parameters:
+        miss (dropdown selection widget): output of funcion: mission
+        val (dropdown selection widget)
+    
+    Returns: key (str)
+    
+    """
     for key, value in zip(miss.options.keys(),miss.options.values()): 
          if val in value: 
             return key 
 
 def save_mp(data):
+    """Dump mission selection in a file
+    
+    Parameters:
+        data (list): list of str
+    
+    Return: None    
+    """
     dest = os.path.abspath(os.path.join("modules", '..', 'outputs'))
     file = os.path.join(dest,"m.log")
     with open(file, 'w') as outfile:
         json.dump(data, outfile)
 
 def save_s(data):
+    """Dump sensing range selection in a file
+    
+    Parameters:
+        data (list): list of str
+    
+    Return: None    
+    """
     dest = os.path.abspath(os.path.join("modules", '..', 'outputs'))
     file = os.path.join(dest,"sen.log")
     with open(file, 'w') as outfile:
         json.dump(data, outfile)
 
 def save_aoi(geo_json):
+    """Dump handle draw selection polygon in a file
+    
+    Parameters:
+        geo_json (dict): polygon selection coordinates
+    
+    Return: None    
+    """
     dest = os.path.abspath(os.path.join("modules", '..', 'outputs'))
     file = os.path.join(dest,"polygon.json")
     with open(file, 'w') as fp:
@@ -158,6 +208,10 @@ def save_aoi(geo_json):
             print("\nSelection saved")
 
 def read_aoi():
+    """Read polygon selection from a file
+    
+    Return: handle draw polygon selection (dict)    
+    """
     dest = os.path.abspath(os.path.join("modules", '..', 'outputs'))
     file = os.path.join(dest,"polygon.json")
     with open(file, 'r') as fp:
@@ -165,6 +219,10 @@ def read_aoi():
     return polysel
 
 def read_sen():
+    """Read sensing range selection from a file
+    
+    Return: sensing range strings (list) 
+    """
     dest = os.path.abspath(os.path.join("modules", '..', 'outputs'))
     file = os.path.join(dest,"sen.log")
     with open(file, 'r') as fp:
@@ -172,6 +230,10 @@ def read_sen():
     return s
 
 def read_mp():
+    """Read mission selection from a file
+    
+    Return: mission and product type strings (list)
+    """
     dest = os.path.abspath(os.path.join("modules", '..', 'outputs'))
     file = os.path.join(dest,"m.log")
     with open(file, 'r') as fp:
@@ -179,6 +241,15 @@ def read_mp():
     return mp
 
 def sensing_range(start,stop):
+    """Compose sensing range string compliant to OData API query
+    
+    Parameters:
+        start (datetime.date): sensing start date
+        stop (datetime.date): sensing stop date
+        
+    Return: sensing range string (list)
+    
+    """
     # start e stop vengono dal widget
     if np.logical_or(start==None,stop==None) == True:
         return None
@@ -186,6 +257,8 @@ def sensing_range(start,stop):
         return ["["+str(start)+"T00:00:00.000Z%20TO%20"+str(stop)+"T23:59:59.999Z"+"]","["+str(start)+"T00:00:00.000Z%20TO%20"+str(stop)+"T23:59:59.999Z"+"]"]
 
 def _filters_():
+    """Main function to filter the product search displaying all the selection widgets.
+    """
     # sensing range
     sensing_start, sensing_stop = sensing()
     display(sensing_start)
