@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-CLEOPE - ONDA 
+CLEOPE - ONDA
 Developed by Serco Italy - All rights reserved
 
 @author: GCIPOLLETTA
 Contact me: Gaia.Cipolletta@serco.com
+
+Main package aimed at CAMS processing.
 """
 from ipywidgets import widgets, interact, Layout, interactive, VBox, HBox
 from IPython.display import display
@@ -20,9 +22,13 @@ try:
 except FileExistsError:
     flag = 1
 
-limit = 30 # limit on the product number 
-    
+limit = 30 # limit on the product number
+
 def sensing():
+    """Create a widget to select sensing range
+
+    Return: date pickers for sensing start and stop (ipywidgets objects)
+    """
     start = widgets.DatePicker(
     description='Start Date')
     stop = widgets.DatePicker(
@@ -30,15 +36,30 @@ def sensing():
     return start,stop
 
 def gmt_widget():
+    """Create a widget to select the GMT related to data
+
+    Return: checkboxes for the available sensing inputs (ipywidgets)
+    """
     options = ["GMT 00:00","GMT 12:00"]
-    return [widgets.Checkbox(value=False,description=opt) for opt in options] 
+    return [widgets.Checkbox(value=False,description=opt) for opt in options]
 
 def _b_(color="lightgreen"):
+    """Define widgets button color
+
+    Parameters:
+        color (str): widget python color property; default: lightgreen
+
+    Return: styled button color (ipywidgets)
+    """
     b = widgets.Button(description="OK",layout=Layout(width='auto'))
     b.style.button_color = color
     return b
 
 def _select_():
+    """Main selector for CAMS datasets to be processed. Widgets objects (ipywidgets) are displayed on screen while selection inputs dumped into files.
+
+    Return: None
+    """
     # sensing range
     start, stop = sensing()
     btn_1 = _b_()
@@ -67,7 +88,7 @@ def _select_():
         print("Variable to monitor: %s" %var)
         save_var(var)
     btn_2.on_click(var_input)
-    def time_inputs(b):  
+    def time_inputs(b):
 #         print("GMT: %s %s"%(wlist[0].value,wlist[1].value))
         flag_gmt = check_gmt(wlist[0].value,wlist[1].value)
         if flag_gmt:
@@ -78,28 +99,55 @@ def _select_():
     btn_3.on_click(time_inputs)
 
 def check_sensing(start,stop):
+    """Check if sensing range selection is valid.
+
+    Return: exit status (int)
+    """
     tmp = np.array([start,stop])
     if tmp.all()==None:
         print("None is not a date!")
         return 1
     else:
-        return 0    
+        return 0
 
 def check_gmt(var1,var2):
+    """Check if GMT flag selection is valid, otherwise changes into both the available GMT (00:00 and 12:00).
+
+    Parameters:
+        var1 (bool): status of function: gmt_widget
+        var2 (bool): status of function: gmt_widget
+
+    Return: exit status (int)
+    """
     tmp = np.array([var1,var2])
     if tmp.any() == False:
         print("GMT not set - selected both options")
         return 1
     else:
         return 0
-    
+
 def save_gmt(list):
+    """Dump GMT selection into file, named `gmt.log` by default.
+
+    Parameters:
+        list (list): list of GMT input selections (list of bools)
+
+    Return: None
+    """
     data = pd.DataFrame(np.array(list).reshape(1,2),columns=["GMT00","GMT12"])
     dest = os.path.join(os.getcwd(),"out")
     file = os.path.join(dest,"gmt.log")
     data.to_csv(file)
 
 def sensing_range(start,stop):
+    """Create a pandas dataframe from sensing range input selection, changing data format from datetime to str.
+
+    Parameters:
+        start (datetime): sensing range start (from function: sensing)
+        stop (datetime): sensing range stop (from function: sensing)
+
+    Return: sensing range information (pandas DataFrame)
+    """
     df = pd.DataFrame(np.nan,index=range(1),columns=["start","stop"])
     if np.logical_or(start==None,stop==None) == True:
         return None
@@ -109,19 +157,40 @@ def sensing_range(start,stop):
         df["start"] = str_start
         df["stop"] = str_stop
         return df
-    
+
 def save_s(data):
+    """Save sensing range selection into file, named `out/dates.log` by default.
+
+    Parameters:
+        data (pandas DataFrame): sensing range information (from function: sensing_range)
+
+    Return: None
+    """
     dest = os.path.join(os.getcwd(),"out")
     file = os.path.join(dest,"dates.log")
     data.to_csv(file)
-    
+
 def save_var(data):
+    """Save CAMS variable selection into file, named `out/variable.log` by default.
+
+    Parameters:
+        data (pandas DataFrame): CAMS variable name information (from function: _variable_)
+
+    Return: None
+    """
     dest = os.path.join(os.getcwd(),"out")
     file = os.path.join(dest,"variable.log")
     with open(file, 'w') as outfile:
         json.dump(data, outfile)
-               
+
 def convert_var(argument):
+    """Define CAMS variable dictionary on options displayed via the widgets.
+
+    Parameters:
+        argument (str): input string selected
+
+    Return: CAMS product name property (str)
+    """
     switcher = {
         "nitrogen_dioxide": "tcno2",
         "carbon_monoxide": "tcco",
@@ -138,27 +207,48 @@ def convert_var(argument):
         "peroxyacyl_nitrates":"tc_pan",
     }
     return switcher.get(argument, "Invalid input")
-    
+
 def _variable_():
+    """Create a widget with CAMS variables options.
+
+    Return: widget (ipywidgets)
+    """
     options = ["nitrogen_dioxide","carbon_monoxide","sulfur_dioxide","methane","ethane","propane","isoprene",
                "hydrogen_peroxide","formaldehyde","nitric_acid","nitrogen_monoxide","hydroxide","peroxyacyl_nitrates"]
     m = widgets.Dropdown(options=options,layout=Layout(width='30%'),description="Element")
-    return m        
+    return m
 
 def read_sen():
+    """Read the sensing range input from the file named out/dates.log by default; from function: save_s
+
+    Return: sensing range input selection (list)
+    """
     dest = os.path.join(os.getcwd(),"out")
     file = os.path.join(dest,"dates.log")
     df = pd.read_csv(file)
     return [df.start.values[0],df.stop.values[0]]
 
 def read_var():
+    """Read the CAMS variable name input from the file named out/variable.log by default; from function: save_var
+
+    Return: variable name input selection (str)
+    """
     dest = os.path.join(os.getcwd(),"out")
     file = os.path.join(dest,"variable.log")
     with open(file, 'r') as fp:
         var = json.load(fp)
     return var
-       
+
 def dates_list(freq="D"):
+    """Sample the sensing range dates into regular intervals given an input frequency.
+
+    Parameters:
+        freq (str): sampling frequency; default is: `D` daily
+
+        Allowed options are: `D` daily, `M` monthly, `W` weekly. If integer is provided too then sampling will be int*frequency.
+        Warning: a white space must be left between the frequency option and the optional integer fraction of that.
+        If the end date is in the future automatically fix with today date.
+    """
     # select sampling frequency
     temp = freq.split()
     if len(temp)>1:
@@ -195,7 +285,7 @@ def dates_list(freq="D"):
 #                 last = datetime.now().strftime("/%Y/%m/%d/")
         path_date = []
         for single_date in (start_date + timedelta(n) for n in range(0,nmax,timestep)):
-            path_date.append(single_date.strftime("/%Y/%m/%d/")) 
+            path_date.append(single_date.strftime("/%Y/%m/%d/"))
         try:
             path_date.append(last)
         except NameError:
@@ -209,12 +299,24 @@ def dates_list(freq="D"):
         return None
 
 def compose_pseudopath(freq="D"):
+    """Call the function: dates_list to compose ENS pseudopaths given the input sensing range and the CAMS product name.
+    Default pseudopath field: `Copernicus-atmosphere/ANALYSIS/SURFACE_FIELDS/`
+
+    Parameters:
+        freq (str): sampling frequency for function dates_list; default is: `D` daily
+
+    Return: ENS pseudopaths (list)
+    """
     root = "/mnt/Copernicus/Copernicus-atmosphere/ANALYSIS/SURFACE_FIELDS/"
     dates = dates_list(freq=freq)
     var = read_var()
     return [str(root)+str(var)+str(d) for d in dates]
 
 def read_gmt():
+    """Return a valid option for CAMS products GMT depending on the input flag selected via the GMT widget.
+
+    Return: CAMS GMT format (list)
+    """
     dest = os.path.join(os.getcwd(),"out")
     file = os.path.join(dest,"gmt.log")
     data = pd.read_csv(file,header=0,index_col=0)
@@ -227,9 +329,16 @@ def read_gmt():
             return ["*120000_*.nc"]
 
 def _processing_(freq="D"):
+    """Main function to open and read CAMS datasets given all the user selections via ENS, calling function compose_pseudopath. Final dataset is concatenated along time dimension.
+
+    Parameters:
+        freq (str): sampling frequency for function dates_list; default is: `D` daily
+
+    Return: CAMS dataset (xarray)
+    """
     gmt = read_gmt()
     if len(gmt)>1:
-        files00 = [glob.glob(path+gmt[0],recursive=True) for path in compose_pseudopath(freq=freq)] 
+        files00 = [glob.glob(path+gmt[0],recursive=True) for path in compose_pseudopath(freq=freq)]
         files12 = [glob.glob(path+gmt[1],recursive=True) for path in compose_pseudopath(freq=freq)]
         products = []
         for f,g in zip(files00,files12):
@@ -239,19 +348,26 @@ def _processing_(freq="D"):
     else:
         products = [glob.glob(path+gmt[0],recursive=True)[0] for path in compose_pseudopath(freq=freq)]
     var = read_var()
-    xlist = [(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products] 
+    xlist = [(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products]
     image = xarray.concat(xlist, dim='time')
     return image
-    
+
 
 def local_processing(var=None):
+    """Main function to open and read CAMS datasets saved in users own workspace. Final dataset is concatenated along time dimension.
+
+    Parameters:
+        var (str): CAMS variable to be monitored; default is None
+
+    Return: CAMS dataset (xarray)
+    Raise Exception if CAMS input variable argument is not set.
+    """
     products = glob.glob("local_files/z_cams*.nc",recursive=True)
     varlist = [p.split("_")[-1].split(".")[0] for p in products]
     if varlist[1:] == varlist[:-1]:
         var = varlist[0]
-        xlist = [(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products] 
+        xlist = [(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products]
         image = xarray.concat(xlist, dim='time')
         return image
     else:
-        print("Different CAMS products found in your dataset folder. Please provide a variable to monitor as var argument of this function, e.g. var='tcco'")
-        return None       
+        raise Exception("Different CAMS products found in your dataset folder. Please provide a variable to monitor as var argument of this function, e.g. var='tcco'")

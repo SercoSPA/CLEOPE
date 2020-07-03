@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-CLEOPE - ONDA 
+CLEOPE - ONDA
 Developed by Serco Italy - All rights reserved
 
 @author: GCIPOLLETTA
 Contact me: Gaia.Cipolletta@serco.com
+
+Main module aimed at S5P L2 data handling and visualisation.
 """
 import os, glob,json, datetime,xarray
 from netCDF4 import Dataset
 import numpy as np
-import matplotlib 
+import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import imageio
-from IPython.display import Image, display
 from scipy.interpolate import griddata
 from pathlib import Path
 import warnings
@@ -25,8 +25,6 @@ from holoviews import opts
 import holoviews as hv
 hv.extension('matplotlib')
 
-gif_name = "pmovie.gif"
-
 L2_variables = {"CO":"carbonmonoxide_total_column",
                 "HCHO":"formaldehyde_tropospheric_vertical_column",
                 "CH4":"methane_mixing_ratio",
@@ -36,6 +34,13 @@ L2_variables = {"CO":"carbonmonoxide_total_column",
                }
 
 def query(file):
+    """Read an input product list returning the full-path product list suitable for reading datasets.
+
+    Parameters:
+        file (str): full-path of the input file listing target products
+
+    Return: S5P L2 full-path to files (list)
+    """
     with open(file,"r") as f:
         data = f.readlines()
         list = [d.split("\n")[0] for d in data]
@@ -47,35 +52,36 @@ def query(file):
             for file in Path(item).rglob('*.nc'):
                 products.append(str(file))
     return products
-        
+
 def read_coordinates(path=os.getcwd(),filename='polygon.json'):
+    """Read coordinates from a shapefile (i.e. generated into SEARCH notebook).
+
+    Parameters:
+        path (str): full-path of the shapefile location; default set to the current working directory
+        filename (str): name of the input shapefile file; default set to `polygon.json`
+
+    Return: shapefile boundary vertexes (list) in the order: lat_min,lat_max,lon_min,lon_max
+    """
     file = glob.glob(os.path.join(path,filename),recursive=True)[0]
     with open(file, 'r') as fp:
         polysel = json.load(fp)
     if polysel["type"] == "Polygon":
         bounds = polysel["coordinates"][0]
     elif polysel["type"] == "LineString":
-        bounds = polysel["coordinates"] 
+        bounds = polysel["coordinates"]
     bounds_stack = np.column_stack(bounds)
     return [bounds_stack[1].min(),bounds_stack[1].max(),bounds_stack[0].min(),bounds_stack[0].max()]
 
-def plot(ds,key,file):
-    if key not in list(L2_variables.keys()):
-        warnings.warn("Unknown key, call dp.L2_variables.keys() to display choices.")
-    label = []
-    images = []
-    p = query(file)
-    unit = units(file)
-    for i in range(len(ds)):
-        temp = datetime.datetime.strptime(p[i].split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S")
-        label = datetime.datetime.strftime(temp,"%b/%d/%Y")
-        if key in ds[i].columns:
-            images.append(hv.Scatter(ds[i]).opts(s=10,color=key,cmap=cmap,title=label,padding=0.05,
-                                                 colorbar=True,clabel=str(key)+'  '+str(unit)))#.hist(str(key)))           
-        i+=1
-    return images
-
 def read(bounds,file):
+    """Open and read datasets from a given product list, clipping over input coordinates.
+
+    Parameters:
+        bounds (tuple): input vertexes of the clipping rectangle, provided in the order: (lat_min,lat_max,lon_min,lon_max)
+        file (str): full-path of the input file listing target products
+
+    Return: clipped datasets (list)
+    Raise Exception if NetCDF HDF error is encountered (possible if using ENS)
+    """
     products = query(file)
     latmin,latmax,lonmin,lonmax = bounds
     datasets = list()
@@ -113,15 +119,29 @@ def read(bounds,file):
             dataframe = pd.DataFrame(data=A,columns=["lon","lat",key])
             datasets.append(dataframe)
         except:
-            raise Exception("NetCDF Error occurred when reading file: %s"%file) 
+            raise Exception("NetCDF Error occurred when reading file: %s"%file)
             continue
     return datasets # all datasets related to product file list
 
 def dates(products):
+    """Utility function which extracts dates from S5P L2 product name.
+
+    Parameters:
+        products (list): S5P L2 full-path to files (from function: query)
+
+    Return: datetime string (list)
+    """
     dates = [datetime.datetime.strptime(p.split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S") for p in products]
     return [datetime.datetime.strftime(d,"%Y - %b - %d") for d in dates]
-   
+
 def units(file):
+    """Utility function which extracts units from S5P L2 product name.
+
+    Parameters:
+        file (str): full-path of the input file listing target products
+
+    Return: dataset units (str) per each product
+    """
     products = query(file)
     for file in products:
         f = Dataset(file)
@@ -140,12 +160,21 @@ def units(file):
         else:
             print("Key Error: unrecognized variable")
             return 1
-    return unit    
+    return unit
 
 def analysis(df,key,file):
+    """Compute and plot mean values of an input dataset over time. This is useful to generate a timeseries monitoring of the same area in the variable of interest.
+
+    Parameters:
+        df (list): clipped input dataframes (from funcion: read)
+        key (str): name of S5P L2 variable to monitor
+        file (str): full-path of the input file listing target products
+
+    Return: mean values dataframe (pandas dataframe)
+    """
     if key not in list(L2_variables.keys()):
         raise KeyError("Unknown key, call dp.L2_variables.keys() to display choices.")
-    plt.ion() # mute plots 
+    plt.ion() # mute plots
     u = units(file) # pick up units from nc file
     data = pd.DataFrame(np.nan,columns=["date","val_u"],index=range(len(df)))
     days = [datetime.datetime.strptime(p.split("/")[-1].split("_")[-6],"%Y%m%dT%H%M%S") for p in query(file)]
@@ -161,7 +190,7 @@ def analysis(df,key,file):
     if key == "NO2":
         variable = data.val_u*1E6
         ax.plot(data.date,variable,"-o")
-        label = str(key)+" u"+str(u) 
+        label = str(key)+" u"+str(u)
         ylims = (variable.min()-variable.min()*0.1,variable.max()+variable.max()*0.1)
     else:
         variable = data.val_u*1E3
@@ -174,66 +203,21 @@ def analysis(df,key,file):
     fig.autofmt_xdate()
     return data
 
-def plot_var(ds,key,file,create_movie=True):
-    if key not in list(L2_variables.keys()):
-        raise KeyError("Unknown key, call dp.L2_variables.keys() to display choices.")
-    plt.ioff() # mute plots 
-    dirName = 'plots'
-    try:
-        os.mkdir(dirName)
-        print("Plots collected in %s"%dirName)
-    except:
-        print("\n")
-    maxs = ([])
-    variable = []
-    labels = dates(query(file))
-    for val in ds:
-        if key == "NO2":
-            z = val[key]*1E6
-        else:
-            z = val[key]*1E3 # 
-        maxs = np.append(maxs,z.max())
-        variable.append(z.values)   
-    max = maxs.max()
-    normalize = matplotlib.colors.Normalize(vmin=0, vmax=max)
-    bounds = np.linspace(0, max, 10)
-    normalize_cb = matplotlib.colors.BoundaryNorm(bounds, cmap.N)
-    if key == "NO2":
-        cb_label = str(key)+" u"+str(units(file))
-    else:
-        cb_label = str(key)+" m"+str(units(file))
-    xlims = tuple(read_coordinates()[2:4])
-    ylims = tuple(read_coordinates()[0:2])
-    for i in range(len(ds)):
-        fig,ax = plt.subplots(1,1,figsize=(8,6))
-        im = ax.scatter(ds[i].lon.values, ds[i].lat.values, c=variable[i], s=5, cmap=cmap, norm=normalize)
-        ax.set(xlim=xlims,ylim=ylims,xlabel='longitude',ylabel='latitude',title="%s"%labels[i])
-        ax.minorticks_on()
-        ax.set_aspect('equal', 'box')
-        divider = make_axes_locatable(ax)
-        cax = divider.append_axes('right', size='5%', pad=0.05)
-        fig.colorbar(matplotlib.cm.ScalarMappable(cmap=cmap, norm=normalize_cb), cax=cax, orientation='vertical',label=cb_label,ticks=bounds,spacing='proportional',boundaries=bounds)
-        fig.savefig(os.path.join(dirName,'plot_'+str(i)+".png"))
-        fig.tight_layout()
-        plt.close(fig)
-    if create_movie==True:
-        try:
-            os.remove(gif_name)
-        except:
-            flag = 0
-        images=[]
-        imf = glob.glob(os.path.join(dirName,"plot_*.png"))
-        imf.sort(key=os.path.getmtime)
-        for im in imf:
-            images.append(imageio.imread(im))
-        imageio.mimsave(gif_name, images, duration=1)
-        display_img()
-
-def display_img(img_file=gif_name):
-    with open(img_file,'rb') as f:
-        display(Image(data=f.read(), format='png'))
-    
 def mapping(bounds,ds,file,plotmap=False,centre=(None,None),dynamic=False,method='cubic'):
+    """Generate and plot an interpolated map given an input clipped dataset, using by default a cubic spline.
+    Colors are automatically normalised on the maximum value to facilitate comparisons.
+
+    Parameters:
+        bounds (tuple): input vertexes of the clipping rectangle, provided in the order: (lat_min,lat_max,lon_min,lon_max)
+        ds (list): clipped datasets (from funcion: read)
+        file (str): full-path of the input file listing target products
+        plotmap (bool): optionally plot the interpolated maps; default set to False
+        centre (tuple): centre coordinates to draw a circle delimitating an area; default set to None
+        dynamic (bool): enable a dynamic colorbar; default set to False (to facilitate comparisons)
+        method (str): interpolation method; default set to `cubic`, options: `linear`,`nearest`,`cubic`
+
+    Return: interpolated map grid in the form: grid_x,grid_y,grid_z (numpy arrays), matplotlib figure (if plot is enabled)
+    """
     ymin,ymax,xmin,xmax = bounds
     gridx = np.linspace(xmin,xmax,1000)
     gridy = np.linspace(ymin,ymax,1000)
@@ -249,8 +233,21 @@ def mapping(bounds,ds,file,plotmap=False,centre=(None,None),dynamic=False,method
     else:
         fig = None
     return grid_x,grid_y,maps,fig
-        
-def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
+
+def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic=False):
+    """Plot a map given the input meshgrids. Colors are automatically normalised on the maximum value to facilitate comparisons.
+
+    Parameters:
+        grid_x (numpy array): meshgrid of longitude coordinates (from funcion: mapping)
+        grid_y (numpy array): meshgrid of latitude coordinates (from funcion: mapping)
+        df (list): clipped datasets (from funcion: read)
+        file (str): full-path of the input file listing target products
+        centre (tuple): centre coordinates to draw a circle delimitating an area
+        keys (str): names of S5P L2 variable to monitor
+        dynamic (bool): enable a dynamic colorbar; default set to False (to facilitate comparisons)
+
+    Return: matplotlib figure
+    """
     xc,yc = centre
     if dynamic==True:
         maxs = [d[~np.isnan(d)].max() for d in df]
@@ -279,7 +276,7 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
             ax.set_title(titles[i],fontsize=12)
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('right', size='5%', pad=0.05)
-            fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit) 
+            fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit)
         fig.tight_layout()
     else:
         if n==1:
@@ -295,7 +292,7 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
             ax.set_title(titles[i],fontsize=12)
             divider = make_axes_locatable(ax)
             cax = divider.append_axes('right', size='5%', pad=0.05)
-            fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit) 
+            fig.colorbar(im, cax=cax, orientation='vertical',label=keys[i]+" m"+unit)
             fig.tight_layout()
         else:
             fig, axs = plt.subplots(int(n//2)+1,2,figsize=(10,8))
@@ -317,6 +314,16 @@ def plot_maps(grid_x, grid_y, df, file, centre, keys, dynamic):
     return fig
 
 def read_dataset(files,key,qa_val=0.0,bounds=None):
+    """Open and read data from `.nc` files, clipping the dataset on a given rectangle.
+
+    Parameters:
+        files (list): S5P L2 full-path to files (from function: query)
+        key (str): name of S5P L2 variable to monitor
+        qa_val (float): quality threshold to filter a S5P L2 data array
+        bounds (tuple): input vertexes of the clipping rectangle, provided in the order: (lon_min,lon_max,lat_min,lat_max); default set to None
+
+    Return: clipped subsets (list of xarray DataArray)
+    """
     if key not in list(L2_variables.keys()):
         warnings.warn("Unknown key, call dp.L2_variables.keys() to display choices.")
         return
@@ -335,15 +342,23 @@ def read_dataset(files,key,qa_val=0.0,bounds=None):
         else:
             da_sel = data.copy()
         # quality
-        da = da_sel.where(da_sel["qa_value"]>qa_val)
+        da = da_sel.where(da_sel["qa_value"]>qa_val,drop=True)
         # convert dataset
         da_conv = (da[var].multiplication_factor_to_convert_to_molecules_percm2*da[var])
+        da_conv.attrs["time"] = np.datetime_as_string(data.time.data)
         subsets.append(da_conv)
         del da,da_sel
     return subsets
+
+def mosaic(da_list,dims=["ground_pixel","scanline"]):
+    """Convert S5P xarray DataArray into datasets and create a mosaic using native dimensions (i.e. scanline and ground_pixel). The `combine_nested` xarray function is used to achieve this result.
     
+    Parameters:
+        da_list (list of xarray DataArray): S5P input list of (clipped) dataset to be mosaicked (as read by `read_dataset` function)
+        dims (list of str): dimensions along which to concatenate variables. Set `concat_dim=[..., None, ...]` explicitly to disable concatenation and merge instead along a particular dimension. The position of None in the list specifies the dimension of the nested-list input along which to merge. Must be the same length as the depth of the list passed to datasets.
         
-        
-        
-        
-        
+    Return: `xarray.combine_nested` result (xarray dataset)
+    """
+    ds_5p = [[sub.to_dataset()] for sub in da_list]
+    return xarray.combine_nested(ds_5p,concat_dim=dims)
+    

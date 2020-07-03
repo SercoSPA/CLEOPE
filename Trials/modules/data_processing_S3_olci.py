@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-CLEOPE - ONDA 
+CLEOPE - ONDA
 Developed by Serco Italy - All rights reserved
 
 @author: GCIPOLLETTA
 Contact me: Gaia.Cipolletta@serco.com
+
+Main module aimed at S3 OLCI WFR and LFR data handling and visualisation.
 """
 import os, glob, xarray
 import numpy as np
@@ -20,15 +22,36 @@ switcher = {
     }
 
 def products(file):
+    """Read an input product list returning a list of products suitable for reading.
+
+    Parameters:
+        file (str): full path of the input file listing target products
+
+    Return: lines of file read (list)
+    """
     with open(file,"r") as f:
         data = f.readlines()
         list = [d.split("\n")[0] for d in data]
     return list
 
 def key2file(argument):
+    """Convert dataset OLCI variable name into the file format.
+
+    Parameters:
+        argument (str): OLCI variable name
+
+    Return: S3 OLCI filename (str)
+    """
     return switcher.get(argument, "Invalid input, choices: %s"%list(switcher.keys()))
-    
+
 def check_file(files):
+    """Check for file list completeness, removing non-OLCI.
+
+    Parameters:
+        files (list): input full path product list
+
+    Return: file list cleaned (list), flag (int)
+    """
     flag = []
     cleanf = files.copy()
     for f in files:
@@ -40,14 +63,23 @@ def check_file(files):
             cleanf.remove(f)
             continue
     return cleanf,flag
-    
+
 def open_da(products,key):
+    """Open OLCI dataset, both variable and coordinates.
+
+    Parameters:
+        products (list): input file list of products
+        key (str): OLCI-compliant variable name
+
+    Return: variable dataset (xarray Dataset), coordinates dataset (xarray Dataset)
+    Raise Exception if NetCDF HDF error is encountered (possible if using ENS)
+    """
     files,flag = check_file(products)
     c,v = [],[]
     ncfile = key2file(key)
     if ncfile not in list(switcher.values()):
         print("Invalid input for key value, choices: %s"%list(switcher.keys()))
-        return 
+        return
     for p in files:
         geos = glob.glob(p+"/**/geo_coordinates.nc",recursive=True)
         bands = glob.glob(p+"/**/"+str(ncfile),recursive=True)
@@ -64,6 +96,16 @@ def open_da(products,key):
     return c,v # list of merged datasets
 
 def make_ds(files,key,bounds=None):
+    """Main function to generate a dataset given an input file list and the OLCI variable product name. Allows data clipping if clipping bounds are provided.
+
+    Parameters:
+        files (list): input full path products (from funcion: products)
+        key (str): OLCI variable native name; default options list: switcher.keys()
+        bounds (tuple): input vertexes of the clipping rectangle, provided in the order (lon_min,lon_max,lat_min,lat_max); default set to None
+
+    Return: dataset concatenated along time dimension (xarray Dataset)
+    Raise Exception for non time-ordered input products
+    """
     if bounds:
         xmin,xmax,ymin,ymax = bounds
     c,v = open_da(files,key)
@@ -86,7 +128,7 @@ def make_ds(files,key,bounds=None):
         # give attrs
         darr.attrs = var.attrs
         darr[str(key)].attrs = var[str(key)].attrs
-        if key in list(switcher.keys())[-2:]: # OTCI and OGVI do not have units 
+        if key in list(switcher.keys())[-2:]: # OTCI and OGVI do not have units
             darr[str(key)].attrs['units'] = str(key)
         darr.lat.attrs = coords.latitude.attrs
         darr.lon.attrs = coords.longitude.attrs
@@ -97,7 +139,6 @@ def make_ds(files,key,bounds=None):
         try:
             return xarray.concat(dataset,dim='time')
         except:
-            raise Exception("Error when concat along time, data must be time ordered")
+            raise Exception("Error when concat along time dimension: data must be time ordered")
     else:
         return dataset[0]
-    

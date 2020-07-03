@@ -43,6 +43,8 @@ On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/k
     - `cams.py`, `cgls.py` and `cmems.py` are named after the mission they are dedicated to - Copernicus Atmosphere, Copernicus Land and Copernicus Marine, respectively;
     - `data_processing_*.py` are named after the Sentinel mission of reference.<br>
 
+Users can call the `help` method to display all the functions collected into each module. 
+
 📁 All the other folders into the `Trials` main directory collect the trial notebooks set. More information on CLEOPE notebooks is provided 👉[here](Trials/readme.md).
 
 # CLEOPE technical information

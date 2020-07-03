@@ -141,6 +141,13 @@ This trial notebook makes use of a module developed for [S5P trial notebook](#S5
 
 ✏️ In this example the sample list of S3 products is very oriented on the case study under exam but in principle users can customise this data set according to their own scientific specifications.
 
+### SLSTR LST L2
+S3 SLSTR LST trial notebook is focused on the treatment and visualisation of S3 land surface temperature products, taking the Siberian heat wave on June 2020 as a case study. <br>
+With this notebook users can load SLSTR LST products, extract the data sets to be re-arranged into a final product, showing geo-coordinates and LST information merged. <br>
+The land surface temperature over the area of interest is displayed in color-adjusted geo-referenced plot. This trial notebook makes use of a module developed for [S5P trial notebook](#S5P) which is helpful in selecting the clip boundaries from the CO emission associated to any wildfires areas (i.e. associated to the siberian heat wave case study), being a clear example of synergy between trial notebooks powered by CLEOPE.
+
+✏️ The dataframe of S3 products is customisable according to users choices. In the default CLEOPE workspace a sample list of SLSTR LST products is provided.
+
 ## S5P trial notebook 
 <a id="S5P"></a>
 [![N|Solid](https://sentinel.esa.int/documents/247904/1624461/Sentinel-5P_tm.jpg/4dbebdc6-4fb2-47ec-bcb3-065581896ad2?t=1505136035800)](https://sentinel.esa.int/documents/247904/1624461/Sentinel-5P_tm.jpg/4dbebdc6-4fb2-47ec-bcb3-065581896ad2?t=1505136035800)

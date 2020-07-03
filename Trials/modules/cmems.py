@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-CLEOPE - ONDA 
+CLEOPE - ONDA
 Developed by Serco Italy - All rights reserved
 
 @author: GCIPOLLETTA
 Contact me: Gaia.Cipolletta@serco.com
+
+Main package aimed at CMEMS processing.
 """
 from ipywidgets import widgets, interact, Layout, interactive, VBox, HBox
 from IPython.display import display
@@ -20,9 +22,13 @@ try:
 except FileExistsError:
     flag = 1
 
-limit = 30 # limit on the product number 
-    
+limit = 30 # limit on the product number
+
 def sensing():
+    """Create a widget to select sensing range
+
+    Return: date pickers for sensing start and stop (ipywidgets objects)
+    """
     start = widgets.DatePicker(
     description='Start Date')
     stop = widgets.DatePicker(
@@ -30,11 +36,22 @@ def sensing():
     return start,stop
 
 def _b_(color="skyblue"):
+    """Define widgets button color
+
+    Parameters:
+        color (str): widget python color property; default: skyblue
+
+    Return: styled button color (ipywidgets)
+    """
     b = widgets.Button(description="OK",layout=Layout(width='auto'))
     b.style.button_color = color
     return b
 
 def _select_():
+    """Main selector for CMEMS datasets to be processed. Widgets objects (ipywidgets) are displayed on screen while selection inputs dumped into files.
+
+    Return: None
+    """
     # sensing range
     start, stop = sensing()
     btn_1 = _b_()
@@ -62,28 +79,26 @@ def _select_():
     btn_2.on_click(var_input)
 
 def check_sensing(start,stop):
+    """Check if sensing range selection is valid.
+
+    Return: exit status (int)
+    """
     tmp = np.array([start,stop])
     if tmp.all()==None:
         print("None is not a date!")
         return 1
     else:
-        return 0    
-
-def check_gmt(var1,var2):
-    tmp = np.array([var1,var2])
-    if tmp.any() == False:
-        print("GMT not set - selected both options")
-        return 1
-    else:
         return 0
-    
-def save_gmt(list):
-    data = pd.DataFrame(np.array(list).reshape(1,2),columns=["GMT00","GMT12"])
-    dest = os.path.join(os.getcwd(),"out")
-    file = os.path.join(dest,"gmt.log")
-    data.to_csv(file)
 
 def sensing_range(start,stop):
+    """Create a pandas dataframe from sensing range input selection, changing data format from datetime to str.
+
+    Parameters:
+        start (datetime): sensing range start (from function: sensing)
+        stop (datetime): sensing range stop (from function: sensing)
+
+    Return: sensing range information (pandas DataFrame)
+    """
     df = pd.DataFrame(np.nan,index=range(1),columns=["start","stop"])
     if np.logical_or(start==None,stop==None) == True:
         return None
@@ -93,19 +108,40 @@ def sensing_range(start,stop):
         df["start"] = str_start
         df["stop"] = str_stop
         return df
-    
+
 def save_s(data):
+    """Save sensing range selection into file, named `out/dates.log` by default.
+
+    Parameters:
+        data (pandas DataFrame): sensing range information (from function: sensing_range)
+
+    Return: None
+    """
     dest = os.path.join(os.getcwd(),"out")
     file = os.path.join(dest,"dates.log")
     data.to_csv(file)
-    
+
 def save_var(data):
+    """Save CMEMS variable selection into file, named `out/variable.log` by default.
+
+    Parameters:
+        data (pandas DataFrame): CMEMS variable name information (from function: _variable_)
+
+    Return: None
+    """
     dest = os.path.join(os.getcwd(),"out")
     file = os.path.join(dest,"variable.log")
     with open(file, 'w') as outfile:
         json.dump(data, outfile)
-               
+
 def convert_var(argument):
+    """Define CMEMS variable dictionary on options displayed via the widgets.
+
+    Parameters:
+        argument (str): input string selected
+
+    Return: CMEMS product name property (str)
+    """
     switcher = {
         "temperature":"TEM",
         "temperature_at_see_floor":"BED",
@@ -118,6 +154,13 @@ def convert_var(argument):
     return switcher.get(argument, "Invalid input")
 
 def switch2attr(argument):
+    """Define CMEMS dataset variable dictionary on product name property.
+
+    Parameters:
+        argument (str): input product name
+
+    Return: CMEMS dataset variable name property (str)
+    """
     switcher = {
         "TEM":"thetao",
         "BED":"bottomT",
@@ -131,25 +174,46 @@ def switch2attr(argument):
 
 
 def _variable_():
+    """Create a widget with CMEMS variables options.
+
+    Return: widget (ipywidgets)
+    """
     options = ["temperature","temperature_at_see_floor","horizontal_vel_3D","ice_concentration","mixed_layer_depth",
               "salinity","sea_surface_heigh"]
     m = widgets.Dropdown(options=options,layout=Layout(width='40%'),description="Variable")
-    return m        
+    return m
 
 def read_sen():
+    """Read the sensing range input from the file named out/dates.log by default; from function: save_s
+
+    Return: sensing range input selection (list)
+    """
     dest = os.path.join(os.getcwd(),"out")
     file = os.path.join(dest,"dates.log")
     df = pd.read_csv(file)
     return [df.start.values[0],df.stop.values[0]]
 
 def read_var():
+    """Read the CMEMS variable name input from the file named out/variable.log by default; from function: save_var
+
+    Return: variable name input selection (str)
+    """
     dest = os.path.join(os.getcwd(),"out")
     file = os.path.join(dest,"variable.log")
     with open(file, 'r') as fp:
         var = json.load(fp)
     return var
-       
+
 def dates_list(freq="D"):
+    """Sample the sensing range dates into regular intervals given an input frequency.
+
+    Parameters:
+        freq (str): sampling frequency; default is: `D` daily
+
+        Allowed options are: `D` daily, `M` monthly, `W` weekly. If integer is provided too then sampling will be int*frequency.
+        Warning: a white space must be left between the frequency option and the optional integer fraction of that.
+        If the end date is in the future automatically fix with today date.
+    """
     # select sampling frequency
     temp = freq.split()
     if len(temp)>1:
@@ -186,7 +250,7 @@ def dates_list(freq="D"):
 #                 last = datetime.now().strftime("/%Y/%m/%d/")
         path_date = []
         for single_date in (start_date + timedelta(n) for n in range(0,nmax,timestep)):
-            path_date.append(single_date.strftime("/%Y/%m/%d/")) 
+            path_date.append(single_date.strftime("/%Y/%m/%d/"))
         try:
             path_date.append(last)
         except NameError:
@@ -200,6 +264,14 @@ def dates_list(freq="D"):
         return None
 
 def compose_pseudopath(freq="D"):
+    """Call the function: dates_list to compose ENS pseudopaths given the input sensing range and the CAMS product name.
+    Default pseudopath field: `Copernicus-marine/GLOBAL_ANALYSIS_FORECAST_PHYS_001_015/MetO-GLO-PHYS-dm-`
+
+    Parameters:
+        freq (str): sampling frequency for function dates_list; default is: `D` daily
+
+    Return: ENS pseudopaths (list)
+    """
     root = "/mnt/Copernicus/Copernicus-marine/GLOBAL_ANALYSIS_FORECAST_PHYS_001_015/MetO-GLO-PHYS-dm-"
     dates = dates_list(freq=freq)
     var = read_var()
@@ -207,6 +279,15 @@ def compose_pseudopath(freq="D"):
 
 
 def _processing_(freq="D"):
+    """Main function to open and read CMEMS datasets given all the user selections via ENS, calling function compose_pseudopath. Final dataset is concatenated and already sliced along dimensions:
+        - time
+        - depth (if present)
+
+    Parameters:
+        freq (str): sampling frequency for function dates_list; default is: `D` daily
+
+    Return: CMEMS dataset (xarray)
+    """
     trg = compose_pseudopath(freq)
     products = []
     for t in trg: # check if pp exists
@@ -214,9 +295,9 @@ def _processing_(freq="D"):
             products.append(p)
     variable = switch2attr(read_var())
     if variable is None:
-        ds = [(xarray.open_dataset(p)).isel(time=0) for p in products] # 3D case for velocities  
+        ds = [(xarray.open_dataset(p)).isel(time=0) for p in products] # 3D case for velocities
     else:
-        ds = [(xarray.open_dataset(p)[str(variable)]).isel(time=0) for p in products] 
+        ds = [(xarray.open_dataset(p)[str(variable)]).isel(time=0) for p in products]
     # concatenate along time dimension
     image = xarray.concat(ds, dim='time')
     tmax = len(image)
@@ -226,11 +307,14 @@ def _processing_(freq="D"):
         return image.isel(time=slice(0,tmax,1),depth=slice(0,dmax,1)) # return a slice in time and depth
     else:
         return image.isel(time=slice(0,tmax,1)) # return time series slice
-        
+
 
 def check_if_depth(image):
+    """Check if depth dimension is present in the CMEMS data array.
+
+    Return: exit status (bool)
+    """
     if "depth" in image.dims:
         return True
     else:
         return False
-
