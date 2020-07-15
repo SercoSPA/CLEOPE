@@ -174,7 +174,7 @@ The CAMS oriented trial notebook is an interactive tool aimed at data visualisat
 <img src="https://www.copernicus.eu/sites/default/files/styles/servicecards_icon_hover/public/2018-10/Marine-hover.png?itok=0bCGpFuu" width="100" height="100" />
 
 ONDA provides access to the Copernicus Marine Services data sets of ocean products derived from satellite and in situ observation, suited for science and global monitoring purposes. <br>
-CLEOPE CMEMS trial notebook is an interactive tool aimed at data visualisation of _Global Ocean Analysis_ products exploiting the power of ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), visualising interactive global layers on the map. Variables allowed are: the temperature, temperature at see floor, wind velocity, ice concentration, mixed layer depth, salinity and sea surface heigh.
+CLEOPE CMEMS trial notebook is an interactive tool aimed at data visualisation of _Global Ocean Analysis_ products exploiting the power of ENS. Users can choose a period of interest and a sampling frequency within it (i.e. days, weeks or months), concatenate datasets and visualise interactive timeseries color mapped layers. 
 
 ## CGLS trial notebook
 <a id="cland"></a>

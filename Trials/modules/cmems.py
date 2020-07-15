@@ -35,33 +35,34 @@ def sensing():
         description='End date')
     return start,stop
 
-def _b_(color="skyblue"):
+def _b_(color="skyblue",desc="OK"):
     """Define widgets button color
 
     Parameters:
         color (str): widget python color property; default: skyblue
+        desc (str): button description; default: OK
 
     Return: styled button color (ipywidgets)
     """
-    b = widgets.Button(description="OK",layout=Layout(width='auto'))
+    b = widgets.Button(description=desc,layout=Layout(width='auto'))
     b.style.button_color = color
     return b
 
-def _select_():
-    """Main selector for CMEMS datasets to be processed. Widgets objects (ipywidgets) are displayed on screen while selection inputs dumped into files.
+def _select_(freq="D",variable="analysed_sst"):
+    """Main selector for CMEMS datasets to be processed. Widgets objects (ipywidgets) are displayed on screen while selection inputs are dumped into files at path `out/` by default.
+    
+    Parameters:
+        freq (str): sampling frequency; default is: `D` daily
+        variable (str): variable extracted from the CMEMS NetCDF file
 
     Return: None
     """
     # sensing range
     start, stop = sensing()
-    btn_1 = _b_()
+    btn_1 = _b_(desc="Submit sensing")
     vbox1 = VBox([start,stop],layout=Layout(width='auto', height='80px'))
     box_1 = (HBox([vbox1,btn_1],layout=Layout(width='65%', height='80px')))
-    btn_2 = _b_()
-    variable = _variable_()
-    box_2 = HBox([variable,btn_2],layout=Layout(width='90%'))
-    BOX = VBox([box_1,box_2],layout=Layout(width='auto', height='auto'))
-    display(BOX)
+    display(box_1)
     def sens_input(b):
         print("Sensing date range from %s to %s"%(start.value,stop.value))
         check = check_sensing(start.value,stop.value)
@@ -72,11 +73,16 @@ def _select_():
         sens = sensing_range(start.value,stop.value)
         save_s(sens)
     btn_1.on_click(sens_input)
-    def var_input(b):
-        var = convert_var(variable.value)
-        print("Variable to monitor: %s" %var)
-        save_var(var)
-    btn_2.on_click(var_input)
+    btn_2 = _b_(color="Lavender",desc="START SEARCH")
+    output = widgets.Output()
+    display(btn_2,output)
+    def proc_input(b):
+        with output:
+            print("\nSampling with frequency: %s"%freq)
+            ims = _processing_(freq=freq,variable=variable)
+            display(ims)
+            ims.to_netcdf(os.path.join(dirName,"dataset.nc"))
+    btn_2.on_click(proc_input)
 
 def check_sensing(start,stop):
     """Check if sensing range selection is valid.
@@ -121,68 +127,6 @@ def save_s(data):
     file = os.path.join(dest,"dates.log")
     data.to_csv(file)
 
-def save_var(data):
-    """Save CMEMS variable selection into file, named `out/variable.log` by default.
-
-    Parameters:
-        data (pandas DataFrame): CMEMS variable name information (from function: _variable_)
-
-    Return: None
-    """
-    dest = os.path.join(os.getcwd(),"out")
-    file = os.path.join(dest,"variable.log")
-    with open(file, 'w') as outfile:
-        json.dump(data, outfile)
-
-def convert_var(argument):
-    """Define CMEMS variable dictionary on options displayed via the widgets.
-
-    Parameters:
-        argument (str): input string selected
-
-    Return: CMEMS product name property (str)
-    """
-    switcher = {
-        "temperature":"TEM",
-        "temperature_at_see_floor":"BED",
-        "horizontal_vel_3D":"CUR",
-        "ice_concentration":"ICE",
-        "mixed_layer_depth":"MLD",
-        "salinity":"SAL",
-        "sea_surface_heigh":"SSH",
-    }
-    return switcher.get(argument, "Invalid input")
-
-def switch2attr(argument):
-    """Define CMEMS dataset variable dictionary on product name property.
-
-    Parameters:
-        argument (str): input product name
-
-    Return: CMEMS dataset variable name property (str)
-    """
-    switcher = {
-        "TEM":"thetao",
-        "BED":"bottomT",
-        "CUR":None,
-        "ICE":"siconc",
-        "MLD":"mlotst",
-        "SAL":"so",
-        "SSH":"zos",
-    }
-    return switcher.get(argument, "Invalid input")
-
-
-def _variable_():
-    """Create a widget with CMEMS variables options.
-
-    Return: widget (ipywidgets)
-    """
-    options = ["temperature","temperature_at_see_floor","horizontal_vel_3D","ice_concentration","mixed_layer_depth",
-              "salinity","sea_surface_heigh"]
-    m = widgets.Dropdown(options=options,layout=Layout(width='40%'),description="Variable")
-    return m
-
 def read_sen():
     """Read the sensing range input from the file named out/dates.log by default; from function: save_s
 
@@ -192,17 +136,6 @@ def read_sen():
     file = os.path.join(dest,"dates.log")
     df = pd.read_csv(file)
     return [df.start.values[0],df.stop.values[0]]
-
-def read_var():
-    """Read the CMEMS variable name input from the file named out/variable.log by default; from function: save_var
-
-    Return: variable name input selection (str)
-    """
-    dest = os.path.join(os.getcwd(),"out")
-    file = os.path.join(dest,"variable.log")
-    with open(file, 'r') as fp:
-        var = json.load(fp)
-    return var
 
 def dates_list(freq="D"):
     """Sample the sensing range dates into regular intervals given an input frequency.
@@ -265,56 +198,49 @@ def dates_list(freq="D"):
 
 def compose_pseudopath(freq="D"):
     """Call the function: dates_list to compose ENS pseudopaths given the input sensing range and the CAMS product name.
-    Default pseudopath field: `Copernicus-marine/GLOBAL_ANALYSIS_FORECAST_PHYS_001_015/MetO-GLO-PHYS-dm-`
+    Default pseudopath field: `Copernicus-marine/SST_GLO_SST_L4_NRT_OBSERVATIONS_010_005/METOFFICE-GLO-SST-L4-NRT-OBS-GMPE-V3`
 
     Parameters:
         freq (str): sampling frequency for function dates_list; default is: `D` daily
 
     Return: ENS pseudopaths (list)
     """
-    root = "/mnt/Copernicus/Copernicus-marine/GLOBAL_ANALYSIS_FORECAST_PHYS_001_015/MetO-GLO-PHYS-dm-"
+    root = "/mnt/Copernicus/Copernicus-marine/SST_GLO_SST_L4_NRT_OBSERVATIONS_010_005/METOFFICE-GLO-SST-L4-NRT-OBS-GMPE-V3"
     dates = dates_list(freq=freq)
-    var = read_var()
-    return [str(root)+str(var)+str(d) for d in dates]
+    return [str(root)+str(d) for d in dates]
 
-
-def _processing_(freq="D"):
-    """Main function to open and read CMEMS datasets given all the user selections via ENS, calling function compose_pseudopath. Final dataset is concatenated and already sliced along dimensions:
-        - time
-        - depth (if present)
-
+def _processing_(freq="D",variable="analysed_sst"):
+    """Main function to open and read CMEMS datasets given all the user selections via ENS, calling function compose_pseudopath. 
+    
     Parameters:
         freq (str): sampling frequency for function dates_list; default is: `D` daily
+        variable (str): variable to be extracted on dataset (among the possible choices allowed by the product type)
 
-    Return: CMEMS dataset (xarray)
+    Return: CMEMS variable dataset (xarray)
     """
     trg = compose_pseudopath(freq)
     products = []
     for t in trg: # check if pp exists
         for p in glob.glob(t+"*.nc",recursive=True):
             products.append(p)
-    variable = switch2attr(read_var())
-    if variable is None:
-        ds = [(xarray.open_dataset(p)).isel(time=0) for p in products] # 3D case for velocities
-    else:
-        ds = [(xarray.open_dataset(p)[str(variable)]).isel(time=0) for p in products]
+    ds = [(xarray.open_dataset(p)[str(variable)]).isel(time=0) for p in products]
     # concatenate along time dimension
-    image = xarray.concat(ds, dim='time')
-    tmax = len(image)
-    # check if depth dimension exists
-    if check_if_depth(image):
-        dmax = image.depth.shape[0]
-        return image.isel(time=slice(0,tmax,1),depth=slice(0,dmax,1)) # return a slice in time and depth
-    else:
-        return image.isel(time=slice(0,tmax,1)) # return time series slice
+    try:
+        return xarray.concat(ds, dim='time')
+    except:
+        raise Exception("xarray concat error on input files")
 
-
-def check_if_depth(image):
-    """Check if depth dimension is present in the CMEMS data array.
-
-    Return: exit status (bool)
+def read_ds(var="analysed_sst",path=os.path.join(dirName,"dataset.nc")):
+    """Read the concatenated dataset created via the widget selection. The dataset is saved as out/dataset.nc automatically if no further path is provided.
+    
+    Parameters:
+        var (str): variable of interest to be extracted from the xarray dataset; default `analysed_sst`
+        path (str): full path of the dataset to be read; default `out/dataset.nc` created via the function _select_()
+        
+    Return: xarray dataset
+    Raise Exception for errors in reading data.
     """
-    if "depth" in image.dims:
-        return True
-    else:
-        return False
+    try:
+        return xarray.open_dataset(path)[var]
+    except:
+        raise Exception("Exception occurred when reading file %s"%path)
