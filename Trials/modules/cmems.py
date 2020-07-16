@@ -244,3 +244,24 @@ def read_ds(var="analysed_sst",path=os.path.join(dirName,"dataset.nc")):
         return xarray.open_dataset(path)[var]
     except:
         raise Exception("Exception occurred when reading file %s"%path)
+        
+def table(path=os.path.join(dirName,"dataset.nc")):
+    """Allows quick computation of the overall mean and standard deviation on the time-concatenated dataset, useful for timeseries analysis. By default the dataset saved as `out/dataset.nc` is loaded if any other path is provided.
+    The input dataset must have the `time` dimension.
+    
+    Parameters:
+        path (str): full path of the input dataset; default `out/dataset.nc`
+        
+    Return: pandas dataframe with mean and std values per each datetime
+    Raise Exception for errors when reading the input dataset.
+    """
+    try:
+        ds = xarray.open_dataset(path)
+    except:
+        raise Exception("Error occurred when loading %s"%path)
+    df = pd.DataFrame(np.nan,columns=["time","mean","std"],index=range(ds.time.shape[0]))
+    for i in range(ds.time.shape[0]):
+        df.iloc[i,0] = ds["time"].isel(time=i).data
+        df.iloc[i,1] = ds["analysed_sst"].isel(time=i).mean()
+        df.iloc[i,2] = ds["analysed_sst"].isel(time=i).std()
+    return df

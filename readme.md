@@ -43,7 +43,9 @@ On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/k
     - `cams.py`, `cgls.py` and `cmems.py` are named after the mission they are dedicated to - Copernicus Atmosphere, Copernicus Land and Copernicus Marine, respectively;
     - `data_processing_*.py` are named after the Sentinel mission of reference.<br>
 
-Users can call the `help` method to display all the functions collected into each module. 
+Users can call the Python built-in methods to show help on CLEOPE functions, via:
+- `help(<module-name>)` to display all the functions collected into each module;
+- `<module-name>.<function-name>.__doc__` to display help on one single function of the module.
 
 📁 All the other folders into the `Trials` main directory collect the trial notebooks set. More information on CLEOPE notebooks is provided 👉[here](Trials/readme.md).
 
@@ -57,14 +59,14 @@ Registered users' hardware features are:
 
 | **Disk** |**RAM**|**CPU**|
 | ------------- | ------ |-------------|
-|20 GB|5 GB|2|
+|20 GB|4.5 GB|2|
 
 - **Disk limit** - when the threshold is exceeded an error message is printed out on screen, by both
     - command line:<br>`cp:error writing 'file': Disk quota exceeded`
-    - GUI: <br><img src="Trials/media/disk_quota_err.png" alt="drawing" width="300"/>
+    - GUI: <br><img src="Trials/media/disk_quota_err.png" alt="drawing" width="400"/>
 
 - **RAM limit** - If users use more than the allowed amount of RAM, their notebook kernel will restart and a pop-up message is displayed:
-<br><img src="Trials/media/dead_kernel.png" alt="drawing" width="300"/> <br>
+<br><img src="Trials/media/dead_kernel.png" alt="drawing" width="400"/> <br>
 No other actions are allowed on the notebook in this case. Please note that shutdown unused notebooks is supplemental to helping with memory errors.
 
 - **CPU limit** specifies the total CPU cores that each user can use within CLEOPE workspace. If the CPU limit is exceeded, computations may become very slow.
@@ -74,11 +76,16 @@ No other actions are allowed on the notebook in this case. Please note that shut
 ## Python 3 packages
 ### Installation
 <a id="packages"></a>
+#### Using Python pip
 Opening a new terminal, users can call 
 ```shell
 pip list
 ```
-shell command to list all the installed packages and corresponding versions.<br>
+shell command to list all the installed packages and corresponding versions. Or also
+```shell
+pip show <package_name>
+```
+to show details on a single installed package.<br>
 New packages can be easily installed running:
 ```shell
 pip install <package_name>
@@ -87,6 +94,22 @@ or specifying the version:
 ```shell
 pip install <package_name>==<version>
 ```
+#### Using conda
+Opening a new terminal, users can call 
+```shell
+conda list
+```
+shell command to list all the installed packages and corresponding versions. 
+New packages can be easily installed running:
+```shell
+conda install –c conda-forge <package_name>
+```
+or specifying the version:
+```shell
+conda install –c conda-forge <package_name>=<version>
+```
+Please refer always the Python official documentation for each package to install.
+
 ### Add modules to the local path
 By default, Python looks for its modules and packages in its absolute `PATH`. Within a python script, users can add path(s) occasionally to the default path by adding the following lines in the head section of the python application or script:
 ```python
