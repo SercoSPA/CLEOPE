@@ -346,7 +346,8 @@ def _processing_(freq="D"):
                 products.append(f[0])
                 products.append(g[0])
     else:
-        products = [glob.glob(path+gmt[0],recursive=True)[0] for path in compose_pseudopath(freq=freq)]
+        lista = [glob.glob(path+gmt[0],recursive=True) for path in compose_pseudopath(freq=freq)]
+        products = [x[0] for x in lista if x]
     var = read_var()
     xlist = [(xarray.open_dataset(p)[str(var)]).isel(time=0) for p in products]
     image = xarray.concat(xlist, dim='time')

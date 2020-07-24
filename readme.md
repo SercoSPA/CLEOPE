@@ -54,12 +54,8 @@ Users can call the Python built-in methods to show help on CLEOPE functions, via
 CLEOPE is deployed as [The Littlest Jupyter Hub - TLJH](http://tljh.jupyter.org/en/latest/index.html) on OVH private cloud infrastructure provided with [ENS-legacy](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) interface, which allows users to directly access and process ONDA EO products.<br>
 TLJH is configured with a **Python 3 kernel**, already provided with a set of additional Python packages aimed at EO data processing and visualisation with respect to any other default Jupyter environment.<br> Users can install any other Python package in their own CLEOPE environment via the `pip` channel in the way described 👉[here](#packages).
 
-## CLEOPE features 
-Registered users' hardware features are:
-
-| **Disk** |**RAM**|**CPU**|
-| ------------- | ------ |-------------|
-|20 GB|4.5 GB|2|
+## Resource limitations
+Registered users' hardware features are limited according to the subscription plan. Quotas are configured on DISK space, RAM and CPU number.
 
 - **Disk limit** - when the threshold is exceeded an error message is printed out on screen, by both
     - command line:<br>`cp:error writing 'file': Disk quota exceeded`
@@ -71,7 +67,24 @@ No other actions are allowed on the notebook in this case. Please note that shut
 
 - **CPU limit** specifies the total CPU cores that each user can use within CLEOPE workspace. If the CPU limit is exceeded, computations may become very slow.
 
-👉 <font color="blue"> Please note that CLEOPE service can be upgraded to _premium_ according to our commercial offer (REFERENCE), increasing the available computational resources.</font>
+### Available Resources on CLEOPE *Free* account
+
+| **Disk** |**RAM**|**CPU**|
+| ------------- | ------ |-------------|
+|20 GB|2 GB|2|
+
+<font color="red">Please note that a limited subset of CLEOPE notebooks can be run due to the RAM limits configured on the *free* account service.</font><br>
+👉 Upgrade to *Premium* to enhance CLEOPE programming experience.
+
+### Available Resources under *Premium* subscription 
+
+CLEOPE service can be upgraded to _Premium_ subscription according to our commercial offer (REFERENCE). The increase of the available computational resources will enhance users' programming experience.
+
+| **Disk** |**RAM**|**CPU**|
+| ------------- | ------ |-------------|
+|50 GB|7 GB|2|
+
+💰 **Monthly subscription from € 29,00  ex. VAT.**
 
 ## Python 3 packages
 ### Installation

@@ -201,5 +201,8 @@ Trial notebooks make the use of packages and modules that do not come as part of
 | ORDER|`requests`| |
 | SEARCH|`requests`|`ipyleaflet`|
 
-Moreover, CLEOPE supports the possibility to install complementary or additional libraries. <br>👉 [Read how to do here](../readme.md#packages).
+CLEOPE supports the possibility to install complementary or additional libraries. <br>👉 [Read how to do here](../readme.md#packages).
+
+## Note on CLEOPE _Free_ account
+CLEOPE *Free* account has a limited amount of resources available, thus some notebooks cannot run properly by design.
 
