@@ -27,6 +27,11 @@ if pfiles:
     for f in pfiles:
         clearall(f)
 
+dirName = "outputs"
+# create directory outputs if does not exists
+if not os.path.exists(dirName):
+    os.mkdir(dirName)
+
 def write_click(item,filename=os.path.join(os.getcwd(),"outputs/product_list.txt")):
     """Create a file containing saved products full path as string
     
@@ -291,5 +296,8 @@ def _filters_():
 
     btn_p.on_click(inputs_p)
     display(output_btn)
-
+    
+def read_selections():
+    return read_aoi(),read_mp(),read_sen()
+    
 

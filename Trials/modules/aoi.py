@@ -9,12 +9,13 @@ Contact me: Gaia.Cipolletta@serco.com
 Main module to perform geographical search via Jupyter Notebook.
 """
 
-import requests, json, shutil, os
+import requests, json, shutil, os, warnings
 import pandas as pd
 import numpy as np
 from tqdm import tqdm_notebook
 from ipywidgets import widgets, Layout
-from ipyleaflet import Map, DrawControl, Polygon
+from ipyleaflet import Map, DrawControl, Polygon, basemaps
+import hvplot.pandas
 
 head = "https://catalogue.onda-dias.eu/dias-catalogue/Products?$search=%22"
 tail = "%22&$format=json&orderby=creationDate%20asc"
@@ -30,7 +31,8 @@ def define_map():
     
     Returns: Map,DrawControl (ipyleaflet objects)
     """
-    m = Map(center=(40.853294, 14.305573), zoom=4,
+    m = Map(basemap=basemaps.Esri.WorldTopoMap,
+            center=(40.853294, 14.305573), zoom=4,
             dragging=True,scroll_wheel_zoom=True,world_copy_jump=False)
 
     dc = DrawControl(
@@ -56,7 +58,8 @@ def update_Map(keys,polysel,df):
     )
     ind = [list(key)[1] for key in keys][0]
     objects = see_footprint(df,ind) # single footprint related to the (selected) product
-    m = Map(center=centre(polysel), zoom=3,dragging=True,scroll_wheel_zoom=True) # initial map
+    m = Map(basemap=basemaps.Esri.WorldTopoMap,
+            center=centre(polysel), zoom=3,dragging=True,scroll_wheel_zoom=True) # initial map
     m.add_layer(polygon); # reference polygon (user input)
     for obj in objects:
         m.add_layer(obj);
@@ -280,7 +283,7 @@ def search(n,polysel,product,sensing):
         df = concat(superdf)
         return df
     else:
-        print("Warning: %d products found"%n)
+        warnings.warn("Warning: %d products found"%n)
         return None
     
 
@@ -407,11 +410,16 @@ def select():
     
 def warning(item):
     """
-    
     Returns a warning message if a product is tagged offline
     """
     if item:
-        print("Warning! This is an offline product. Check out ORDER notebook to trigger retrieval")
+        warnings.warn("Warning! This is an offline product. Check out ORDER notebook to trigger retrieval")
 
-     
+def read_query():
+    """Read the query saved as `outputs/query.csv`
+    
+    Return: pandas dataframe (multi-indexed rows)
+    """
+    import pandas
+    return pandas.read_csv("outputs/query.csv",header=0,index_col=[0,1]) # multi-index read 
     

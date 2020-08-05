@@ -46,7 +46,7 @@ def open_band(products, pol="vh"):
     """
     file = []
     for p in products:
-        for f in glob.glob(p+"/**/*vh*.tiff",recursive=True):
+        for f in glob.glob(p+"/**/*"+str(pol)+"*.tiff",recursive=True):
             file.append(f)
     return file
 

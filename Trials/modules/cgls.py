@@ -14,9 +14,10 @@ import pandas as pd
 import numpy as np
 import json, os, glob, xarray, warnings
 from datetime import datetime, timedelta
+from ipyleaflet import Map, DrawControl, Polygon, basemaps, basemap_to_tiles
 
 # Create output directory
-dirName = 'out'
+dirName = 'outputs'
 try:
     os.mkdir(dirName)
 except FileExistsError:
@@ -92,28 +93,28 @@ def check_sensing(date):
         return date
 
 def save_s(data):
-    """Save sensing range selection into file, named `out/dates.log` by default.
+    """Save sensing range selection into file, named `dates.log` by default.
 
     Parameters:
         data (pandas DataFrame): sensing range information (from function: sensing)
 
     Return: None
     """
-    dest = os.path.join(os.getcwd(),"out")
+    dest = os.path.join(os.getcwd(),dirName)
     file = os.path.join(dest,"dates.log")
     df = pd.DataFrame(np.nan,index=range(1),columns=["date"])
     df["date"] = data
     df.to_csv(file)
 
 def save_var(data):
-    """Save CGLS variable selection into file, named `out/variable.log` by default.
+    """Save CGLS variable selection into file, named `variable.log` by default.
 
     Parameters:
         data (pandas DataFrame): CGLS variable name information (from function: _variable_)
 
     Return: None
     """
-    dest = os.path.join(os.getcwd(),"out")
+    dest = os.path.join(os.getcwd(),dirName)
     file = os.path.join(dest,"variable.log")
     with open(file, 'w') as outfile:
         json.dump(data, outfile)
@@ -144,22 +145,22 @@ def _variable_():
     return m
 
 def read_var():
-    """Read the CGLS variable name input from the file named out/variable.log by default; from function: save_var
+    """Read the CGLS variable name input from the file named variable.log by default; from function: save_var
 
     Return: variable name input selection (str)
     """
-    dest = os.path.join(os.getcwd(),"out")
+    dest = os.path.join(os.getcwd(),dirName)
     file = os.path.join(dest,"variable.log")
     with open(file, 'r') as fp:
         var = json.load(fp)
     return var
 
 def read_sen():
-    """Read the sensing range input from the file named out/dates.log by default; from function: save_s
+    """Read the sensing range input from the file named dates.log by default; from function: save_s
 
     Return: sensing range input selection (list)
     """
-    dest = os.path.join(os.getcwd(),"out")
+    dest = os.path.join(os.getcwd(),dirName)
     file = os.path.join(dest,"dates.log")
     df = pd.read_csv(file)
     return df.date.values[0] # string
@@ -247,3 +248,69 @@ def dataset():
     item = compose_pseudopath()
     ds = xarray.open_dataset(item)[str(variable)]
     return ds.isel(time=0),np.datetime_as_string(ds.time.data[0], timezone='UTC',unit='m')
+
+# DMP section
+def dmp_path(file=None,year=datetime.now().year,aoi="EURO"):
+    """ Search for DMP products location. Input list can be provided too (useful for downloaded local files). If using ENS year and dataset type must be provided.
+    
+    Parameters:
+        file (str): full path of input filename with products path; default to None (optional).
+        year (int): the year of monitoring to be put into ENS pseudopath; default is the current year.
+        aoi (str): CGLS DMP dataset label. Options can be: `EURO`,`ASIA`,`AFRI` staning for Europe, Asia and Africa respectively; default to `EURO`
+    
+    Return: product list of CGLS `.tiff` files (list of str)
+    """
+    if file:
+        with open(file,"r") as f:
+            data = f.readlines()
+            path = [d.split("\n")[0] for d in data]
+        products = []
+        for p in path:
+            products.append([x for x in glob.glob(os.path.join(p,"**/*.tiff"),recursive=True) if x][0])
+        return sorted(products)
+    else: # ENS
+        path = "/mnt/Copernicus/Copernicus-land/DMP/"+str(year)
+        ds_type = "g2_BIOPAR_DMP*"+str(aoi)+"*.zip"
+        return sorted([x for x in glob.glob(os.path.join(path,"*/01/"+str(ds_type)+"/*/*.tiff")) if x])
+
+def dmp_dataset(products,bounds=None):
+    """Read images and clip the raster datasets according to edges if provided.
+    
+    Parameters:
+        products (list): input list containing images locations
+        bounds (tuple): edges of the clipping rectangle, provided in the order: lower left corner,upper right corner (lon_min,lat_min,lon_max,lat_max)
+    
+    Return: xarray dataset concatenated along time dimension (product sensing date).
+    Raise Exception if the input product list is empty.
+    """
+    if products:
+        if bounds!=None:
+            xmin,ymin,xmax,ymax = bounds
+            dss = [xarray.open_rasterio(x).drop("band").sel(x=slice(xmin,xmax),y=slice(ymax,ymin)) for x in products]
+        else:
+            dss = [xarray.open_rasterio(x).drop("band") for x in products]
+        dconc = xarray.concat(dss,dim="time")
+        dconc["time"] = np.array([np.datetime64(d.attrs["PRODUCT_TIME"]) for d in dss])
+        for i,ds in enumerate(dss):
+            dconc.isel(time=i).attrs = ds.attrs
+        return dconc
+    else:
+        raise Exception("Empty product list")
+
+def SelectMap():
+    """Create a Map object using ipyleaflet module.
+    
+    Returns: Map,DrawControl (ipyleaflet objects)
+    """
+    m = Map(basemap=basemaps.Esri.WorldStreetMap,
+            center=(40.853294, 14.305573), zoom=4,
+            dragging=True,scroll_wheel_zoom=True,world_copy_jump=False)
+    draw_control = DrawControl()
+    draw_control.rectangle = {"shapeOptions": {"fillColor": "#fca45d", "color": "#fca45d","fillOpacity": 0.3}}
+    # only rectangle selection is provided
+    draw_control.circle = {}
+    draw_control.polygon = {}
+    draw_control.polyline = {}
+    draw_control.circlemarker = {}
+    return m,draw_control       
+        
