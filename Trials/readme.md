@@ -2,8 +2,6 @@
 
 # CLEOPE Jupyter Notebooks suite
 
-<img src="./media/Cleope_EO.PNG" alt="drawing" width="100"/>
-
 Example notebooks provided into CLEOPE are split into two main categories:
   - a set of templates aimed at facilitating the data access on Cloud;
   - a collection of mission specific tutorials, particularly suited for educational purposes, which will help users to perform basic processing of EO data offered by ONDA.
@@ -204,5 +202,26 @@ Trial notebooks make the use of packages and modules that do not come as part of
 CLEOPE supports the possibility to install complementary or additional libraries. <br>👉 [Read how to do here](../readme.md#packages).
 
 ## Note on CLEOPE _Free_ account
-CLEOPE *Free* account has a limited amount of resources available, thus some notebooks cannot run properly by design.
+CLEOPE *Free* account has a limited amount of resources available, thus some basic functionalities are prevented due to [resource limitations](../readme.md#resources1). <br>
+Find here below which notebooks are suited on your needs.
+
+| | CLEOPE Free | CLEOPE Premium|
+| ------------- | ------ |-------------|
+| CAMS_notebook|✔️ | ✔️|
+|CGLS_notebook_DMP| ✔️|✔️|
+|CGLS_notebook|✔️|✔️|
+| CMEMS_notebook| ✔️| ✔️|
+|DISCOVER_ONDA|✔️|✔️|
+|ORDER|✔️|✔️|
+|SEARCH|✔️|✔️|
+|S1_notebook|✔️|✔️|
+|S2_notebook_fires|✔️|✔️|
+|S2_notebook_plastic|✔️|✔️|
+|S2_notebook_snow|✔️|✔️|
+|S3_OLCI_notebook|❌|✔️|
+|S3_SLSTR_notebook|❌|✔️|
+|S3_LST_notebook|✔️|✔️|
+|S5P_notebook-AUS|✔️|✔️|
+|S5P_notebook-IT|✔️|✔️|
+|Krakatoa_notebook|❌|✔️|
 

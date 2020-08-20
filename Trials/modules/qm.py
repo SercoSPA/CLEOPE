@@ -297,15 +297,20 @@ def download(product,username,password):
     Raise an exception in case of disk full.
     
     """
-    dest = os.path.join(os.path.join(os.path.expanduser("~"),"CLEOPE/local_files")) #os.path.join(os.path.expanduser("~"),
+    dest = os.path.join(os.path.join(os.path.expanduser("~"),"CLEOPE/local_files"))
     make_dir(dest)
     dataframe = get_my_product(product)
     uuid = dataframe.iloc[:,0].values[0]
     curl = "https://catalogue.onda-dias.eu/dias-catalogue/Products("+uuid+")/$value" 
     con = check_if_online(product,username,password) # check if online
     if con==0:
-        print("Please wait until product restoration. Download will re-start authomatically.")
-        time.sleep(1800)
+        print("Please wait until product restoration. Download will re-start automatically.")
+        time.sleep(1800) # the same as the bar
+        # then check if restored
+        df = get_my_product(product)
+        if df["offline"].values==True:
+            warnings.warn("Product %s is still archived. Something went wrong, retry the download in a few minutes."%product)
+            return 1
     remove_item(dest,product) # check if products already exists in folder and delete it
     if check_size_disk():
         warnings.warn("%s"%message)

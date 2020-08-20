@@ -19,7 +19,7 @@ Details on CLEOPE available resources provided 👉 [here](#tech).
 # The Workspace
 CLEOPE **public workspace** offers collection of template notebooks aimed at easly introducing users to browse, inspect and download Copernicus products via the OData API protocol and DIAS-ONDA Advanced API (ENS). 
 
-<img src="./Trials/media/use_case.PNG" alt="drawing" width="500"/>
+<img src="./Trials/media/use_case.PNG" alt="drawing" width="600"/>
 
 ### OData API provided interface
 Via their own Jupyter notebooks users can easily download ONDA products, by specifying their ONDA `username` and `password` and the desired items. The download option is supported by the [OData API](https://www.onda-dias.eu/cms/knowledge-base/odata-odata-open-data-protocol/) protocol which allows browsing the ONDA Catalogue and then selecting and downloading EO products. All the downloaded products are stored in the 📁`local_files` folder accessible within user own CLEOPE workspace, unzipped and ready to be used.
@@ -73,8 +73,7 @@ No other actions are allowed on the notebook in this case. Please note that shut
 | ------------- | ------ |-------------|
 |20 GB|2 GB|2|
 
-<font color="red">Please note that a limited subset of CLEOPE notebooks can be run due to the RAM limits configured on the *free* account service.</font><br>
-👉 Upgrade to *Premium* to enhance CLEOPE programming experience.
+Please note that CLEOPE free account has a limited amount of resources available, thus some notebooks potentialities may be prevented. 👉 Upgrade to *Premium* and break out computational resources limitation for a better programming experience!
 
 ### Available Resources under *Premium* subscription 
 
