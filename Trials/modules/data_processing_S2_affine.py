@@ -210,9 +210,7 @@ def clip(ds,bounds,plot=False):
         fig,ax = plt.subplots(1,1)
         clip_ds.plot.imshow('x','y',robust=True,ax=ax)
         plt.show()
-        return clip_ds, fig
-    else:
-        return clip_ds
+    return clip_ds
 
 def ratio(da):
     """Compute the ratio between two input datasets. Useful to compute indexes.
@@ -337,3 +335,23 @@ def bounds():
             return tuple([polysel["coordinates"][0][0][0],polysel["coordinates"][0][0][1],polysel["coordinates"][0][2][0],polysel["coordinates"][0][1][1]])
     except:
         return None
+
+def equalize_img(da):
+    """Color equalization given a data array, using `cv2` Python module.
+    
+    Parameters:
+        da (xarray.DataArray): input data array
+        
+    Return: color-equalized input data (xarray.DataArray)
+    """
+    
+    import cv2, xarray
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    norm_img = np.uint8(cv2.normalize(da.data, None, 0, 255, cv2.NORM_MINMAX))
+    eq_R = cv2.equalizeHist(norm_img[0,:,:].astype(np.uint8))
+    eq_G = cv2.equalizeHist(norm_img[1,:,:].astype(np.uint8))
+    eq_B = cv2.equalizeHist(norm_img[2,:,:].astype(np.uint8))
+    eq_RGB = np.dstack((eq_R,eq_G,eq_B))
+    return xarray.DataArray(eq_RGB)    

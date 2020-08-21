@@ -21,7 +21,7 @@ Example notebooks provided into CLEOPE are split into two main categories:
     5. [Copernicus Atmosphere](#cams)
     6. [Copernicus Marine](#cmems)
     7. [Copernicus Land](#cland)
-3. [Python packages requirements](#requirements)
+3. [Requirements](#requirements)
 
 # ONDA data access dedicated trial notebooks
 <a id="main1"></a>
@@ -106,10 +106,11 @@ To this aim the S1 L1 Ground Range Detected (GRD) products with high resolution 
 [![N|Solid](https://sentinel.esa.int/documents/247904/250463/Sentinel-2-bw-120.jpg)](https://sentinel.esa.int/documents/247904/250463/Sentinel-2-bw-120.jpg)
 
 Sentinel-2 trial notebook is a useful introduction to Sentinel-2 products tile processing.
-The module `data_processing_S2_affine` unpack raster data and perform a coordinates reprojection to allow optional clips on the image. Examples are based on popular RGB compositions (true color, false color IR and false color NIR) and on index computations. In particular notebooks show the computation of:
+The module `data_processing_S2_affine` unpack raster data and perform a coordinates reprojection to allow optional clips on the image. Examples are based on popular RGB compositions (true color, false color IR and false color NIR) and on index computations. <br>
+The computation of the following indexes is performed:
 - the _Normalised_ _Burnt_ _Index_, on the Australian areas hit by fires during December 2019;
-- the _Normalised_ _Difference_ _Snow_ _Index_ which is shown on a glacier in Sierra Nevada
-- the _Normalised Difference Water Index_ aimed at detecting floating plastic in the sea.
+- the _Normalised Difference Water Index_ aimed at detecting floating plastic in the sea;
+- the _Normalised_ _Difference_ _Snow_ _Index_ which is shown on a glacier in Sierra Nevada.
 
 Optionally, users can compute other indexes via the combination of `bands` and `ratio` functions provided in the suite, given an input resolution. All Sentinel-2 bands are at users disposal to this aim. The generated plots are geo-referenced through the extraction of coordinates from raster data.<br> 
 ✏️ The dataframe of S2 tiles is customisable according to users choices. In the default CLEOPE workspace a sample list of products is provided on the example detailed above.
@@ -216,6 +217,7 @@ Find here below which notebooks are suited on your needs.
 |SEARCH|✔️|✔️|
 |S1_notebook|✔️|✔️|
 |S2_notebook_fires|✔️|✔️|
+|S2_notebook_oil|✔️|✔️|
 |S2_notebook_plastic|✔️|✔️|
 |S2_notebook_snow|✔️|✔️|
 |S3_OLCI_notebook|❌|✔️|
@@ -223,5 +225,5 @@ Find here below which notebooks are suited on your needs.
 |S3_LST_notebook|✔️|✔️|
 |S5P_notebook-AUS|✔️|✔️|
 |S5P_notebook-IT|✔️|✔️|
-|Krakatoa_notebook|❌|✔️|
+|Krakatoa_notebook|✔️|✔️|
 

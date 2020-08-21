@@ -183,10 +183,11 @@ def order(product, username, password):
         print("UUID to order: %s"%uuid)
         r = order_product(username,password,uuid)
         s = datetime.datetime.strptime(r["EstimatedTime"],'%Y-%m-%dT%H:%M:%S.%fZ')
-        delta = datetime.datetime.timestamp(s)-datetime.datetime.timestamp(datetime.datetime.utcnow())+600. # time elapse estimate to upgrade bar, 10 minutes added to wait for ENS refresh
+        # removed additional 10s of waiting
+        delta = datetime.datetime.timestamp(s)-datetime.datetime.timestamp(datetime.datetime.utcnow())#+600. # time elapse estimate to upgrade bar, 10 minutes added to wait for ENS refresh
         progress = widgets.FloatProgress(value=0.0, min=0.0, max=1.0, description="Ordering")
         thread = threading.Thread(target=work, args=(progress,delta,))
-        tot_elaps_time = datetime.datetime.timestamp(s)+600
+        tot_elaps_time = datetime.datetime.timestamp(s)#+600
         estimated_timeout = datetime.datetime.utcfromtimestamp(tot_elaps_time) 
         print("Instance is %s.\nEstimated time out %s UTC"%(r["Status"],estimated_timeout.strftime("%d-%b-%Y (%H:%M:%S.%f)")))
 #         print("Instance is %s.\nEstimated time out %s UTC"%(r["Status"],datetime.datetime.strftime(s,'%H:%M:%S')))
@@ -195,7 +196,7 @@ def order(product, username, password):
         thread.start()
     else:
         print("Warning! Products is already avaliable.\nCheck it out at:\n%s"%(os.path.join(df.iloc[0,2],product)))
-    return df
+    return df,delta
              
 def pseudopath(dataframe,outfile="outputs/product_list_remote.txt"):
     """Compose the product pseudopath into ENS given product main attributes and dump the product list in a file.
@@ -303,9 +304,9 @@ def download(product,username,password):
     uuid = dataframe.iloc[:,0].values[0]
     curl = "https://catalogue.onda-dias.eu/dias-catalogue/Products("+uuid+")/$value" 
     con = check_if_online(product,username,password) # check if online
-    if con==0:
+    if con>0:
         print("Please wait until product restoration. Download will re-start automatically.")
-        time.sleep(1800) # the same as the bar
+        time.sleep(con+60) # Odata time lapse + 1 minute 
         # then check if restored
         df = get_my_product(product)
         if df["offline"].values==True:
@@ -432,12 +433,14 @@ def check_if_online(product,username,password):
         username (str): ONDA username
         password (str): ONDA user password
     
-    Return: exit status (int)
+    Return: time elapse to restore product (float) if product is offline, otherwise an exit status (int)
     """
     df = get_my_product(product)
     if df["offline"].values==True:
         warnings.warn("Product %s is archived"%product)
-        order(product,username,password)
+        df,d = order(product,username,password)
+        return d
+    else:
         return 0
         
         
