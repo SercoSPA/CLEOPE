@@ -52,7 +52,7 @@ Users can call the Python built-in methods to show help on CLEOPE functions, via
 # CLEOPE technical information
 <a id="tech"></a>
 CLEOPE is deployed as [The Littlest Jupyter Hub - TLJH](http://tljh.jupyter.org/en/latest/index.html) on OVH private cloud infrastructure provided with [ENS-legacy](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) interface, which allows users to directly access and process ONDA EO products.<br>
-TLJH is configured with a **Python 3 kernel**, already provided with a set of additional Python packages aimed at EO data processing and visualisation with respect to any other default Jupyter environment.<br> Users can install any other Python package in their own CLEOPE environment via the `pip` channel in the way described 👉[here](#packages).
+TLJH is configured with a **Python 3 kernel**, provided of an extensive Python environment aimed at EO data processing and data analysis with respect to any other default Jupyter environment, without any local installation or additional configuration required.
 
 ## Resource limitations
 Registered users' hardware features are limited according to the subscription plan. Quotas are configured on DISK space, RAM and CPU number.
@@ -68,6 +68,7 @@ No other actions are allowed on the notebook in this case. Please note that shut
 - **CPU limit** specifies the total CPU cores that each user can use within CLEOPE workspace. If the CPU limit is exceeded, computations may become very slow.
 
 ### Available Resources on CLEOPE *Free* account
+<a id="resources1"></a>
 
 | **Disk** |**RAM**|**CPU**|
 | ------------- | ------ |-------------|
@@ -83,47 +84,14 @@ CLEOPE service can be upgraded to _Premium_ subscription according to our commer
 | ------------- | ------ |-------------|
 |50 GB|7 GB|2|
 
-💰 **Monthly subscription from € 29,00  ex. VAT.**
+💰 **Monthly subscription from € XXX  ex. VAT.**
 
-## Python 3 packages
-### Installation
-<a id="packages"></a>
-#### Using Python pip
-Opening a new terminal, users can call 
-```shell
-pip list
-```
-shell command to list all the installed packages and corresponding versions. Or also
-```shell
-pip show <package_name>
-```
-to show details on a single installed package.<br>
-New packages can be easily installed running:
-```shell
-pip install <package_name>
-```
-or specifying the version:
-```shell
-pip install <package_name>==<version>
-```
-#### Using conda
-Opening a new terminal, users can call 
-```shell
-conda list
-```
-shell command to list all the installed packages and corresponding versions. 
-New packages can be easily installed running:
-```shell
-conda install –c conda-forge <package_name>
-```
-or specifying the version:
-```shell
-conda install –c conda-forge <package_name>=<version>
-```
-Please refer always the Python official documentation for each package to install.
+## CLEOPE Python environment
+
+CLEOPE supports an extensive Python environment suited for EO data processing and data analysis purposes, shared among all registered users. Users can consult notebooks specific requirements 👉[here](Trials/readme.md#requirements).
 
 ### Add modules to the local path
-By default, Python looks for its modules and packages in its absolute `PATH`. Within a python script, users can add path(s) occasionally to the default path by adding the following lines in the head section of the python application or script:
+By default, Python looks for its modules and packages in its absolute `PATH`. Within a python script, users can add path(s) occasionally to the default path by adding the following lines in the head section of the python application or script to load additional modules:
 ```python
 import sys
 sys.path.append('/home/jupyter-user/directory')

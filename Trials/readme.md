@@ -98,8 +98,11 @@ both using Sentinels and Copernicus Services products.
 <a id="s1"></a>
 [![N|Solid](https://earth.esa.int/image/image_gallery?uuid=23f73931-c1c7-4013-a7dc-fb506ff182e2&groupId=10174&t=1354275607606)](https://earth.esa.int/image/image_gallery?uuid=23f73931-c1c7-4013-a7dc-fb506ff182e2&groupId=10174&t=1354275607606)
 
-Sentinel-1 trial notebook is a useful introduction to Sentinel-1 data processing aimed at finding new build-up areas, in order to monitor how the urban sprawl is changing the environment. Sentinel-1 trial notebook is dedicated to the visualisation of the built-up area extended near Wuhan, where a new hospital has been built in 10 days during the COVID-19 emergency. <br>
-To this aim the S1 L1 Ground Range Detected (GRD) products with high resolution (H), sensed before and after the building site in order to detect the environmental changes. Images are clipped over custom-selected coordinates and plot out on screen side-by-side, normalised over the backscattering coefficient color in order to allow users to easily detect landcover changes. Optionally, a false color RGB stack can be created by concatenating datasets along their temporal dimension (3 products required).<br>✏️ The dataframe of S1 products is customisable according to users choices, as for the coordinates needed to clip data. In the default CLEOPE workspace the sample list of example products is provided.
+Sentinel-1 trial notebook is a useful introduction to Sentinel-1 data processing aimed at detecting changes in the environment via the backscattering differences. Particular focus is given to:
+- the visualisation of the built-up area extended near Wuhan, where a new hospital has been built in 10 days during the COVID-19 emergency.
+- ships detection near Trieste (Italy) harbour.
+
+To this aim the S1 L1 Ground Range Detected (GRD) products with high resolution (H), with different sensing dates. Images are clipped over custom-selected coordinates and plot out on screen side-by-side, normalised over the backscattering coefficient color in order to allow users to easily detect changes in the images. <br>✏️ S1 dataframes are customisable according to users choices, as for the coordinates needed to clip data. In the default CLEOPE workspace the sample list of example products is provided.
 
 ## S2 trial notebook
 <a id="s2"></a>
@@ -189,7 +192,7 @@ Trial notebooks make the use of packages and modules that do not come as part of
 
 | | processing|visualization|
 | ------------- | ------ |-------------|
-| S1| `GDAL`,`xarray`| `matplotlib`|
+| S1| `GDAL`,`xarray`,`cv2`,`PIL`,`skimage`,`imutils`| `matplotlib`|
 | S2| `rasterio`,`cv2`,`xarray`| `matplotlib`,`hvplot`|
 | S3| `xarray`|`cartopy`,`hvplot`|
 | S5P|`xarray`|`cartopy`,`matplotlib`|
@@ -215,7 +218,8 @@ Find here below which notebooks are suited on your needs.
 |DISCOVER_ONDA|✔️|✔️|
 |ORDER|✔️|✔️|
 |SEARCH|✔️|✔️|
-|S1_notebook|✔️|✔️|
+|S1_notebook_LULC|✔️|✔️|
+|S1_notebook_ships|✔️|✔️|
 |S2_notebook_fires|✔️|✔️|
 |S2_notebook_oil|✔️|✔️|
 |S2_notebook_plastic|✔️|✔️|

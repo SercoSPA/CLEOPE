@@ -4,7 +4,6 @@ CLEOPE - ONDA
 Developed by Serco Italy - All rights reserved
 
 @author: GCIPOLLETTA
-Contact me: Gaia.Cipolletta@serco.com
 
 Main module aimed at S1 data handling and visualisation.
 """
@@ -33,7 +32,7 @@ def product(file):
     """
     with open(file,"r") as f:
         data = f.readlines()
-        return [d.split("\n")[0] for d in data]
+        return sorted([d.split("\n")[0] for d in data])
 
 def open_band(products, pol="vh"):
     """Open S1 bands given input products, returning full-path input file list suitable for reading.
@@ -60,6 +59,7 @@ def wrap(coords,products):
 
     Parameters:
         coords (tuple): input vertexes of the clipping rectangle, provided in the order: lower left corner,upper right corner (lon_min,lat_min,lon_max,lat_max)
+        products (list of str): full-path of the target `tiff` files, from function `open_band`
 
     Return: None
     """
@@ -96,19 +96,13 @@ def run(file):
     except:
         raise Exception("Error when running file %s"%file)
 
-def image(rgb=False):
-    """Data handling and visualisation of S1 clipped datasets.
-    Clips are automatically taken from clipped_files folder by default. We stronlgy recommand to clip datasets to avoid RAM overquota.
+def make_da():
+    """Clips are automatically taken from clipped_files folder by default. We stronlgy recommand to clip datasets to avoid RAM overquota.
     Raster datasets are concatenated along a new dimension (time) extracted from TIFFTAG_DATETIME attribute of S1 data arrays, and then transposed to be properly sliced along the new time dimension to create stacked layers.
-    Images are visualised on a normalised color scale and automatically arranged into columns.
-    Optionally a colored RGB stack can be visualised too, using 3 stacked layers along `time` dimension (i.e. representing the channel).
-
-    Parameters:
-        rgb (bool): flag to enable RGB stack
-
-    Return: handled S1 data array
+    
+    Return: data array of clipped images concatenated along time dimension (`xarray.DataArray`)
     """
-    clipped_files = glob.glob("clipped_files/*.tiff",recursive=True)
+    clipped_files = sorted(glob.glob("clipped_files/*.tiff",recursive=True))
     if len(clipped_files)>0:
         data_sets, titles = [], []
         for f in clipped_files:
@@ -117,20 +111,36 @@ def image(rgb=False):
             titles.append(tmp.attrs["TIFFTAG_DATETIME"])
         dc = xarray.concat([d for d in data_sets],pd.Index([d.attrs["TIFFTAG_DATETIME"] for d in data_sets]))
         dc = dc.rename({"concat_dim":"UTC"})
-        t = dc.transpose("x","y","UTC").isel(UTC=slice(0,len(data_sets),1))
-        if dc.shape[0]<3:
-            if dc.shape[0]==1:
-                col_warp = 1
-            else:
-                col_warp = 2
-        else:
-            col_warp = 3
-        g_simple = t.plot(x='x', y='y',col='UTC',col_wrap=col_warp,robust=True,cmap="binary_r",figsize=(15,5),cbar_kwargs={'pad':0.02})
-        RGB(dc,rgb)
+        dc = dc.sortby("UTC")
         return dc
     else:
         warnings.warn("No tiff clips found in clipped_files folder")
         return None
+         
+        
+def image(rgb=False,figsize=(15,5)):
+    """Visualisation of S1 clipped datasets.
+    Images are visualised on a normalised color scale and automatically arranged into columns.
+    Optionally a colored RGB stack can be visualised too, using 3 stacked layers along `time` dimension (i.e. representing the channel).
+
+    Parameters:
+        rgb (bool): flag to enable RGB stack
+        figsize (tuple): matplotlib figure dimensions
+
+    Return: handled S1 data array
+    """
+    dc = make_da()
+    t = dc.transpose("x","y","UTC").isel(UTC=slice(0,dc.shape[0],1))
+    if dc.shape[0]==1:
+        t.isel(UTC=0).plot(x='x', y='y',robust=True,cmap="binary_r",figsize=figsize,cbar_kwargs={'pad':0.02})
+    else:
+        if dc.shape[0]==3:
+            col_warp = 3
+        else:
+            col_warp = dc.shape[0]//2
+        g_simple = t.plot(x='x', y='y',col='UTC',col_wrap=col_warp,robust=True,cmap="binary_r",figsize=figsize,cbar_kwargs={'pad':0.02})
+        RGB(dc,rgb)
+        return dc           
 
 def RGB(dc,rgb):
     """Compose an RGB stack, given a 3D data array input
@@ -151,3 +161,49 @@ def RGB(dc,rgb):
             plt.show()
     else:
         return
+
+def coordinates(jsonfile):
+    """ Read coordinates from a `.json` file returning a tuple to clip the dataset via GDAL.
+    
+    Parameters:
+        jsonfile (str): full path to the input file of coordinates; e.g. use SEARCH notebook to obtain the output selection.
+        
+    Return: coordinates (tuple) of the clipping rectangle, as: lower left corner,upper right corner (lon_min,lat_min,lon_max,lat_max)
+    """
+    import json
+    with open(jsonfile,"r") as c:
+        data = json.load(c)
+        c.close()
+    coords = data["coordinates"]
+    return tuple([coords[0][0][0],coords[0][0][1],coords[0][2][0],coords[0][2][1]])
+
+def save_images(da):
+    """ Save clipped images into `.png` format to be further analysed via opencv-python.
+    
+    Parameters:
+        da (xarray.DataArray): input dataset from function `make_da`
+    """
+    img_dir = "imagery"
+    if not os.path.exists(img_dir):
+        os.makedirs(img_dir)
+    plt.ioff()
+    cmap = "binary_r"
+    for i in range(da.shape[0]):
+        fig,ax = plt.subplots(1,1)
+        da.isel(UTC=i).plot(ax=ax,add_colorbar=False,add_labels=False,cmap=cmap,robust=True)
+        ax.axis("off")
+        fig.tight_layout()
+        name = da.UTC.values[i][0:10]
+        plt.close()
+        fig.savefig(img_dir+"/image_"+str(name)+".png",transparent=True,facecolor=None,edgecolor=None,format="png")
+    
+def applyMaximumFilter(image):
+    """ Apply a filter so that to degrade the input image, facilitating the bright pixels isolation.
+
+    Parameters:
+        image (PIL Image): input image as read via PIL
+
+    Return: image with filter MaxFilter function applied
+    """
+    from PIL import ImageFilter
+    return image.filter(ImageFilter.MaxFilter);
