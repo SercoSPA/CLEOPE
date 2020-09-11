@@ -4,7 +4,6 @@ CLEOPE - ONDA
 Developed by Serco Italy - All rights reserved
 
 @author: GCIPOLLETTA
-Contact me: Gaia.Cipolletta@serco.com
 
 Main module aimed at S3 OLCI WFR and LFR data handling and visualisation.
 """

@@ -1,20 +1,21 @@
-<img src="./Trials/media/Cleope_logo.PNG" alt="drawing" width="500"/>
+<img src="./Trials/media/Cleope_logo.PNG" alt="drawing" width="200"/>
 
 # Welcome to CLEOPE! 
-**CLEOPE** (CLoud Earth Observation Processing Environment) is a DIAS-ONDA service of EO products discovery, manipulation and visualization via interactive Jupyter notebooks supported by Python 3 kernel language.
+**CLEOPE** (CLoud Earth Observation Processing Environment) is a DIAS-ONDA service of EO products discovery, manipulation and visualization via [Jupyter](https://jupyter.org/) integrated development environment.
 
 [![N|Solid](https://www.python.org/static/community_logos/python-logo.png)](https://www.python.org/static/community_logos/python-logo.png) 
 ![N|Solid](https://jupyter.org/assets/main-logo.svg)
 ![N|Solid](https://www.onda-dias.eu/cms/wp-content/uploads/2018/06/logo_onda_retina.png)
 
 
-CLEOPE consists in a collection of pre-installed libraries and template notebooks to enhance users experience with ONDA data offer. All the examples are available in a shared environment with the aim to help users to easily explore ONDA services main functionalities, to learn how to access data and the way to approach EO cloud resources through Advanced API (ENS). 
+CLEOPE is a web-based platform aimed where users can create their own Jupyter Notebooks and develop their own applications on Cloud.
+
+As its additional value, CLEOPE offers a collection of pre-installed libraries and template notebooks to enhance users experience with the ONDA data offer. All the examples are available in a shared environment with the aim to help users to easily explore ONDA services, with particular emphasis to approaching EO cloud resources through Advanced API (ENS). 
 Example notebooks provided into CLEOPE are split into two main categories:
   - a set of templates aimed at facilitating the data access on Cloud;
   - a collection of mission specific tutorials, particularly suited for educational purposes, which will help users to process EO data offered by ONDA.
 
-More information on the Jupyter Notebooks application can be found  in the 👉 [official documentation](https://jupyter-notebook.readthedocs.io/en/stable/).<br>
-Details on CLEOPE available resources provided 👉 [here](#tech).
+More details on CLEOPE available resources provided 👉 [here](#tech).
 
 # The Workspace
 CLEOPE **public workspace** offers collection of template notebooks aimed at easly introducing users to browse, inspect and download Copernicus products via the OData API protocol and DIAS-ONDA Advanced API (ENS). 
@@ -22,10 +23,10 @@ CLEOPE **public workspace** offers collection of template notebooks aimed at eas
 <img src="./Trials/media/use_case.PNG" alt="drawing" width="600"/>
 
 ### OData API provided interface
-Via their own Jupyter notebooks users can easily download ONDA products, by specifying their ONDA `username` and `password` and the desired items. The download option is supported by the [OData API](https://www.onda-dias.eu/cms/knowledge-base/odata-odata-open-data-protocol/) protocol which allows browsing the ONDA Catalogue and then selecting and downloading EO products. All the downloaded products are stored in the 📁`local_files` folder accessible within user own CLEOPE workspace, unzipped and ready to be used.
+Via their own Jupyter notebooks users can easily download ONDA products, by specifying their ONDA `username` and `password` and the desired items. The download option is supported by the [OData API](https://www.onda-dias.eu/cms/knowledge-base/odata-odata-open-data-protocol/) protocol; this allows browsing the ONDA Catalogue and then selecting and downloading EO products. All the downloaded products are stored in the 📁`local_files` folder accessible within user own CLEOPE workspace, unzipped and ready to be used.
 
 ### Advanced API (ENS) provided interface
-On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) software provides a front-end to the ONDA Data Storage  which extends traditional Object Storages API by exposing standard Directories and Files. Within CLEOPE a dedicated ENS access point exposing products in their native format is provided to users that want to directly access products and process them. Check out [here](#pseudopaths) how to access products via ENS.
+On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) software provides a front-end to the ONDA Data Storage  which extends traditional Object Storages API by exposing standard Directories and Files. Within CLEOPE a dedicated ENS access point exposing products in their native format is provided to users that want to directly access products and process them. Check out [here](#pseudopaths) the main guidelines to access products via ENS.
 
 ## Default directory tree
 
@@ -36,8 +37,8 @@ On the other hand the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/k
 
 📁 `Trials/modules` folder collects the main libraries related to the set of template notebooks provided within CLEOPE workspace.
 - Modules aimed at the **data access** are:
-    - `aoi.py`, `buttons.py` and `empty.py`, which are specific scripts interfaced with the geographical research of products via Jupyter Notebook;
-    - `qm.py` which is a module dedicated to the product **search**, **order** and **download** via Jupyter Notebooks. <br>
+    - `catalogue.py` and `interactive_layers.py`, interfaced with the geographical research of products via Jupyter Notebook;
+    - `qm.py` dedicated to the product **search**, **order** and **download** via Jupyter Notebooks. <br>
     
 - Modules dedicated to **EO data processing** are scripts called in the mission dedicated notebook.
     - `cams.py`, `cgls.py` and `cmems.py` are named after the mission they are dedicated to - Copernicus Atmosphere, Copernicus Land and Copernicus Marine, respectively;
@@ -51,8 +52,8 @@ Users can call the Python built-in methods to show help on CLEOPE functions, via
 
 # CLEOPE technical information
 <a id="tech"></a>
-CLEOPE is deployed as [The Littlest Jupyter Hub - TLJH](http://tljh.jupyter.org/en/latest/index.html) on OVH private cloud infrastructure provided with [ENS-legacy](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) interface, which allows users to directly access and process ONDA EO products.<br>
-TLJH is configured with a **Python 3 kernel**, provided of an extensive Python environment aimed at EO data processing and data analysis with respect to any other default Jupyter environment, without any local installation or additional configuration required.
+CLEOPE is deployed as [The Littlest Jupyter Hub - TLJH](http://tljh.jupyter.org/en/latest/index.html) on OVH Cloud infrastructure provided with [ENS-legacy](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) and [OData API](https://www.onda-dias.eu/cms/knowledge-base/odata-odata-open-data-protocol/) provided interfaces, allowing users to directly access and process ONDA EO products.<br>
+TLJH is configured with a **Python 3 kernel**, provided of an extensive Python environment aimed at EO data processing and data analysis with respect to any other default Jupyter environment, **without any local installation or additional configuration required**.
 
 ## Resource limitations
 Registered users' hardware features are limited according to the subscription plan. Quotas are configured on DISK space, RAM and CPU number.
@@ -78,13 +79,9 @@ Please note that CLEOPE free account has a limited amount of resources available
 
 ### Available Resources under *Premium* subscription 
 
-CLEOPE service can be upgraded to _Premium_ subscription according to our commercial offer (REFERENCE). The increase of the available computational resources will enhance users' programming experience.
+CLEOPE service can be upgraded to _Premium_ subscription according to [our commercial offer](https://www.onda-dias.eu/cms/services/catalogues/virtual-servers/#general-purpose). The increase of the available computational resources will enhance users' programming experience.
 
-| **Disk** |**RAM**|**CPU**|
-| ------------- | ------ |-------------|
-|50 GB|7 GB|2|
-
-💰 **Monthly subscription from € XXX  ex. VAT.**
+💰 **Monthly subscription upon request: please contact the [ONDA Service Desk](https://www.onda-dias.eu/cms/contact-us/) to upgrade CLEOPE!**
 
 ## CLEOPE Python environment
 

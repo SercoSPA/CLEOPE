@@ -4,7 +4,6 @@ CLEOPE - ONDA
 Developed by Serco Italy - All rights reserved
 
 @author: GCIPOLLETTA
-Contact me: Gaia.Cipolletta@serco.com
 
 Main module to perform geographical search via Jupyter Notebook.
 """

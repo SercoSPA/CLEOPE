@@ -4,7 +4,6 @@ CLEOPE - ONDA
 Developed by Serco Italy - All rights reserved
 
 @author: GCIPOLLETTA
-Contact me: Gaia.Cipolletta@serco.com
 
 Main module to send OData API queries for download and order instances.
 Add this module to path: 
