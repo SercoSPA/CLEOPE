@@ -26,7 +26,7 @@ More details on CLEOPE available resources provided 👉 [here](#tech).
 2. [About CLEOPE](#tech)
     1. [Resources limitations](#quotas)
         1. [Available Resources on CLEOPE *Free* account](#resources1)
-        2. [Available Resources under *Premium* subscription](#resources2)
+        2. [Available Resources under CLEOPE *Plus* subscription](#resources2)
     2. [Python environment and dependencies](#pyenv)
         1. [Add modules to the local path](#add_modules)
         2. [Install additional packages via *pip*](#pip)
@@ -98,14 +98,14 @@ No other actions are allowed on the notebook in this case. Please note that shut
 | ------------- | ------ |-------------|
 |20 GB|2 GB|2|
 
-Please note that CLEOPE free account has a limited amount of resources available, thus some notebooks potentialities may be prevented. 👉 Upgrade to *Premium* and break out computational resources limitation for a better programming experience!
+Please note that CLEOPE free account has a limited amount of resources available, thus some notebooks potentialities may be prevented. 👉 Upgrade to *CLEOPE Plus Service* and break out computational resources limitation for a better programming experience!
 
-### Available Resources under *Premium* subscription 
+### Available Resources under *Plus* subscription 
 <a id="resources2"></a>
 
-CLEOPE service can be upgraded to _Premium_ subscription according to [our commercial offer](https://www.onda-dias.eu/cms/services/catalogues/virtual-servers/#general-purpose). The increase of the available computational resources will enhance users' programming experience.
+CLEOPE service can be upgraded to _Plus_ subscription according to [our commercial offer](https://www.onda-dias.eu/cms/services/catalogues/virtual-servers/#general-purpose). The increase of the available computational resources will enhance users' programming experience.
 
-💰 **Monthly subscription upon request: please contact the [ONDA Service Desk](https://www.onda-dias.eu/cms/contact-us/) to upgrade CLEOPE!**
+💰 **Monthly subscription upon request: please [contact us](https://www.onda-dias.eu/cms/contact-us/) to upgrade CLEOPE!**
 
 ## Python environment and dependencies
 <a id="pyenv"></a>

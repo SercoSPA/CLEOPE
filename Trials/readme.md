@@ -92,7 +92,9 @@ This collection of trial notebooks has been published with the purpose of leadin
  - 🌱 Land/Water monitoring applications
  - 🏭 Atmospheric monitoring applications 
  
-both using Sentinels and Copernicus Services products. 
+both using Sentinels and Copernicus Services products.
+
+*Please note that the examples detailed below are mostly based on historical datasets, sensed in a specific period of analysis. ONDA keeps online the last month of data, available to all registered users for download (via the [OData API](https://www.onda-dias.eu/cms/knowledge-base/odata-odata-open-data-protocol/) or via the [Elastic Node Server (ENS)](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/)). Thus users may find these products offline, not immediately available for download. These products should first be retrieved and the [ORDER trial notebook](#order) can be helpful in such a purpose.*
 
 ## S1 trial notebook
 <a id="s1"></a>
@@ -209,7 +211,7 @@ Trial notebooks make the use of packages and modules that do not come as part of
 CLEOPE *Free* account has a limited amount of resources available, thus some basic functionalities are prevented due to [resource limitations](../readme.md#resources1). <br>
 Find here below which notebooks are suited on your needs.
 
-| | CLEOPE Free | CLEOPE Premium|
+| | CLEOPE Free | CLEOPE Plus|
 | ------------- | ------ |-------------|
 | CAMS_notebook|✔️ | ✔️|
 |CGLS_notebook_DMP| ✔️|✔️|
