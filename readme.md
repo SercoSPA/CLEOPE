@@ -7,15 +7,13 @@
 ![N|Solid](https://jupyter.org/assets/main-logo.svg)
 ![N|Solid](https://www.onda-dias.eu/cms/wp-content/uploads/2018/06/logo_onda_retina.png)
 
+CLEOPE is an interactive web-based platform of EO products discovery, manipulation and visualisation via Jupyter Notebooks providing users with an integrated development environment where to create their own applications on the Cloud.
 
-CLEOPE is a web-based platform aimed where users can create their own Jupyter Notebooks and develop their own applications on Cloud.
+As an added value, CLEOPE offers a collection of pre-installed libraries and template notebooks supported by a [Python 3](https://www.python.org/) kernel to enhance the first-time user experience with the ONDA data offer. The CLEOPE Jupyter Notebooks provide an interactive way to guide users in performing a series of operations on the products hosted on ONDA, such as:
+	- operations like accessing and ordering data by using the ONDA APIs
+	- advanced operations like the production of new visual results based on the Copernicus products metadata extraction 
 
-As its additional value, CLEOPE offers a collection of pre-installed libraries and template notebooks to enhance users experience with the ONDA data offer. All the examples are available in a shared environment with the aim to help users to easily explore ONDA services, with particular emphasis to approaching EO cloud resources through Advanced API (ENS). 
-Example notebooks provided into CLEOPE are split into two main categories:
-  - a set of templates aimed at facilitating the data access on Cloud;
-  - a collection of mission specific tutorials, particularly suited for educational purposes, which will help users to process EO data offered by ONDA.
-
-More details on CLEOPE available resources provided 👉 [here](#tech).
+👉 The CLEOPE Free service is available to all ONDA registered users upon request. [Register to the ONDA User Portal](https://onda-dias.eu/userportal/self-registration), [Contact Us](https://www.onda-dias.eu/cms/contact-us/) for activation and enjoy your experience **ON DA**ta!
 
 # Table of Contents
 1. [The Workspace](#workspace)
