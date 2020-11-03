@@ -9,11 +9,12 @@
 
 CLEOPE is an interactive web-based platform of EO products discovery, manipulation and visualisation via Jupyter Notebooks providing users with an integrated development environment where to create their own applications on the Cloud.
 
-As an added value, CLEOPE offers a collection of pre-installed libraries and template notebooks supported by a [Python 3](https://www.python.org/) kernel to enhance the first-time user experience with the ONDA data offer. The CLEOPE Jupyter Notebooks provide an interactive way to guide users in performing a series of operations on the products hosted on ONDA, such as:
-	- operations like accessing and ordering data by using the ONDA APIs
-	- advanced operations like the production of new visual results based on the Copernicus products metadata extraction 
+As an added value, CLEOPE offers a collection of pre-installed libraries and template notebooks supported by a [Python 3](https://www.python.org/) kernel to enhance the first-time user experience with the ONDA data offer. <br>
+The CLEOPE Jupyter Notebooks provide an interactive way to guide users in performing a series of operations on the products hosted on ONDA, such as:
+- operations like accessing and ordering data by using the ONDA APIs
+- advanced operations like the production of new visual results based on the Copernicus products metadata extraction 
 
-👉 The CLEOPE Free service is available to all ONDA registered users upon request. [Register to the ONDA User Portal](https://onda-dias.eu/userportal/self-registration), [Contact Us](https://www.onda-dias.eu/cms/contact-us/) for activation and enjoy your experience **ON DA**ta!
+👉 The CLEOPE Free service is available to all ONDA registered users upon request. [Register to the ONDA User Portal](https://onda-dias.eu/userportal/self-registration) and [Contact Us](https://www.onda-dias.eu/cms/contact-us/) for activation to enjoy your experience **ON DA**ta!
 
 # Table of Contents
 1. [The Workspace](#workspace)
@@ -71,8 +72,8 @@ Users can call the Python built-in methods to show help on CLEOPE functions, via
 
 # About CLEOPE
 <a id="tech"></a>
-CLEOPE is deployed as [The Littlest Jupyter Hub - TLJH](http://tljh.jupyter.org/en/latest/index.html) on OVH Cloud infrastructure provided with [ENS-legacy](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) and [OData API](https://www.onda-dias.eu/cms/knowledge-base/odata-odata-open-data-protocol/) provided interfaces, allowing users to directly access and process ONDA EO products.<br>
-TLJH is configured with a **Python 3 kernel**, provided of an extensive Python environment aimed at EO data processing and data analysis with respect to any other default Jupyter environment, **without any local installation or additional configuration required**.
+CLEOPE is deployed as [The Littlest Jupyter Hub - TLJH](http://tljh.jupyter.org/en/latest/index.html) on OVH Cloud infrastructure provided with [ENS-legacy](https://www.onda-dias.eu/cms/knowledge-base/adapi-introduction/) and [OData API](https://www.onda-dias.eu/cms/knowledge-base/odata-odata-open-data-protocol/) interfaces, allowing users to directly access and process ONDA EO products.<br>
+TLJH is configured by default with a Python 3 kernel, provided with an extensive environment aimed at EO data manipulation and data analysis with respect to any other default Jupyter environment, **without any local installation or additional configuration required**.
 
 ## Resource limitations
 <a id="quotas"></a>
@@ -96,7 +97,8 @@ No other actions are allowed on the notebook in this case. Please note that shut
 | ------------- | ------ |-------------|
 |20 GB|2 GB|2|
 
-Please note that CLEOPE free account has a limited amount of resources available, thus some notebooks potentialities may be prevented. 👉 Upgrade to *CLEOPE Plus Service* and break out computational resources limitation for a better programming experience!
+Please note that CLEOPE free account has a limited amount of resources available, thus some notebooks potentialities may be prevented  👉 [see here](Trials/readme.md#notes). <br>
+Users can upgrade to *CLEOPE Plus Service* and break out computational resources limitation for a better programming experience!
 
 ### Available Resources under *Plus* subscription 
 <a id="resources2"></a>

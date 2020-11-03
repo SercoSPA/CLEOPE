@@ -208,8 +208,10 @@ Trial notebooks make the use of packages and modules that do not come as part of
 | SEARCH|`requests`|`ipyleaflet`|
 
 ## Note on CLEOPE _Free_ account
-CLEOPE *Free* account has a limited amount of resources available, thus some basic functionalities are prevented due to [resource limitations](../readme.md#resources1). <br>
-Find here below which notebooks are suited on your needs.
+<a id="notes"></a>
+
+CLEOPE *Free* account has a limited amount of resources available, thus some basic functionalities in the template notebooks are prevented due to [resource limitations](../readme.md#resources1). <br>
+Find here below the details.
 
 | | CLEOPE Free | CLEOPE Plus|
 | ------------- | ------ |-------------|
