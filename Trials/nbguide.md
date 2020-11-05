@@ -56,7 +56,7 @@ Within CLEOPE a dedicated ENS access point exposes products in their native form
 Alternatively to ENS, users can call the `download` function to perform a download of products via their own Jupyter Notebook. The function is written in the 📄`qm.py` script, which can be called anywhere in users own workspace as long as its path is imported:
 ````python
 import os, sys
-sys.path.append(os.path.join(os.path.expanduser("~"),"Trials/modules"))
+sys.path.append(os.path.join(os.path.expanduser("~"),"CLEOPE/Trials/modules"))
 import qm
 qm.download(product,"onda_username","onda_password")
 ````
@@ -65,7 +65,7 @@ Users need to specify their ONDA username and password and the product name they
 Similarly, users can download products recursively from a custom list given as input of the `download_list` function:
 ````python
 import os, sys
-sys.path.append(os.path.join(os.path.expanduser("~"),"Trials/modules"))
+sys.path.append(os.path.join(os.path.expanduser("~"),"CLEOPE/Trials/modules"))
 import qm
 qm.download_list("product_list.txt","onda_username","onda_pswd")
 ````
