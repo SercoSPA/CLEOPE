@@ -210,7 +210,7 @@ Trial notebooks make the use of packages and modules that do not come as part of
 ## Note on CLEOPE _Free_ account
 <a id="notes"></a>
 
-CLEOPE *Free* account has a limited amount of resources available, thus some basic functionalities in the template notebooks are prevented due to [resource limitations](../readme.md#resources1). <br>
+CLEOPE *Free* account has a limited amount of resources available, thus some basic functionalities in the template notebooks are prevented due to [resource limitations](../userguide.md#resources1). <br>
 Find here below the details.
 
 | | CLEOPE Free | CLEOPE Plus|
