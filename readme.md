@@ -34,4 +34,4 @@ This service provides additional computational capacity, allowing users to explo
 *Please note that using CLEOPE means that users have agreed to [ONDA Terms & Conditions](https://www.onda-dias.eu/cms/terms-and-conditions/).*
 
 ## License
-The content of this project itself is licensed under the GNU General Public License v3.0. 
+The content of this project itself is licensed under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html).
