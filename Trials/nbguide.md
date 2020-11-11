@@ -73,9 +73,9 @@ Also in this case the native file format of products in the list must be specifi
 
 ## ORDER trial notebook
 <a id="order"></a>
-This trial notebook provides the possibility to order an archived product via Jupyter. Archived products, in fact, are not available to ENS browsing nor to the download via 🌍ONDA Catalogue. <br>👉 [Read more on ONDA Catalogue](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-overview/).<br>
-Given the product name as input, `ORDER.ipynb` notebook orders the product via [OData HTTP POST protocol](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-via-odata-api/), suited to perform this kind of action. A progress bar is displayed for checking the time left; no worry if the action may take up a few minutes more to be completed as this includes the time needed to refresh ENS as well. <br>
-Please note that the product restoration is automatically performed if users try to call the `download` function on an archived product.
+This trial notebook provides the possibility to order an archived product via Jupyter. Archived products, in fact, are not available to ENS browsing nor to the download via [ONDA Catalogue](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-overview/).<br>
+Given the product name as input, the `ORDER.ipynb` notebook orders the product via the [OData API](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-via-odata-api/). A progress bar is displayed showing the time left, with a nominal timeout of 20 minutes. In some cases orders may take up more than 20 minutes to be completed, thus users can retry the order request later on. <br>
+Please note that the product restoration is automatically performed also if users try to call the `download` function on an archived product.
 
 ## SEARCH trial notebook
 <a id="search"></a>
