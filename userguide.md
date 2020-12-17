@@ -37,6 +37,16 @@ CLEOPE **public workspace** offers collection of template notebooks aimed at eas
 
 <img src="./Trials/media/use_case.PNG" alt="drawing" width="600"/>
 
+## Clone CLEOPE repository 
+
+Open your own Jupyter web terminal, navigate to your own home directory and clone our collection of template notebooks:
+
+````
+git clone https://github.com/SercoSPA/CLEOPE.git
+````
+
+Please be careful to clone it in the home directory or adapt the path into each notebook to find the local modules.
+
 ## OData API provided interface
 <a id="odata_api"></a>
 Via their own Jupyter notebooks users can easily download ONDA products, by specifying their ONDA `username` and `password` and the desired items. The download option is supported by the [OData API](https://www.onda-dias.eu/cms/knowledge-base/odata-odata-open-data-protocol/) protocol; this allows browsing the ONDA Catalogue and then selecting and downloading EO products. All the downloaded products are stored in the 📁`local_files` folder accessible within user own CLEOPE workspace, unzipped and ready to be used.

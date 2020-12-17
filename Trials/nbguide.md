@@ -73,9 +73,9 @@ Also in this case the native file format of products in the list must be specifi
 
 ## ORDER trial notebook
 <a id="order"></a>
-This trial notebook provides the possibility to order an archived product via Jupyter. Archived products, in fact, are not available to ENS browsing nor to the download via [ONDA Catalogue](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-overview/).<br>
-Given the product name as input, the `ORDER.ipynb` notebook orders the product via the [OData API](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-via-odata-api/). A progress bar is displayed showing the time left, with a nominal timeout of 20 minutes. In some cases orders may take up more than 20 minutes to be completed, thus users can retry the order request later on. <br>
-Please note that the product restoration is automatically performed also if users try to call the `download` function on an archived product.
+This trial notebook provides the possibility to order an archived product via Jupyter. Archived products, in fact, are not available to ENS browsing nor to the download via 🌍ONDA Catalogue. <br>👉 [Read more on ONDA Catalogue](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-overview/).<br>
+Given the product name as input, `ORDER.ipynb` notebook orders the product via [OData HTTP POST protocol](https://www.onda-dias.eu/cms/knowledge-base/cloudarchive-via-odata-api/), suited to perform this kind of action. A progress bar is displayed for checking the time left; no worry if the action may take up a few minutes more to be completed as this includes the time needed to refresh ENS as well. <br>
+Please note that the product restoration is automatically performed if users try to call the `download` function on an archived product.
 
 ## SEARCH trial notebook
 <a id="search"></a>
@@ -104,7 +104,9 @@ Sentinel-1 trial notebook is a useful introduction to Sentinel-1 data processing
 - the visualisation of the built-up area extended near Wuhan, where a new hospital has been built in 10 days during the COVID-19 emergency.
 - ships detection near Trieste (Italy) harbour.
 
-To this aim the S1 L1 Ground Range Detected (GRD) products with high resolution (H), with different sensing dates. Images are clipped over custom-selected coordinates and plot out on screen side-by-side, normalised over the backscattering coefficient color in order to allow users to easily detect changes in the images. <br>✏️ S1 dataframes are customisable according to users choices, as for the coordinates needed to clip data. In the default CLEOPE workspace the sample list of example products is provided, but some of these products could be *offline* and must be ordered first.
+To this aim the S1 L1 Ground Range Detected (GRD) products with high resolution (H), with different sensing dates. Images are clipped over custom-selected coordinates and plot out on screen side-by-side, normalised over the backscattering coefficient color in order to allow users to easily detect changes in the images. <br>
+_Please note that this demo is done using S1 data that is not pre-processed (e.g. calibration.)._<br>
+✏️ S1 dataframes are customisable according to users choices, as for the coordinates needed to clip data. In the default CLEOPE workspace the sample list of example products is provided, but some of these products could be *offline* and must be ordered first.
 
 ## S2 trial notebook
 <a id="s2"></a>
