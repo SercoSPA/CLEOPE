@@ -24,12 +24,12 @@ The current CLEOPE version supports Land, Water and Atmospheric monitoring appli
 The CLEOPE Free service is available to all ONDA registered users upon request.
 This service includes a basic configuration of the remote Earth observation data processing environment dedicated to the user, with a wide range of customization options. Because the computing resources used for the CLEOPE Free service have a limited computational capacity, only basic activities can be performed. Please read the [User Guide](userguide.md) for more information.
 
-👉 [Register](https://onda-dias.eu/userportal/self-registration) to the ONDA User Portal and [Contact Us](https://www.onda-dias.eu/cms/contact-us/) to activate CLEOPE Free
+👉 [Register](https://userportal.onda-dias.eu/userportal/self-registration) to the ONDA User Portal and [Contact Us](https://www.onda-dias.eu/cms/contact-us/) to activate CLEOPE Free
 
 The CLEOPE Plus service is available to all ONDA registered users for a monthly fee upon request.
 This service provides additional computational capacity, allowing users to exploit all CLEOPE functionalities. 
 
-👉 [Register](https://onda-dias.eu/userportal/self-registration) to the ONDA User Portal and [Contact Us](https://www.onda-dias.eu/cms/contact-us/) to activate CLEOPE Free
+👉 [Register](https://userportal.onda-dias.eu/userportal/self-registration) to the ONDA User Portal and [Contact Us](https://www.onda-dias.eu/cms/contact-us/) to activate CLEOPE Free
 
 *Please note that using CLEOPE means that users have agreed to [ONDA Terms & Conditions](https://www.onda-dias.eu/cms/terms-and-conditions/).*
 
